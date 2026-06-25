@@ -40,7 +40,6 @@ export default function Pricing() {
   return (
     <div className="container-x py-12 space-y-10">
       <header>
-        <div className="text-[12px] text-ink-3 mb-3"><Link to="/" className="hover:text-ink">Home</Link> <span className="mx-2 text-ink-3/40">/</span> Pricing</div>
         <h1 className="t-h1 text-balance max-w-3xl">Pay for the queue you actually run.</h1>
         <p className="t-body mt-3 max-w-2xl">Free to start. Local EFT and invoice billing. SMS credits stay pay-as-you-go so heavy users pay fairly.</p>
       </header>

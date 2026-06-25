@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, BadgeCheck, MapPin, Wallet } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -36,12 +36,6 @@ export default function RunnerSignup() {
 
   return (
     <section className="container-x py-12">
-      <div className="text-[12px] text-ink-3 mb-3">
-        <Link to="/" className="hover:text-ink">Home</Link>
-        <span className="mx-2 text-ink-3/40">/</span>
-        Runner signup
-      </div>
-
       <div className="grid lg:grid-cols-[1fr_420px] gap-8 items-start">
         <div className="pt-4">
           <div className="t-eyebrow mb-2">Verified queue assistant</div>

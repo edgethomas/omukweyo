@@ -35,7 +35,6 @@ export default function ForCompanies() {
     <div className="container-x py-12 space-y-12">
       <header className="grid lg:grid-cols-[1fr_500px] gap-8 items-center">
         <div>
-        <div className="text-[12px] text-ink-3 mb-3"><Link to="/" className="hover:text-ink">Home</Link> <span className="mx-2 text-ink-3/40">/</span> For companies</div>
         <h1 className="t-h1 text-balance max-w-3xl">Your queue should open as an admin console, not a brochure.</h1>
         <p className="t-body mt-3 max-w-2xl">Banks, clinics, salons, government offices, schools, restaurants, and service centers — Omukweyo replaces paper lists, ticket machines, and WhatsApp chaos with a fast, fair, auditable queue.</p>
         <div className="mt-5 flex flex-wrap gap-2">

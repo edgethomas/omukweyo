@@ -25,7 +25,6 @@ export default function ForCustomers() {
     <div className="container-x py-12 space-y-12">
       <header className="grid lg:grid-cols-[1fr_460px] gap-8 items-center">
         <div>
-          <div className="text-[12px] text-ink-3 mb-3"><Link to="/" className="hover:text-ink">Home</Link> <span className="mx-2 text-ink-3/40">/</span> For customers</div>
           <h1 className="t-h1 text-balance max-w-3xl">Join a queue, then get on with your day.</h1>
           <p className="t-body mt-3 max-w-2xl">Search a business, scan its QR, or reserve a future arrival window from your account.</p>
           <div className="mt-5 flex flex-wrap gap-2">

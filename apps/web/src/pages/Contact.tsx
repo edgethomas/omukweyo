@@ -5,7 +5,6 @@ import { MapPin, Mail, Phone, Clock } from 'lucide-react';
 export default function Contact() {
   return (
     <div className="container-x py-12">
-      <div className="text-[12px] text-ink-3 mb-3"><Link to="/" className="hover:text-ink">Home</Link> <span className="mx-2 text-ink-3/40">/</span> Contact</div>
       <h1 className="t-h1 text-balance max-w-3xl">Book a walkthrough. 30 minutes. Your queues.</h1>
       <p className="t-body mt-3 max-w-2xl">We'll do a live demo on your real branches, your real services, and your real customer flow. No slideware. No script. Free, no obligation.</p>
 

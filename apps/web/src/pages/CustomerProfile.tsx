@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Camera, LogOut, Trash2 } from 'lucide-react';
-import ConfirmDialog from '@/components/ConfirmDialog';
+import { Link, useNavigate } from 'react-router-dom';
+import { Camera, LogOut, Settings } from 'lucide-react';
 import CustomerProfileForm, { type CustomerProfileFormValues, type ReceiptPreference } from '@/features/customer/CustomerProfileForm';
 import { api } from '@/lib/api';
 
@@ -147,8 +146,7 @@ export default function CustomerProfile() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
   const dirty = !sameForm(form, savedForm);
   const summary = form.email.trim() || form.phone.trim() || 'Add contact details for receipts and SMS';
 
@@ -205,6 +203,7 @@ export default function CustomerProfile() {
         receiptPreference: nextForm.receiptPreference,
       });
       setNotice('Profile saved.');
+      setEditing(false);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -273,24 +272,6 @@ export default function CustomerProfile() {
     }
   };
 
-  const deleteAccount = async () => {
-    setDeleting(true);
-    setError(null);
-    setNotice(null);
-    try {
-      if (customerId) await api.deleteCustomer(customerId);
-      localStorage.removeItem(CUSTOMER_KEY);
-      localStorage.removeItem(LEGACY_CUSTOMER_KEY);
-      localStorage.removeItem(SESSION_KEY);
-      navigate('/login');
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setDeleting(false);
-      setConfirmDeleteOpen(false);
-    }
-  };
-
   return (
     <div className="space-y-5">
       <form onSubmit={submit} className="card p-6">
@@ -329,6 +310,10 @@ export default function CustomerProfile() {
             <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingAvatar || loading} className="btn btn-outline btn-md">
               {uploadingAvatar ? 'Uploading...' : 'Edit photo'}
             </button>
+            <Link to="/customer/settings" className="btn btn-outline btn-md">
+              <Settings size={14} />
+              Settings
+            </Link>
             <button type="button" onClick={signOut} className="btn btn-outline btn-md">
               <LogOut size={14} />
               Sign out
@@ -340,57 +325,62 @@ export default function CustomerProfile() {
         {error && <div className="mt-5 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">{error}</div>}
 
         <div className="mt-6">
-          <CustomerProfileForm values={form} onChange={setForm} disabled={loading || uploadingAvatar} />
+          <CustomerProfileForm
+            values={form}
+            onChange={setForm}
+            disabled={loading || uploadingAvatar}
+            readOnly={!editing}
+          />
         </div>
 
         <div className="mt-6 flex flex-col gap-3 border-t border-line pt-5 sm:flex-row sm:items-center sm:justify-end">
-          {dirty && (
+          {editing ? (
+            <>
+              <button
+                type="button"
+                onClick={() => {
+                  setForm(savedForm);
+                  setNotice(null);
+                  setError(null);
+                  setEditing(false);
+                }}
+                disabled={loading || uploadingAvatar}
+                className="btn btn-outline btn-md"
+              >
+                Cancel
+              </button>
+              <button type="submit" disabled={loading || uploadingAvatar} className="btn btn-primary btn-md">
+                {loading ? 'Saving...' : 'Save changes'}
+              </button>
+            </>
+          ) : (
             <button
               type="button"
               onClick={() => {
-                setForm(savedForm);
                 setNotice(null);
                 setError(null);
+                setEditing(true);
               }}
-              disabled={loading || uploadingAvatar}
-              className="btn btn-outline btn-md"
+              className="btn btn-primary btn-md"
             >
-              Cancel
+              Edit profile
             </button>
           )}
-          <button type="submit" disabled={loading || uploadingAvatar} className="btn btn-primary btn-md">
-            {loading ? 'Saving...' : 'Save changes'}
-          </button>
         </div>
       </form>
 
-      <section className="card border-red-200 p-5">
+      <section className="card p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-[15px] font-semibold text-ink">Danger zone</h2>
-            <p className="mt-1 max-w-2xl text-[13px] text-ink-2">Deletes your account, saved contact details, login session, and profile photo. Past tickets, reservations, and receipts stay as history records.</p>
+            <h2 className="text-[15px] font-semibold text-ink">Need more options?</h2>
+            <p className="mt-1 max-w-2xl text-[13px] text-ink-2">Change your password, payment method, notification preferences, or delete your account from Settings.</p>
           </div>
-          <button type="button" onClick={() => setConfirmDeleteOpen(true)} disabled={deleting} className="btn btn-danger btn-md">
-            <Trash2 size={14} />
-            {deleting ? 'Deleting...' : 'Delete account'}
-          </button>
+          <Link to="/customer/settings" className="btn btn-primary btn-md">
+            <Settings size={14} />
+            Open settings
+          </Link>
         </div>
       </section>
-
-      <ConfirmDialog
-        open={confirmDeleteOpen}
-        title="Delete customer account?"
-        confirmLabel="Delete account"
-        danger
-        pending={deleting}
-        onCancel={() => {
-          if (!deleting) setConfirmDeleteOpen(false);
-        }}
-        onConfirm={() => void deleteAccount()}
-      >
-        <p>Your customer account, saved contact details, login session, and profile photo will be deleted.</p>
-        <p className="mt-2">Completed tickets, reservations, payments, and receipts stay as historical records for the businesses that served you.</p>
-      </ConfirmDialog>
     </div>
   );
 }

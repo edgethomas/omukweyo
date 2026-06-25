@@ -56,12 +56,6 @@ export default function CustomerSignup() {
 
   return (
     <section className="container-x py-12">
-      <div className="text-[12px] text-ink-3 mb-3">
-        <Link to="/" className="hover:text-ink">Home</Link>
-        <span className="mx-2 text-ink-3/40">/</span>
-        Customer signup
-      </div>
-
       <div className="grid lg:grid-cols-[1fr_420px] gap-8 items-start">
         <div className="pt-4">
           <h1 className="t-h1 text-balance max-w-3xl">Create a customer account for time-critical queue reservations.</h1>
@@ -86,7 +80,6 @@ export default function CustomerSignup() {
 
         <form onSubmit={submit} className="card p-6 space-y-4">
           <div>
-            <div className="t-eyebrow mb-1">Customer account</div>
             <h2 className="text-[18px] font-semibold text-ink">Sign up as a customer</h2>
             <p className="text-[12px] text-ink-2 mt-1">This demo uses your phone for reservation and SMS updates.</p>
           </div>

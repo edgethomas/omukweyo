@@ -59,7 +59,7 @@ test('database launch path is documented with env, push, seed, and smoke verific
   const apiPackage = JSON.parse(read('apps/api/package.json'));
   const envExample = read('.env.example');
 
-  assert.match(envExample, /DATABASE_URL="mysql:\/\/USER:PASSWORD@localhost:3306\/omukweyo"/);
+  assert.match(envExample, /DATABASE_URL="mysql:\/\/USER:URL_ENCODED_PASSWORD@localhost:3306\/omukweyo"/);
   assert.equal(apiPackage.scripts['db:push'], 'prisma db push --schema prisma/schema.prisma');
   assert.equal(apiPackage.scripts['db:seed'], 'tsx prisma/seed.ts');
   assert.equal(rootPackage.scripts['db:push'], 'npm --workspace apps/api run db:push');

@@ -1,0 +1,479 @@
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  ArrowRight,
+  Bell,
+  CreditCard,
+  KeyRound,
+  Mail,
+  Phone,
+  Shield,
+  Smartphone,
+  Trash2,
+  X,
+} from 'lucide-react';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import { api } from '@/lib/api';
+import type { ReceiptPreference } from '@/features/customer/CustomerProfileForm';
+
+const CUSTOMER_KEY = 'omukweyo_customer';
+const LEGACY_CUSTOMER_KEY = 'inline_customer';
+const SESSION_KEY = 'omukweyo_session';
+
+type StoredCustomer = {
+  id?: string;
+  name?: string;
+  phone?: string;
+  email?: string;
+  smsConsent?: boolean;
+  receiptPreference?: ReceiptPreference;
+  defaultPaymentMethod?: 'MOCK_CARD' | 'MOCK_EFT' | 'MOCK_WALLET';
+};
+
+type StoredSession = {
+  token?: string;
+  user?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    customerId?: string;
+  };
+};
+
+function readJson<T>(key: string): T | null {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function loadCustomer(): StoredCustomer {
+  const stored = readJson<StoredCustomer>(CUSTOMER_KEY) ?? readJson<StoredCustomer>(LEGACY_CUSTOMER_KEY);
+  const session = readJson<StoredSession>(SESSION_KEY);
+  const user = session?.user;
+  return {
+    id: stored?.id ?? user?.customerId,
+    name: stored?.name ?? user?.name,
+    phone: stored?.phone ?? user?.phone,
+    email: stored?.email ?? user?.email,
+    smsConsent: stored?.smsConsent ?? true,
+    receiptPreference: stored?.receiptPreference ?? (user?.email ? 'email' : 'sms'),
+    defaultPaymentMethod: stored?.defaultPaymentMethod ?? 'MOCK_CARD',
+  };
+}
+
+function saveCustomer(customer: StoredCustomer) {
+  const next = {
+    id: customer.id,
+    name: customer.name,
+    phone: customer.phone,
+    email: customer.email,
+    smsConsent: customer.smsConsent,
+    receiptPreference: customer.receiptPreference,
+    defaultPaymentMethod: customer.defaultPaymentMethod,
+  };
+  localStorage.setItem(CUSTOMER_KEY, JSON.stringify(next));
+  localStorage.setItem(LEGACY_CUSTOMER_KEY, JSON.stringify(next));
+  const session = readJson<StoredSession>(SESSION_KEY);
+  if (session?.user) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify({
+      ...session,
+      user: {
+        ...session.user,
+        customerId: next.id ?? session.user.customerId,
+        name: next.name ?? session.user.name,
+        phone: next.phone ?? session.user.phone,
+        email: next.email ?? session.user.email,
+      },
+    }));
+    window.dispatchEvent(new Event('omukweyo:profile-updated'));
+  }
+}
+
+type Notice = { kind: 'success' | 'error'; text: string } | null;
+
+export default function CustomerSettings() {
+  const navigate = useNavigate();
+  const initial = useMemo(() => loadCustomer(), []);
+  const [customer, setCustomer] = useState<StoredCustomer>(initial);
+  const [savingPref, setSavingPref] = useState(false);
+  const [notice, setNotice] = useState<Notice>(null);
+
+  // Password change
+  const [currentPw, setCurrentPw] = useState('');
+  const [newPw, setNewPw] = useState('');
+  const [confirmPw, setConfirmPw] = useState('');
+  const [pwBusy, setPwBusy] = useState(false);
+  const [showChangePw, setShowChangePw] = useState(false);
+
+  // Forgot password
+  const [forgotSent, setForgotSent] = useState(false);
+  const [forgotBusy, setForgotBusy] = useState(false);
+
+  // 2FA
+  const [twoFactor, setTwoFactor] = useState(false);
+
+  // Delete
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    setNotice(null);
+  }, []);
+
+  const updatePref = async <Key extends keyof StoredCustomer>(key: Key, value: StoredCustomer[Key]) => {
+    const next = { ...customer, [key]: value };
+    setCustomer(next);
+    setSavingPref(true);
+    setNotice(null);
+    try {
+      saveCustomer(next);
+      setNotice({ kind: 'success', text: 'Preference saved.' });
+    } catch (err: any) {
+      setNotice({ kind: 'error', text: err?.message ?? 'Could not save preference.' });
+    } finally {
+      setSavingPref(false);
+    }
+  };
+
+  const submitPassword = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (newPw !== confirmPw) {
+      setNotice({ kind: 'error', text: 'New password and confirmation do not match.' });
+      return;
+    }
+    if (newPw.length < 6) {
+      setNotice({ kind: 'error', text: 'New password must be at least 6 characters.' });
+      return;
+    }
+    setPwBusy(true);
+    setNotice(null);
+    try {
+      const res = await api.changePassword(currentPw, newPw);
+      setNotice({ kind: 'success', text: res.message ?? 'Password updated.' });
+      setCurrentPw('');
+      setNewPw('');
+      setConfirmPw('');
+      setShowChangePw(false);
+    } catch (err: any) {
+      setNotice({ kind: 'error', text: err?.message ?? 'Could not change password.' });
+    } finally {
+      setPwBusy(false);
+    }
+  };
+
+  const cancelChangePw = () => {
+    setCurrentPw('');
+    setNewPw('');
+    setConfirmPw('');
+    setShowChangePw(false);
+    setNotice(null);
+  };
+
+  const submitForgot = async () => {
+    if (!customer.email) {
+      setNotice({ kind: 'error', text: 'Add an email to your profile first, then request a reset.' });
+      return;
+    }
+    setForgotBusy(true);
+    setNotice(null);
+    try {
+      const res = await api.forgotPassword(customer.email);
+      setNotice({ kind: 'success', text: res.message });
+      setForgotSent(true);
+    } catch (err: any) {
+      setNotice({ kind: 'error', text: err?.message ?? 'Could not send reset email.' });
+    } finally {
+      setForgotBusy(false);
+    }
+  };
+
+  const deleteAccount = async () => {
+    setDeleting(true);
+    setNotice(null);
+    try {
+      if (customer.id) await api.deleteCustomer(customer.id);
+      localStorage.removeItem(CUSTOMER_KEY);
+      localStorage.removeItem(LEGACY_CUSTOMER_KEY);
+      localStorage.removeItem(SESSION_KEY);
+      navigate('/login');
+    } catch (err: any) {
+      setNotice({ kind: 'error', text: err?.message ?? 'Could not delete account.' });
+      setDeleting(false);
+      setConfirmDeleteOpen(false);
+    }
+  };
+
+  return (
+    <div className="max-w-3xl mx-auto space-y-4">
+      {notice && (
+        <div className={`rounded-md border px-3 py-2 text-[12px] ${notice.kind === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
+          {notice.text}
+        </div>
+      )}
+
+      {/* Account access */}
+      <section className="card p-0 overflow-hidden">
+        <div className="px-4 py-3 border-b border-line flex items-center gap-3">
+          <span className="grid h-8 w-8 place-items-center rounded-md bg-blue-50 text-accent shrink-0">
+            <Shield size={15} />
+          </span>
+          <div className="min-w-0">
+            <h2 className="text-[14px] font-semibold text-ink leading-tight">Account access</h2>
+            <p className="text-[11px] text-ink-2 mt-0.5">Password, sign-in protection, and recovery.</p>
+          </div>
+        </div>
+
+        <div className="divide-y divide-line">
+          {showChangePw ? (
+            <form onSubmit={submitPassword} className="px-4 py-4 space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-[12px] font-medium text-ink">
+                  <KeyRound size={13} className="text-accent" />
+                  Change password
+                </div>
+                <button type="button" onClick={cancelChangePw} className="text-[11px] text-ink-3 hover:text-ink inline-flex items-center gap-1">
+                  <X size={12} /> Cancel
+                </button>
+              </div>
+              <div className="grid sm:grid-cols-3 gap-2">
+                <label className="block">
+                  <span className="label">Current</span>
+                  <input type="password" className="input" value={currentPw} onChange={(e) => setCurrentPw(e.target.value)} autoComplete="current-password" required />
+                </label>
+                <label className="block">
+                  <span className="label">New password</span>
+                  <input type="password" className="input" value={newPw} onChange={(e) => setNewPw(e.target.value)} autoComplete="new-password" minLength={6} required />
+                </label>
+                <label className="block">
+                  <span className="label">Confirm</span>
+                  <input type="password" className="input" value={confirmPw} onChange={(e) => setConfirmPw(e.target.value)} autoComplete="new-password" minLength={6} required />
+                </label>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <button type="submit" disabled={pwBusy} className="btn btn-primary btn-sm">
+                  {pwBusy ? 'Updating...' : 'Update password'}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="px-4 py-3.5 flex items-center justify-between gap-3">
+              <div className="min-w-0 flex items-center gap-3">
+                <KeyRound size={14} className="text-accent shrink-0" />
+                <div>
+                  <div className="text-[13px] font-medium text-ink">Password</div>
+                  <p className="text-[11px] text-ink-2 mt-0.5">Update the password you use to sign in.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button type="button" onClick={submitForgot} disabled={forgotBusy || forgotSent} className="btn btn-ghost btn-sm">
+                  <Mail size={12} />
+                  {forgotSent ? 'Reset sent' : forgotBusy ? 'Sending...' : 'Email reset link'}
+                </button>
+                <button type="button" onClick={() => setShowChangePw(true)} className="btn btn-outline btn-sm">
+                  Change password
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="px-4 py-3.5 flex items-center justify-between gap-4">
+            <div className="min-w-0 flex items-start gap-2">
+              <Smartphone size={14} className="text-accent mt-0.5 shrink-0" />
+              <div>
+                <div className="text-[13px] font-medium text-ink">Two-factor authentication</div>
+                <p className="text-[11px] text-ink-2 mt-0.5">Require a one-time code from your phone at sign-in.</p>
+              </div>
+            </div>
+            <label className="inline-flex items-center gap-2 cursor-pointer shrink-0">
+              <span className="text-[11px] text-ink-2 w-7 text-right">{twoFactor ? 'On' : 'Off'}</span>
+              <input
+                type="checkbox"
+                checked={twoFactor}
+                onChange={(e) => {
+                  setTwoFactor(e.target.checked);
+                  setNotice({ kind: 'success', text: e.target.checked ? 'Two-factor enabled (local simulation).' : 'Two-factor disabled.' });
+                }}
+                className="h-4 w-4 accent-[var(--accent)]"
+              />
+            </label>
+          </div>
+        </div>
+      </section>
+
+      {/* Billing */}
+      <section className="card p-0 overflow-hidden">
+        <div className="px-4 py-3 border-b border-line flex items-center gap-3">
+          <span className="grid h-8 w-8 place-items-center rounded-md bg-blue-50 text-accent shrink-0">
+            <CreditCard size={15} />
+          </span>
+          <div className="min-w-0">
+            <h2 className="text-[14px] font-semibold text-ink leading-tight">Billing</h2>
+            <p className="text-[11px] text-ink-2 mt-0.5">Default payment method and how receipts are delivered.</p>
+          </div>
+        </div>
+
+        <div className="divide-y divide-line">
+          <div className="px-4 py-4">
+            <div className="text-[11px] text-ink-2 mb-2">Default payment method</div>
+            <div className="grid sm:grid-cols-3 gap-2">
+              {([
+                { id: 'MOCK_CARD', label: 'Card', sub: 'Visa, Mastercard' },
+                { id: 'MOCK_EFT', label: 'EFT', sub: 'Bank transfer' },
+                { id: 'MOCK_WALLET', label: 'Mobile wallet', sub: 'MTC, Paratus' },
+              ] as const).map((option) => {
+                const active = customer.defaultPaymentMethod === option.id;
+                return (
+                  <label
+                    key={option.id}
+                    className={`flex items-start gap-2.5 rounded-md border px-3 py-2.5 cursor-pointer transition-colors ${active ? 'border-accent bg-blue-50' : 'border-line bg-surface hover:bg-surface-2'}`}
+                  >
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      className="mt-0.5 accent-[var(--accent)]"
+                      checked={active}
+                      onChange={() => updatePref('defaultPaymentMethod', option.id)}
+                    />
+                    <span className="min-w-0">
+                      <span className="block text-[12px] font-medium text-ink truncate">{option.label}</span>
+                      <span className="block text-[10px] text-ink-3 truncate">{option.sub}</span>
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="px-4 py-3.5">
+            <div className="text-[11px] text-ink-2 mb-2">Receipt preference</div>
+            <div className="inline-flex rounded-md border border-line bg-surface p-0.5">
+              {(['email', 'sms'] as const).map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => updatePref('receiptPreference', option)}
+                  className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-[12px] font-medium transition-colors ${customer.receiptPreference === option ? 'bg-white text-ink shadow-sm' : 'text-ink-2 hover:text-ink'}`}
+                >
+                  {option === 'email' ? <Mail size={12} /> : <Phone size={12} />}
+                  {option === 'email' ? 'Email' : 'SMS'}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Notifications */}
+      <section className="card p-0 overflow-hidden">
+        <div className="px-4 py-3 border-b border-line flex items-center gap-3">
+          <span className="grid h-8 w-8 place-items-center rounded-md bg-blue-50 text-accent shrink-0">
+            <Bell size={15} />
+          </span>
+          <div className="min-w-0">
+            <h2 className="text-[14px] font-semibold text-ink leading-tight">Notifications</h2>
+            <p className="text-[11px] text-ink-2 mt-0.5">SMS and email reminders for queue activity.</p>
+          </div>
+        </div>
+
+        <div className="px-4 py-3.5 flex items-center justify-between gap-4">
+          <div className="min-w-0 flex items-start gap-2">
+            <Phone size={14} className="text-accent mt-0.5 shrink-0" />
+            <div>
+              <div className="text-[13px] font-medium text-ink">SMS consent</div>
+              <p className="text-[11px] text-ink-2 mt-0.5">Queue calls, almost-turn alerts, and reservation reminders.</p>
+            </div>
+          </div>
+          <label className="inline-flex items-center gap-2 cursor-pointer shrink-0">
+            <span className="text-[11px] text-ink-2 w-7 text-right">{customer.smsConsent ? 'On' : 'Off'}</span>
+            <input
+              type="checkbox"
+              checked={customer.smsConsent}
+              onChange={(e) => updatePref('smsConsent', e.target.checked)}
+              className="h-4 w-4 accent-[var(--accent)]"
+            />
+          </label>
+        </div>
+      </section>
+
+      {/* Connected accounts */}
+      <section className="card p-0 overflow-hidden">
+        <div className="px-4 py-3 border-b border-line flex items-center gap-3">
+          <span className="grid h-8 w-8 place-items-center rounded-md bg-blue-50 text-accent shrink-0">
+            <KeyRound size={15} />
+          </span>
+          <div className="min-w-0">
+            <h2 className="text-[14px] font-semibold text-ink leading-tight">Connected accounts</h2>
+            <p className="text-[11px] text-ink-2 mt-0.5">The phone and email Omukweyo uses to reach you.</p>
+          </div>
+        </div>
+        <div className="divide-y divide-line">
+          <div className="px-4 py-3 flex items-center justify-between gap-3">
+            <div className="min-w-0 flex items-center gap-3">
+              <Phone size={14} className="text-accent shrink-0" />
+              <div className="min-w-0">
+                <div className="text-[10px] uppercase tracking-wide text-ink-3">Phone</div>
+                <div className="font-mono text-[13px] text-ink truncate">{customer.phone || 'Not set'}</div>
+              </div>
+            </div>
+            <Link to="/customer/profile" className="btn btn-outline btn-sm shrink-0">
+              Edit <ArrowRight size={12} />
+            </Link>
+          </div>
+          <div className="px-4 py-3 flex items-center justify-between gap-3">
+            <div className="min-w-0 flex items-center gap-3">
+              <Mail size={14} className="text-accent shrink-0" />
+              <div className="min-w-0">
+                <div className="text-[10px] uppercase tracking-wide text-ink-3">Email</div>
+                <div className="text-[13px] text-ink truncate">{customer.email || 'Not set'}</div>
+              </div>
+            </div>
+            <Link to="/customer/profile" className="btn btn-outline btn-sm shrink-0">
+              Edit <ArrowRight size={12} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Danger zone */}
+      <section className="card border-red-200 p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <span className="grid h-8 w-8 place-items-center rounded-md bg-red-50 text-red-600 shrink-0">
+              <Trash2 size={15} />
+            </span>
+            <div>
+              <h2 className="text-[14px] font-semibold text-ink">Delete account</h2>
+              <p className="mt-0.5 text-[12px] text-ink-2 max-w-md">
+                Removes your account, contact details, session, and photo. Past tickets and receipts stay as history.
+              </p>
+            </div>
+          </div>
+          <button type="button" onClick={() => setConfirmDeleteOpen(true)} disabled={deleting} className="btn btn-danger btn-sm shrink-0">
+            <Trash2 size={13} />
+            {deleting ? 'Deleting...' : 'Delete account'}
+          </button>
+        </div>
+      </section>
+
+      <ConfirmDialog
+        open={confirmDeleteOpen}
+        title="Delete customer account?"
+        confirmLabel="Delete account"
+        danger
+        pending={deleting}
+        onCancel={() => {
+          if (!deleting) setConfirmDeleteOpen(false);
+        }}
+        onConfirm={() => void deleteAccount()}
+      >
+        <p>Your customer account, saved contact details, login session, and profile photo will be deleted.</p>
+        <p className="mt-2">Completed tickets, reservations, payments, and receipts stay as historical records for the businesses that served you.</p>
+      </ConfirmDialog>
+
+      {savingPref && <div className="text-center text-[11px] text-ink-3">Saving...</div>}
+    </div>
+  );
+}

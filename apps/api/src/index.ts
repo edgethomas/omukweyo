@@ -1,8 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import http from 'http';
-import { mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import multer from 'multer';
 import { Server as IOServer } from 'socket.io';
 import {
@@ -14,18 +15,24 @@ import {
   createBusinessOnboarding,
   createReservation,
   createRunnerApplication,
+  createRunnerRequest,
+  setRunnerApplicationStatus,
   createTicket,
+  ensureDestinationSeeded,
   getBranchBySlug,
   getCompanyBundle,
+  getCustomerHistory,
   getDashboard,
   getDemoUserByToken,
   getPlatformOverview,
   getReservation,
+  getRunnerRequest,
   getSocketInitialEvents,
   getTicket,
   getWidgetConfig,
   listBusinessDirectory,
   listCustomerReservations,
+  listCustomerRunnerRequests,
   listLiveTickets,
   listRunnerJobs,
   logSms,
@@ -36,6 +43,7 @@ import {
   recordCompanyAsset,
   runnerCheckIn,
   runnerProofUpdate,
+  searchDestinations,
   sendTicketSms,
   transferTicket,
   updateBusinessProfile,
@@ -52,6 +60,7 @@ import {
   CallNextBody,
   CompanySlug,
   CreateReservationBody,
+  CreateRunnerRequestBody,
   CustomerSignupBody,
   JoinQueueBody,
   LoginBody,
@@ -72,7 +81,9 @@ const PORT = Number(process.env.PORT ?? 4000);
 const WEB_ORIGIN = process.env.WEB_ORIGIN ?? 'http://localhost:5173';
 const UPLOAD_BASE_URL = process.env.UPLOAD_BASE_URL ?? `http://localhost:${PORT}/uploads`;
 
-const uploadRoot = path.resolve(process.cwd(), 'uploads');
+const apiRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const uploadRoot = process.env.UPLOAD_DIR ? path.resolve(process.env.UPLOAD_DIR) : path.join(apiRoot, 'uploads');
+const webDistRoot = process.env.WEB_DIST_DIR ? path.resolve(process.env.WEB_DIST_DIR) : path.resolve(apiRoot, '../web/dist');
 mkdirSync(uploadRoot, { recursive: true });
 
 const upload = multer({
@@ -241,6 +252,19 @@ app.post('/api/auth/logout', asyncRoute(async (req, res) => {
 
 app.post('/api/auth/forgot-password', asyncRoute(async (_req, res) => {
   res.json({ ok: true, mode: 'LOCAL_PRESENTATION', message: 'Password reset email is simulated in this local build.' });
+}));
+
+app.post('/api/auth/change-password', asyncRoute(async (req, res) => {
+  const body = (req.body ?? {}) as { currentPassword?: string; newPassword?: string };
+  if (!body.currentPassword || !body.newPassword) {
+    res.status(400).json({ error: 'invalid_input', message: 'Current and new password are both required.' });
+    return;
+  }
+  if (String(body.newPassword).length < 6) {
+    res.status(400).json({ error: 'weak_password', message: 'New password must be at least 6 characters.' });
+    return;
+  }
+  res.json({ ok: true, mode: 'LOCAL_PRESENTATION', message: 'Password updated (local simulation).' });
 }));
 
 app.post('/api/auth/verify-phone', asyncRoute(async (_req, res) => {
@@ -505,6 +529,15 @@ app.get('/api/customers/:id/visit', asyncRoute(async (req, res) => {
   }
 }));
 
+app.get('/api/customers/:id/history', asyncRoute(async (req, res) => {
+  await requireCustomerAccess(req, req.params.id);
+  try {
+    res.json(await getCustomerHistory(req.params.id));
+  } catch (error: any) {
+    res.status(404).json({ error: 'not_found', message: error?.message ?? 'Customer not found' });
+  }
+}));
+
 app.post('/api/reservations', asyncRoute(async (req, res) => {
   const parsed = CreateReservationBody.safeParse(req.body);
   if (!parsed.success) return void res.status(400).json({ error: 'bad_request', message: 'Invalid reservation payload', details: parsed.error.flatten() });
@@ -581,6 +614,64 @@ app.post('/api/runners/apply', asyncRoute(async (req, res) => {
     notes: parsed.data.notes || undefined,
   });
   res.status(201).json({ application });
+}));
+
+app.post('/api/runners/applications/:id/status', asyncRoute(async (req, res) => {
+  const status = String(req.body?.status ?? '').toUpperCase();
+  if (status !== 'PENDING' && status !== 'APPROVED' && status !== 'REJECTED') {
+    return void res.status(400).json({ error: 'invalid_status', message: 'Status must be PENDING, APPROVED, or REJECTED.' });
+  }
+  try {
+    const application = await setRunnerApplicationStatus(req.params.id, status);
+    res.json({ application });
+  } catch (err: any) {
+    res.status(404).json({ error: 'not_found', message: err?.message ?? 'Runner application not found.' });
+  }
+}));
+
+app.post('/api/runner-requests', asyncRoute(async (req, res) => {
+  const user = await currentUser(req);
+  const parsed = CreateRunnerRequestBody.safeParse(req.body);
+  if (!parsed.success) return void res.status(400).json({ error: 'bad_request', message: 'Invalid runner request', details: parsed.error.flatten() });
+  try {
+    const request = await createRunnerRequest({
+      customerId: parsed.data.customerId ?? user?.customerId,
+      customerName: parsed.data.customerName,
+      customerPhone: parsed.data.customerPhone,
+      destinationName: parsed.data.destinationName,
+      destinationCity: parsed.data.destinationCity,
+      destinationSource: parsed.data.destinationSource ?? 'MANUAL',
+      serviceName: parsed.data.serviceName,
+      targetArrivalAt: parsed.data.targetArrivalAt,
+      maxBudgetCents: parsed.data.maxBudgetCents,
+      instructions: parsed.data.instructions,
+    });
+    res.status(201).json({ request });
+  } catch (error: any) {
+    res.status(400).json({ error: 'request_failed', message: error?.message ?? 'Failed to create runner request' });
+  }
+}));
+
+app.get('/api/runner-requests/:id', asyncRoute(async (req, res) => {
+  const request = await getRunnerRequest(req.params.id);
+  if (!request) return void res.status(404).json({ error: 'not_found' });
+  res.json({ request });
+}));
+
+app.get('/api/customers/:id/runner-requests', asyncRoute(async (req, res) => {
+  await requireCustomerAccess(req, req.params.id);
+  res.json({ requests: await listCustomerRunnerRequests(req.params.id) });
+}));
+
+app.get('/api/destinations/search', asyncRoute(async (req, res) => {
+  await ensureDestinationSeeded();
+  const q = typeof req.query.q === 'string' ? req.query.q : '';
+  const city = typeof req.query.city === 'string' ? req.query.city : undefined;
+  const results = await searchDestinations(q, city);
+  res.json({
+    results,
+    source: process.env.GOOGLE_PLACES_API_KEY ? 'GOOGLE_PLACES' : 'LOCAL_SEED',
+  });
 }));
 
 app.get('/api/runners/jobs', asyncRoute(async (req, res) => {
@@ -773,26 +864,40 @@ app.get('/api/admin/overview', asyncRoute(async (req, res) => {
 
 // ---------- root + socket ----------
 
-app.get('/', (_req, res) => {
-  res.json({
-    name: 'Omukweyo API',
-    version: '1.0.0',
-    storage: 'Prisma + MySQL',
-    endpoints: [
-      'GET  /api/health',
-      'POST /api/auth/login',
-      'GET  /api/company/:slug',
-      'GET  /api/businesses?q=...',
-      'POST /api/business/onboard',
-      'PATCH /api/business/profile',
-      'POST /api/business/assets',
-      'GET  /api/business/widget',
-      'POST /api/queue/join',
-      'POST /api/reservations',
-      'GET  /api/dashboard',
-    ],
-  });
+const apiInfo = {
+  name: 'Omukweyo API',
+  version: '1.0.0',
+  storage: 'Prisma + MySQL',
+  endpoints: [
+    'GET  /api/health',
+    'POST /api/auth/login',
+    'GET  /api/company/:slug',
+    'GET  /api/businesses?q=...',
+    'POST /api/business/onboard',
+    'PATCH /api/business/profile',
+    'POST /api/business/assets',
+    'GET  /api/business/widget',
+    'POST /api/queue/join',
+    'POST /api/reservations',
+    'GET  /api/dashboard',
+  ],
+};
+
+app.get('/api', (_req, res) => {
+  res.json(apiInfo);
 });
+
+if (existsSync(path.join(webDistRoot, 'index.html'))) {
+  app.use(express.static(webDistRoot));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads') || req.path.startsWith('/socket.io')) return next();
+    res.sendFile(path.join(webDistRoot, 'index.html'));
+  });
+} else {
+  app.get('/', (_req, res) => {
+    res.json(apiInfo);
+  });
+}
 
 io.on('connection', async (socket) => {
   try {

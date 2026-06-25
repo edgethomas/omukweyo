@@ -99,8 +99,13 @@ export const api = {
   },
   deleteCustomer: (customerId: string) =>
     request<{ deleted: boolean; customer: any }>(`/customers/${customerId}`, { method: 'DELETE' }),
+  forgotPassword: (email: string) =>
+    request<{ ok: boolean; mode: string; message: string }>(`/auth/forgot-password`, { method: 'POST', body: JSON.stringify({ email }) }),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    request<{ ok: boolean; mode?: string; message?: string }>(`/auth/change-password`, { method: 'POST', body: JSON.stringify({ currentPassword, newPassword }) }),
   customerReservations: (customerId: string) => request<{ customer: any; reservations: any[] }>(`/customers/${customerId}/reservations`),
   customerVisit: (customerId: string) => request<{ customer: any; reservations: any[]; currentTicket?: any; notifications: any[] }>(`/customers/${customerId}/visit`),
+  customerHistory: (customerId: string) => request<{ customer: any; tickets: any[]; reservations: any[] }>(`/customers/${customerId}/history`),
   createReservation: (body: {
     customerId?: string;
     customerName: string;
@@ -124,6 +129,8 @@ export const api = {
     canStartAt: string;
     notes?: string;
   }) => request<{ application: any }>(`/runners/apply`, { method: 'POST', body: JSON.stringify(body) }),
+  setRunnerApplicationStatus: (id: string, status: 'PENDING' | 'APPROVED' | 'REJECTED') =>
+    request<{ application: any }>(`/runners/applications/${id}/status`, { method: 'POST', body: JSON.stringify({ status }) }),
   runnerJobs: () => request<{ jobs: any[] }>(`/runners/jobs`),
   runnerAcceptJob: (id: string, runnerName?: string) =>
     request<{ job: any; jobs: any[] }>(`/runners/jobs/${id}/accept`, { method: 'POST', body: JSON.stringify({ runnerName }) }),
@@ -133,6 +140,20 @@ export const api = {
     request<{ job: any; notification: any; jobs: any[] }>(`/runners/jobs/${id}/proof`, { method: 'POST', body: JSON.stringify({ message }) }),
   runnerComplete: (id: string) =>
     request<{ job: any; notification: any; jobs: any[] }>(`/runners/jobs/${id}/complete`, { method: 'POST' }),
+  runnerRequest: (body: {
+    customerName: string;
+    customerPhone: string;
+    destinationName: string;
+    destinationCity: string;
+    destinationSource?: string;
+    serviceName: string;
+    targetArrivalAt: string;
+    maxBudgetCents: number;
+    instructions: string;
+  }) => request<{ request: any }>(`/runner-requests`, { method: 'POST', body: JSON.stringify(body) }),
+  runnerRequestById: (id: string) => request<{ request: any }>(`/runner-requests/${id}`),
+  customerRunnerRequests: (customerId: string) => request<{ requests: any[] }>(`/customers/${customerId}/runner-requests`),
+  searchDestinations: (q: string, city?: string) => request<{ results: any[]; source: string }>(`/destinations/search?q=${encodeURIComponent(q)}${city ? `&city=${encodeURIComponent(city)}` : ''}`),
   adminOverview: () => request<any>(`/admin/overview`),
   getTicket: (id: string) => request<{ ticket: any }>(`/ticket/${id}`),
   cancelTicket: (id: string) => request<{ ticket: any }>(`/ticket/${id}/cancel`, { method: 'POST' }),

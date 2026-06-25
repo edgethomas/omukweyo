@@ -69,14 +69,8 @@ function navIsActive(pathname: string, target: string) {
 
 export default function CustomerShell({
   children,
-  title,
-  subtitle,
-  actions,
 }: {
   children: ReactNode;
-  title: string;
-  subtitle?: string;
-  actions?: ReactNode;
 }) {
   const loc = useLocation();
   const [sessionVersion, setSessionVersion] = useState(0);
@@ -89,7 +83,7 @@ export default function CustomerShell({
   };
   const avatarUrl = customer.avatarUrl ?? session?.user?.avatarUrl;
   const homePath = session?.user?.destination ?? '/customer';
-  const accountActive = loc.pathname === '/customer/profile' || loc.pathname === '/customer/history';
+  const accountActive = loc.pathname.startsWith('/customer/profile') || loc.pathname.startsWith('/customer/settings') || loc.pathname.startsWith('/customer/history');
 
   useEffect(() => {
     const refreshSession = () => setSessionVersion((version) => version + 1);
@@ -128,16 +122,6 @@ export default function CustomerShell({
 
       <main className="customer-main">
         <div className="container-x py-5 pb-24 md:py-7 md:pb-8">
-          <section className="customer-hero-panel">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div className="min-w-0">
-                <h1 className="mt-1 text-xl font-semibold tracking-tight text-ink md:text-2xl">{title}</h1>
-                {subtitle && <p className="mt-1 max-w-2xl text-[13px] text-ink-2 md:text-sm">{subtitle}</p>}
-              </div>
-              {actions && <div className="flex shrink-0 flex-wrap gap-2">{actions}</div>}
-            </div>
-          </section>
-
           <div className="customer-content">{children}</div>
         </div>
       </main>

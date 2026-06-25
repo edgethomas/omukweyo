@@ -5,7 +5,6 @@ import {
   Bell,
   CalendarClock,
   CheckCircle2,
-  Clock3,
   MapPin,
   MessageSquare,
   Search,
@@ -13,7 +12,7 @@ import {
   UserPlus,
 } from 'lucide-react';
 import { api } from '@/lib/api';
-import { cn, formatTime, relativeTime } from '@/lib/utils';
+import { formatTime, relativeTime } from '@/lib/utils';
 
 const CUSTOMER_KEY = 'omukweyo_customer';
 const LEGACY_CUSTOMER_KEY = 'inline_customer';
@@ -166,9 +165,6 @@ export default function CustomerHome() {
                   Track live ticket <Ticket size={14} />
                 </Link>
               )}
-              <Link to="/businesses" className="btn btn-outline btn-md">
-                Find queue <Search size={14} />
-              </Link>
             </div>
           </div>
 
@@ -178,6 +174,12 @@ export default function CustomerHome() {
             <VisitMetric label="Estimated wait" value={currentTicket ? `${currentTicket.estimatedWaitMinutes}m` : '-'} />
             <VisitMetric label="Status" value={currentTicket?.status ?? 'READY'} />
           </div>
+
+          {currentTicket && (
+            <p className="mt-4 text-[12px] text-ink-3">
+              Joined {relativeTime(currentTicket.joinedAt)} · Counter {currentTicket.counter ?? 'Waiting'} · Source {currentTicket.source.replaceAll('_', ' ')}
+            </p>
+          )}
         </div>
 
         <aside className="card p-5">
@@ -199,74 +201,6 @@ export default function CustomerHome() {
       </section>
 
       {loading && <div className="card p-5 text-[13px] text-ink-3">Refreshing visit status...</div>}
-
-      <div className="grid lg:grid-cols-3 gap-5">
-        <section className="lg:col-span-2 card p-0 overflow-hidden">
-          <div className="px-5 py-4 border-b border-line flex items-center justify-between">
-            <div>
-              <h3 className="text-[14px] font-semibold text-ink">Current ticket</h3>
-              <p className="t-eyebrow text-[10px] mt-0.5">Live queue status for the customer</p>
-            </div>
-            <span className={cn(currentTicket ? 'chip-open' : 'chip-neutral')}>{currentTicket ? 'ACTIVE' : 'NO TICKET'}</span>
-          </div>
-          {currentTicket ? (
-            <div className="p-5 grid md:grid-cols-[1fr_220px] gap-5">
-              <div>
-                <div className="flex items-center gap-3">
-                  <span className="h-12 w-12 rounded-lg bg-blue-50 text-accent grid place-items-center">
-                    <Ticket size={22} />
-                  </span>
-                  <div>
-                    <div className="t-mono text-2xl font-semibold text-ink">{currentTicket.ticketNumber}</div>
-                    <div className="text-[12px] text-ink-2">{currentTicket.serviceName}</div>
-                  </div>
-                </div>
-                <div className="mt-5 grid sm:grid-cols-3 gap-3">
-                  <Detail label="Joined" value={relativeTime(currentTicket.joinedAt)} />
-                  <Detail label="Counter" value={currentTicket.counter ?? 'Waiting'} />
-                  <Detail label="Source" value={currentTicket.source.replaceAll('_', ' ')} />
-                </div>
-              </div>
-              <div className="rounded-lg border border-line bg-surface-2 p-4">
-                <div className="flex items-center gap-2 text-[12px] text-ink-2">
-                  <Clock3 size={14} className="text-accent" />
-                  Expected timing
-                </div>
-                <div className="mt-3 text-[28px] font-semibold text-ink tracking-normal">{currentTicket.estimatedWaitMinutes} min</div>
-                <p className="text-[12px] text-ink-2 mt-1">Stay nearby when two people are ahead. SMS will also tell you.</p>
-              </div>
-            </div>
-          ) : (
-            <div className="p-8 text-center">
-              <Ticket size={24} className="text-ink-3 mx-auto mb-2" />
-              <div className="text-[14px] font-semibold text-ink">No live ticket right now</div>
-              <p className="text-[12px] text-ink-2 mt-1">Open a public queue page when you are ready to join.</p>
-              <Link to="/businesses" className="btn btn-primary btn-sm mt-4">Find a queue</Link>
-            </div>
-          )}
-        </section>
-
-        <aside className="card p-0 overflow-hidden">
-          <div className="px-5 py-4 border-b border-line">
-            <h3 className="text-[14px] font-semibold text-ink">SMS updates</h3>
-            <p className="t-eyebrow text-[10px] mt-0.5">What the customer received</p>
-          </div>
-          <div className="divide-y divide-line max-h-80 overflow-auto">
-            {notifications.length === 0 ? (
-              <div className="p-5 text-[12px] text-ink-3">No SMS updates yet.</div>
-            ) : notifications.map((notification: any) => (
-              <div key={notification.id} className="px-5 py-3 text-[12px]">
-                <div className="flex items-center gap-2">
-                  <Bell size={13} className="text-accent shrink-0" />
-                  <span className="t-eyebrow text-[9px] text-accent">{notification.template.replaceAll('_', ' ')}</span>
-                  <span className="font-mono text-[10px] text-ink-3 ml-auto">{formatTime(notification.at)}</span>
-                </div>
-                <p className="text-ink-2 mt-1.5 leading-relaxed">{notification.message}</p>
-              </div>
-            ))}
-          </div>
-        </aside>
-      </div>
 
       <div className="grid lg:grid-cols-3 gap-5">
         <section className="lg:col-span-2 card p-0 overflow-hidden">
@@ -310,6 +244,26 @@ export default function CustomerHome() {
         </section>
 
         <aside className="space-y-4">
+          <div className="card p-0 overflow-hidden">
+            <div className="px-5 py-4 border-b border-line">
+              <h3 className="text-[14px] font-semibold text-ink">SMS updates</h3>
+              <p className="t-eyebrow text-[10px] mt-0.5">What the customer received</p>
+            </div>
+            <div className="divide-y divide-line max-h-72 overflow-auto">
+              {notifications.length === 0 ? (
+                <div className="p-5 text-[12px] text-ink-3">No SMS updates yet.</div>
+              ) : notifications.map((notification: any) => (
+                <div key={notification.id} className="px-5 py-3 text-[12px]">
+                  <div className="flex items-center gap-2">
+                    <Bell size={13} className="text-accent shrink-0" />
+                    <span className="t-eyebrow text-[9px] text-accent">{notification.template.replaceAll('_', ' ')}</span>
+                    <span className="font-mono text-[10px] text-ink-3 ml-auto">{formatTime(notification.at)}</span>
+                  </div>
+                  <p className="text-ink-2 mt-1.5 leading-relaxed">{notification.message}</p>
+                </div>
+              ))}
+            </div>
+          </div>
           <div className="card p-5">
             <div className="t-eyebrow mb-2">Next reservation</div>
             {nextReservation ? (
@@ -349,15 +303,6 @@ function VisitMetric({ label, value }: { label: string; value: string | number }
     <div className="bg-surface p-4">
       <div className="t-eyebrow text-[10px]">{label}</div>
       <div className="t-mono text-2xl text-ink font-semibold mt-1">{value}</div>
-    </div>
-  );
-}
-
-function Detail({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-md border border-line bg-surface-2 p-3">
-      <div className="t-eyebrow text-[9px]">{label}</div>
-      <div className="text-[13px] font-medium text-ink mt-1">{value}</div>
     </div>
   );
 }

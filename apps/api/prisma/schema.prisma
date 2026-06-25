@@ -240,8 +240,9 @@ model Customer {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users        User[]
-  reservations FutureReservation[]
+  users          User[]
+  reservations   FutureReservation[]
+  runnerRequests RunnerRequest[]
 }
 
 model QueueTicket {
@@ -411,6 +412,39 @@ model RunnerJob {
   instructions        String          @db.Text
   runnerName          String?
   updatedAt           DateTime        @updatedAt
+}
+
+model RunnerDestination {
+  id        String  @id @default(cuid())
+  name      String
+  city      String
+  category  String
+  source    String  @default("MANUAL")
+  externalId String?
+  latitude  Float?
+  longitude Float?
+  createdAt DateTime @default(now())
+
+  @@index([city, category])
+}
+
+model RunnerRequest {
+  id                String   @id @default(cuid())
+  customerId        String?
+  customerName      String
+  customerPhone     String
+  destinationName   String
+  destinationCity   String
+  destinationSource String
+  serviceName       String
+  targetArrivalAt   DateTime
+  maxBudgetCents    Int
+  instructions      String   @db.Text
+  status            String   @default("OPEN")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  customer  Customer?  @relation(fields: [customerId], references: [id], onDelete: SetNull)
 }
 
 model WidgetInstall {

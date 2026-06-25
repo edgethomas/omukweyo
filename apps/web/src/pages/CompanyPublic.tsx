@@ -16,13 +16,14 @@ type CompanyPayload = {
 };
 
 export default function CompanyPublic() {
-  const { companySlug = '', branchSlug } = useParams();
+  const { companySlug = '', branchSlug, serviceSlug } = useParams();
   const [data, setData] = useState<CompanyPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeService, setActiveService] = useState<string | null>(null);
   const [joinForm, setJoinForm] = useState({ name: '', phone: '' });
   const [joinResult, setJoinResult] = useState<QueueTicket | null>(null);
   const [joinLoading, setJoinLoading] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
     setData(null);
@@ -39,6 +40,12 @@ export default function CompanyPublic() {
     if (!data || !branch) return [];
     return data.services.filter((service) => !service.branchId || service.branchId === branch.id);
   }, [branch, data]);
+
+  useEffect(() => {
+    if (!serviceSlug || services.length === 0) return;
+    const match = services.find((service) => service.slug === serviceSlug);
+    if (match) setActiveService(match.id);
+  }, [serviceSlug, services]);
 
   const { tickets } = useQueueEvents([]);
   const branchTickets = tickets.filter((ticket) => !branch || ticket.branchId === branch.id).slice(0, 6);

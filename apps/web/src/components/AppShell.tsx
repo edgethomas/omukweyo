@@ -2,7 +2,7 @@ import { ElementType, ReactNode, useMemo, useState } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, ScanLine, Headphones, Code2, Settings, LogOut, Bell, User, UserCheck, Shield,
-  CalendarClock, Building2,
+  CalendarClock, Building2, Tv, Tablet, ListOrdered,
 } from 'lucide-react';
 import type { Role } from '@inline/shared';
 import { cn } from '@/lib/utils';
@@ -33,6 +33,7 @@ function roleNavGroups(publicPagePath: string): Record<Role, NavGroup[]> {
         { to: '/businesses', label: 'Find businesses', icon: ScanLine },
         { to: '/reserve', label: 'Reserve future spot', icon: CalendarClock },
         { to: '/ticket', label: 'Live ticket', icon: ScanLine },
+        { to: '/runner/request', label: 'Request a runner', icon: UserCheck },
       ],
     },
   ],
@@ -42,16 +43,16 @@ function roleNavGroups(publicPagePath: string): Record<Role, NavGroup[]> {
       items: [
         { to: '/dashboard', label: 'Admin console', icon: LayoutDashboard },
         { to: '/staff', label: 'Staff console', icon: Headphones },
-        { to: publicPagePath, label: 'Public page', icon: ScanLine },
         { to: '/embed', label: 'Embed widget', icon: Code2 },
       ],
     },
     {
       label: 'Setup',
       items: [
-        { to: '/billing', label: 'Billing', icon: Settings },
-        { to: '/settings', label: 'Business settings', icon: Settings },
-        { to: '/onboarding', label: 'Onboarding', icon: Building2 },
+        { to: '/dashboard/billing', label: 'Billing', icon: Settings },
+        { to: '/dashboard/branding', label: 'Branding', icon: Settings },
+        { to: '/dashboard/staff', label: 'Manage staff', icon: User },
+        { to: '/dashboard/qr-codes', label: 'QR codes', icon: ScanLine },
         { to: '/contact', label: 'Help', icon: Settings },
       ],
     },
@@ -62,9 +63,8 @@ function roleNavGroups(publicPagePath: string): Record<Role, NavGroup[]> {
       items: [
         { to: '/dashboard', label: 'Operations', icon: LayoutDashboard },
         { to: '/staff', label: 'Staff console', icon: Headphones },
-        { to: publicPagePath, label: 'Public page', icon: ScanLine },
         { to: '/embed', label: 'Embed widget', icon: Code2 },
-        { to: '/settings', label: 'Business settings', icon: Settings },
+        { to: '/dashboard/branding', label: 'Branding', icon: Settings },
       ],
     },
   ],
@@ -73,8 +73,9 @@ function roleNavGroups(publicPagePath: string): Record<Role, NavGroup[]> {
       label: 'Counter',
       items: [
         { to: '/staff', label: 'Staff console', icon: Headphones },
-        { to: '/ticket', label: 'Live ticket', icon: ScanLine },
-        { to: publicPagePath, label: 'Public page', icon: ScanLine },
+        { to: '/staff/queue', label: 'Queue view', icon: ListOrdered },
+        { to: '/staff/kiosk', label: 'Kiosk', icon: Tablet },
+        { to: '/staff/tv', label: 'Waiting room TV', icon: Tv },
       ],
     },
   ],
@@ -83,7 +84,7 @@ function roleNavGroups(publicPagePath: string): Record<Role, NavGroup[]> {
       label: 'Runner',
       items: [
         { to: '/runner/work', label: 'Runner workbench', icon: UserCheck },
-        { to: '/runner/signup', label: 'Runner profile', icon: User },
+        { to: '/runner/profile', label: 'Runner profile', icon: User },
       ],
     },
   ],
@@ -92,15 +93,20 @@ function roleNavGroups(publicPagePath: string): Record<Role, NavGroup[]> {
       label: 'Platform',
       items: [
         { to: '/admin', label: 'Platform admin', icon: Shield },
-        { to: '/dashboard', label: 'Company admin', icon: LayoutDashboard },
-        { to: '/runner/work', label: 'Runner workbench', icon: UserCheck },
+        { to: '/admin/companies', label: 'Companies', icon: Building2 },
+        { to: '/admin/runners', label: 'Runners', icon: UserCheck },
+        { to: '/admin/billing', label: 'Billing', icon: Settings },
+        { to: '/admin/support', label: 'Support', icon: Headphones },
+        { to: '/admin/audit-logs', label: 'Audit logs', icon: Shield },
+        { to: '/admin/settings', label: 'Platform settings', icon: Settings },
       ],
     },
     {
-      label: 'Setup',
+      label: 'Network',
       items: [
-        { to: '/onboarding', label: 'Onboarding', icon: Building2 },
-        { to: '/billing', label: 'Billing', icon: Settings },
+        { to: '/dashboard', label: 'Company admin', icon: LayoutDashboard },
+        { to: '/staff', label: 'Staff console', icon: Headphones },
+        { to: '/runner/work', label: 'Runner workbench', icon: UserCheck },
       ],
     },
   ],

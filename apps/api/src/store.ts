@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { nanoid } from 'nanoid';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type {
   BillingInvoice,
   BillingOverview,
@@ -43,8 +44,17 @@ function loadEnvFile(filePath: string) {
   }
 }
 
-loadEnvFile(path.resolve(process.cwd(), '.env'));
-loadEnvFile(path.resolve(process.cwd(), 'apps/api/.env'));
+const apiRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const envPaths = [
+  path.resolve(apiRoot, '.env'),
+  path.resolve(process.cwd(), 'apps/api/.env'),
+  path.resolve(process.cwd(), '.env'),
+  path.resolve(apiRoot, '../..', '.env'),
+];
+
+for (const envPath of [...new Set(envPaths)]) {
+  loadEnvFile(envPath);
+}
 
 export const prisma = new PrismaClient();
 
@@ -696,6 +706,32 @@ export async function listCustomerReservations(customerId: string): Promise<Futu
   return reservations.map(mapReservation);
 }
 
+export async function listCustomerTickets(customerId: string): Promise<QueueTicket[]> {
+  const customer = await prisma.customer.findUnique({ where: { id: customerId }, select: { phone: true } });
+  if (!customer) return [];
+  const tickets = await prisma.queueTicket.findMany({
+    where: { customerPhone: customer.phone },
+    include: { events: { orderBy: { at: 'asc' } } },
+    orderBy: { joinedAt: 'desc' },
+    take: 100,
+  });
+  return tickets.map(mapTicket);
+}
+
+export async function getCustomerHistory(customerId: string) {
+  const customer = await prisma.customer.findUnique({ where: { id: customerId } });
+  if (!customer) throw new Error('Customer not found');
+  const [tickets, reservations] = await Promise.all([
+    listCustomerTickets(customer.id),
+    listCustomerReservations(customer.id),
+  ]);
+  return {
+    customer: mapCustomer(customer),
+    tickets,
+    reservations,
+  };
+}
+
 export async function getCustomerVisit(customerId: string): Promise<CustomerVisitSummary> {
   const customer = await prisma.customer.findUnique({ where: { id: customerId } });
   if (!customer) throw new Error('Customer not found');
@@ -764,6 +800,10 @@ export async function createRunnerApplication(input: {
   return mapRunnerApplication(await prisma.runnerApplication.create({ data: input }));
 }
 
+export async function setRunnerApplicationStatus(id: string, status: 'PENDING' | 'APPROVED' | 'REJECTED'): Promise<RunnerApplication> {
+  return mapRunnerApplication(await prisma.runnerApplication.update({ where: { id }, data: { status } }));
+}
+
 export async function listRunnerJobs(): Promise<RunnerJob[]> {
   const rows = await prisma.runnerJob.findMany({ orderBy: { targetArrivalAt: 'asc' } });
   return rows.map(mapRunnerJob);
@@ -789,6 +829,135 @@ export async function completeRunnerJob(id: string): Promise<{ job: RunnerJob; n
   const row = await prisma.runnerJob.update({ where: { id }, data: { status: 'COMPLETE' } });
   const notification = await logSms(row.customerPhone, 'RUNNER_UPDATE', `Your Omukweyo runner completed the handoff at ${row.placeName}.`);
   return { job: mapRunnerJob(row), notification };
+}
+
+export type RunnerRequestPayload = {
+  id: string;
+  customerName: string;
+  customerPhone: string;
+  destinationName: string;
+  destinationCity: string;
+  destinationSource: string;
+  serviceName: string;
+  targetArrivalAt: string;
+  maxBudgetCents: number;
+  instructions: string;
+  status: string;
+  createdAt: string;
+};
+
+function mapRunnerRequest(input: any): RunnerRequestPayload {
+  return {
+    id: input.id,
+    customerName: input.customerName,
+    customerPhone: input.customerPhone,
+    destinationName: input.destinationName,
+    destinationCity: input.destinationCity,
+    destinationSource: input.destinationSource,
+    serviceName: input.serviceName,
+    targetArrivalAt: toIso(input.targetArrivalAt)!,
+    maxBudgetCents: input.maxBudgetCents,
+    instructions: input.instructions,
+    status: input.status,
+    createdAt: toIso(input.createdAt)!,
+  };
+}
+
+export async function createRunnerRequest(input: {
+  customerId?: string;
+  customerName: string;
+  customerPhone: string;
+  destinationName: string;
+  destinationCity: string;
+  destinationSource?: string;
+  serviceName: string;
+  targetArrivalAt: string;
+  maxBudgetCents: number;
+  instructions: string;
+}): Promise<RunnerRequestPayload> {
+  const customer = input.customerId
+    ? await prisma.customer.findUnique({ where: { id: input.customerId } })
+    : await prisma.customer.findFirst({ where: { phone: input.customerPhone } });
+  const row = await prisma.runnerRequest.create({
+    data: {
+      customerId: customer?.id,
+      customerName: input.customerName,
+      customerPhone: input.customerPhone,
+      destinationName: input.destinationName,
+      destinationCity: input.destinationCity,
+      destinationSource: input.destinationSource ?? 'MANUAL',
+      serviceName: input.serviceName,
+      targetArrivalAt: new Date(input.targetArrivalAt),
+      maxBudgetCents: input.maxBudgetCents,
+      instructions: input.instructions,
+    },
+  });
+  return mapRunnerRequest(row);
+}
+
+export async function listCustomerRunnerRequests(customerId: string): Promise<RunnerRequestPayload[]> {
+  const customer = await prisma.customer.findUnique({ where: { id: customerId }, select: { phone: true } });
+  if (!customer) return [];
+  const rows = await prisma.runnerRequest.findMany({
+    where: { OR: [{ customerId }, { customerPhone: customer.phone }] },
+    orderBy: { createdAt: 'desc' },
+    take: 50,
+  });
+  return rows.map(mapRunnerRequest);
+}
+
+export async function getRunnerRequest(id: string): Promise<RunnerRequestPayload | undefined> {
+  const row = await prisma.runnerRequest.findUnique({ where: { id } });
+  return row ? mapRunnerRequest(row) : undefined;
+}
+
+export type DestinationSuggestion = {
+  id: string;
+  name: string;
+  city: string;
+  category: string;
+  source: string;
+  externalId?: string;
+};
+
+export async function searchDestinations(query: string, city?: string): Promise<DestinationSuggestion[]> {
+  const normalized = query.trim().toLowerCase();
+  const rows = await prisma.runnerDestination.findMany({
+    where: {
+      ...(city ? { city: { contains: city } } : {}),
+    },
+    take: 50,
+  });
+  const filtered = rows.filter((row) => {
+    if (!normalized) return true;
+    return `${row.name} ${row.city} ${row.category}`.toLowerCase().includes(normalized);
+  });
+  return filtered.map((row) => ({
+    id: row.id,
+    name: row.name,
+    city: row.city,
+    category: row.category,
+    source: row.source,
+    externalId: row.externalId ?? undefined,
+  }));
+}
+
+export async function ensureDestinationSeeded() {
+  const count = await prisma.runnerDestination.count();
+  if (count > 0) return;
+  const seeds = [
+    { name: 'Ministry of Home Affairs - Windhoek', city: 'Windhoek', category: 'Government' },
+    { name: 'Bank Windhoek Main Branch', city: 'Windhoek', category: 'Banking' },
+    { name: 'City of Windhoek Cashier', city: 'Windhoek', category: 'Government' },
+    { name: 'Mediclinic Windhoek', city: 'Windhoek', category: 'Clinic' },
+    { name: 'Swakopmund Municipality', city: 'Swakopmund', category: 'Government' },
+    { name: 'FNB Oshakati Branch', city: 'Oshakati', category: 'Banking' },
+    { name: 'Rundu State Hospital - Outpatient', city: 'Rundu', category: 'Clinic' },
+    { name: 'Walvis Bay Municipality', city: 'Walvis Bay', category: 'Government' },
+  ];
+  for (const seed of seeds) {
+    await prisma.runnerDestination.create({ data: { ...seed, source: 'SEED' } });
+  }
 }
 
 export async function listBusinessDirectory(query = ''): Promise<BusinessDirectoryItem[]> {

@@ -3,7 +3,6 @@ import { useState } from 'react';
 import type { ElementType, FormEvent, ReactNode } from 'react';
 import {
   ArrowRight,
-  ArrowUpRight,
   BarChart3,
   Building2,
   CalendarClock,
@@ -11,7 +10,6 @@ import {
   Clock3,
   Code2,
   Headphones,
-  KeyRound,
   MapPin,
   MessageSquare,
   QrCode,
@@ -32,7 +30,6 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <DemoAccess />
       <RolePathways />
       <HowItWorks />
       <ProductShowcase />
@@ -151,68 +148,6 @@ function HeroSearchPanel({
         </span>
       </div>
     </div>
-  );
-}
-
-function DemoAccess() {
-  const navigate = useNavigate();
-  const [opening, setOpening] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const openDemo = async (account: (typeof demoAccounts)[number]) => {
-    setOpening(account.role);
-    setError(null);
-    try {
-      const payload = await api.login({ email: account.email, password: account.password });
-      localStorage.setItem('omukweyo_session', JSON.stringify(payload.session));
-      navigate(payload.session.user?.destination ?? account.destination);
-    } catch (err: any) {
-      setError(err.message);
-      setOpening(null);
-    }
-  };
-
-  return (
-    <section className="bg-white border-b border-line">
-      <div className="container-x py-5">
-        <div className="rounded-xl border border-line bg-surface p-4 md:p-5 shadow-sm">
-          <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-            <div className="flex items-start gap-3 lg:max-w-xs">
-              <span className="h-10 w-10 rounded-lg bg-emerald-50 text-emerald-700 grid place-items-center shrink-0">
-                <KeyRound size={18} />
-              </span>
-              <div>
-                <h2 className="text-[15px] font-semibold text-ink">Demo accounts are ready.</h2>
-                <p className="text-[12px] text-ink-2 mt-0.5">Password for every demo: <span className="font-mono text-ink">{demoPassword}</span></p>
-              </div>
-            </div>
-            <div className="grid sm:grid-cols-2 xl:grid-cols-5 gap-2 flex-1">
-              {demoAccounts.map((account) => (
-                <button
-                  key={account.email}
-                  type="button"
-                  onClick={() => openDemo(account)}
-                  disabled={!!opening}
-                  className="rounded-lg border border-line bg-surface-2 px-3 py-2 text-left hover:border-accent hover:bg-blue-50 transition-colors group disabled:cursor-wait disabled:opacity-60"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[12px] font-semibold text-ink truncate">{account.role}</span>
-                    <ArrowUpRight size={13} className="text-ink-3 group-hover:text-accent shrink-0" />
-                  </div>
-                  <div className="font-mono text-[10px] text-ink-3 truncate mt-0.5">{account.email}</div>
-                </button>
-              ))}
-            </div>
-            <Link to="/login" className="btn btn-outline btn-md shrink-0">Open login</Link>
-          </div>
-          {(opening || error) && (
-            <div className={cn('mt-3 rounded-md border px-3 py-2 text-[12px]', error ? 'border-rose-200 bg-rose-50 text-rose-700' : 'border-emerald-200 bg-emerald-50 text-emerald-700')}>
-              {error ?? `Opening ${opening} workspace...`}
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
   );
 }
 

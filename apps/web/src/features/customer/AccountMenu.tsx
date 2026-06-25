@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChevronDown, History, LogOut, User } from 'lucide-react';
+import { ChevronDown, LogOut, Settings as SettingsIcon, User } from 'lucide-react';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
@@ -99,9 +99,9 @@ export default function AccountMenu({ to = '/customer/profile', name, summary, a
             <User size={14} />
             Profile
           </Link>
-          <Link to="/customer/history" role="menuitem" onClick={() => setOpen(false)} className="flex items-center gap-2 rounded-md px-3 py-2 text-[13px] font-medium text-ink-2 hover:bg-surface-2 hover:text-ink">
-            <History size={14} />
-            History
+          <Link to="/customer/settings" role="menuitem" onClick={() => setOpen(false)} className="flex items-center gap-2 rounded-md px-3 py-2 text-[13px] font-medium text-ink-2 hover:bg-surface-2 hover:text-ink">
+            <SettingsIcon size={14} />
+            Settings
           </Link>
           <button type="button" role="menuitem" onClick={signOut} className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[13px] font-medium text-ink-2 hover:bg-surface-2 hover:text-ink">
             <LogOut size={14} />

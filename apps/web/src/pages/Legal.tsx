@@ -28,11 +28,6 @@ export default function Legal({ type }: { type: keyof typeof copy }) {
 
   return (
     <section className="container-x py-12">
-      <div className="text-[12px] text-ink-3 mb-3">
-        <Link to="/" className="hover:text-ink">Home</Link>
-        <span className="mx-2 text-ink-3/40">/</span>
-        {page.title}
-      </div>
       <div className="max-w-3xl">
         <div className="t-eyebrow mb-2">Legal</div>
         <h1 className="t-h1">{page.title}</h1>

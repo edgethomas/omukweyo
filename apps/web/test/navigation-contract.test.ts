@@ -51,6 +51,7 @@ const mustExistRoutes = [
   '/customer',
   '/customer/history',
   '/customer/profile',
+  '/customer/settings',
   '/reserve',
   '/runner/request',
   '/runner/request/:id',
@@ -163,7 +164,7 @@ test('demo accounts are visible and point to real workspaces', () => {
     assert.match(demoSource, new RegExp(`destination: '${destination.replace('/', '\\/')}'`));
   }
 
-  assert.match(homeSource, /Demo accounts are ready/);
+  assert.match(homeSource, /Sign up/);
   assert.match(loginSource, /Open a demo workspace/);
   assert.match(demoSource, /customer@omukweyo\.demo/);
   assert.match(demoSource, /runner@omukweyo\.demo/);
@@ -261,14 +262,14 @@ test('presentation-critical controls call backend APIs instead of local-only not
 
 test('demo sessions drive role-specific app shell navigation and identity', () => {
   const shellSource = readFileSync(path.join(root, 'components', 'AppShell.tsx'), 'utf8');
-  const homeSource = readFileSync(path.join(root, 'pages', 'Home.tsx'), 'utf8');
+  const loginSource = readFileSync(path.join(root, 'pages', 'Login.tsx'), 'utf8');
 
   assert.match(shellSource, /omukweyo_session/);
   assert.match(shellSource, /roleNavGroups/);
   assert.match(shellSource, /session\?\.user\?\.role/);
   assert.match(shellSource, /session\?\.user\?\.name/);
-  assert.match(homeSource, /api\.login/);
-  assert.match(homeSource, /localStorage\.setItem\('omukweyo_session'/);
+  assert.match(loginSource, /api\.login/);
+  assert.match(loginSource, /localStorage\.setItem\(SESSION_KEY/);
 });
 
 test('logged-in customer utility routes stay inside the product shell', () => {
@@ -281,7 +282,7 @@ test('logged-in customer utility routes stay inside the product shell', () => {
   assert.match(appSource, /Boolean\(session\?\.user\?\.role\).*sessionAwarePublicRoutes/s);
   assert.match(appSource, /import CustomerShell/);
   assert.match(appSource, /role === 'CUSTOMER'/);
-  assert.match(appSource, /<CustomerShell title=\{title\} subtitle=\{subtitle\} actions=\{actions\}>/);
+  assert.match(appSource, /<CustomerShell>\{children\}<\/CustomerShell>/);
   assert.match(appSource, /path="\/reserve" element=\{<RequireAuth allowedRoles=\{allRoles\}><ProductPageWrapper title="Reserve future spot"/);
   assert.match(appSource, /path="\/businesses" element=\{<RequireAuth allowedRoles=\{allRoles\}><ProductPageWrapper title="Find businesses"/);
   assert.match(appSource, /loc\.pathname\.startsWith\('\/c\/'\)/);
@@ -307,14 +308,26 @@ test('logged-in customer utility routes stay inside the product shell', () => {
   assert.doesNotMatch(customerShellSource, /app-sidebar|app-header|app-nav-section/);
 
   const customerProfileSource = readFileSync(customerProfilePath, 'utf8');
+  const customerSettingsPath = path.join(root, 'pages', 'CustomerSettings.tsx');
+  assert.ok(existsSync(customerSettingsPath));
+  const customerSettingsSource = readFileSync(customerSettingsPath, 'utf8');
+
   assert.match(customerProfileSource, /CustomerProfile/);
   assert.match(customerProfileSource, /api\.customerSignup/);
   assert.match(customerProfileSource, /api\.customerUploadAvatar/);
-  assert.match(customerProfileSource, /api\.deleteCustomer/);
   assert.match(customerProfileSource, /Upload photo/);
-  assert.match(customerProfileSource, /Delete account/);
   assert.match(customerProfileSource, /Sign out/);
   assert.match(customerProfileSource, /localStorage\.setItem\(CUSTOMER_KEY/);
+
+  assert.match(customerSettingsSource, /CustomerSettings/);
+  assert.match(customerSettingsSource, /api\.deleteCustomer/);
+  assert.match(customerSettingsSource, /api\.changePassword/);
+  assert.match(customerSettingsSource, /api\.forgotPassword/);
+  assert.match(customerSettingsSource, /Delete account/);
+  assert.match(customerSettingsSource, /Change password/);
+  assert.match(customerSettingsSource, /Default payment method/);
+  assert.match(customerSettingsSource, /Receipt preference/);
+  assert.match(customerSettingsSource, /SMS consent/);
 });
 
 test('customer shell keeps profile out of main nav and exposes it through the account menu', () => {
@@ -340,6 +353,10 @@ test('customer shell keeps profile out of main nav and exposes it through the ac
       accountMenuOwnsProfileLink,
     'CustomerShell.tsx should expose /customer/profile through the account control or AccountMenu',
   );
+
+  const accountMenuSource = accountMenuSources[0];
+  assert.match(accountMenuSource, /\/customer\/settings/);
+  assert.doesNotMatch(accountMenuSource, /\/customer\/history/);
 });
 
 test('customer and company admin workspaces are role-fit, not generic dashboards', () => {
@@ -351,8 +368,9 @@ test('customer and company admin workspaces are role-fit, not generic dashboards
   assert.match(appSource, /title="Your visit"/);
   assert.match(appSource, /title="Company admin console"/);
   assert.match(customerSource, /api\.customerVisit/);
-  assert.match(customerSource, /Current ticket/);
   assert.match(customerSource, /SMS updates/);
+  assert.match(customerSource, /Track live ticket/);
+  assert.doesNotMatch(customerSource, /Current ticket/);
   assert.doesNotMatch(customerSource, /Customer options/);
   assert.match(ticketSource, /customerIdForTicket/);
   assert.match(ticketSource, /api\.customerVisit\(customerId\)/);

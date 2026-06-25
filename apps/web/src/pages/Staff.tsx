@@ -1,136 +1,273 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '@/lib/api';
 import { useQueueEvents } from '@/lib/useQueueEvents';
 import { cn, formatTime, relativeTime } from '@/lib/utils';
+import { downloadTextFile } from '@/lib/browserActions';
 import {
   Phone, MessageSquare, Pause, ArrowRightLeft, X, Check,
-  Plus, Coffee, Activity,
+  Plus, Coffee, ArrowUpRight, UserPlus,
 } from 'lucide-react';
-import { img } from '@/lib/images';
+import type { Role } from '@inline/shared';
+
+const SESSION_KEY = 'omukweyo_session';
+
+type SessionUser = {
+  id: string;
+  role: Role;
+  name: string;
+  email: string;
+  phone?: string;
+  destination?: string;
+  companyId?: string;
+  companySlug?: string;
+  staffId?: string;
+};
+
+type DashboardPayload = {
+  company: { id: string; slug: string; name: string; smsBalance: number; plan: string; logoText: string; primaryColor: string };
+  branches: { id: string; slug: string; name: string; city: string; liveWaiting: number; avgWaitMin: number; isOpen: boolean }[];
+  services: { id: string; name: string; averageServiceMinutes: number }[];
+  staff: { id: string; name: string; role: string; counter: string; branchId?: string; servedToday: number; rating: number }[];
+  liveTickets: any[];
+  notifications: any[];
+  metrics: { smsBalance: number; servedToday: number; liveWaiting: number };
+};
+
+function loadSessionUser(): SessionUser | null {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    return raw ? JSON.parse(raw)?.user : null;
+  } catch {
+    return null;
+  }
+}
+
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || 'CU';
+}
+
+function roleLabel(role: string) {
+  if (role === 'OWNER') return 'Owner';
+  if (role === 'MANAGER') return 'Manager';
+  if (role === 'OPERATOR') return 'Operator';
+  return 'Staff';
+}
 
 export default function Staff() {
-  const [company, setCompany] = useState<any>(null);
-  const [staff, setStaff] = useState<any[]>([]);
-  const [branches, setBranches] = useState<any[]>([]);
-  const [services, setServices] = useState<any[]>([]);
+  const [session, setSession] = useState<SessionUser | null>(() => loadSessionUser());
+  const [data, setData] = useState<DashboardPayload | null>(null);
   const [branchId, setBranchId] = useState<string | null>(null);
+  const [counter, setCounter] = useState<string>('');
   const [actionPending, setActionPending] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [walkInOpen, setWalkInOpen] = useState(false);
+  const [walkInForm, setWalkInForm] = useState({ name: '', phone: '', serviceId: '' });
+  const [smsOpen, setSmsOpen] = useState(false);
+  const [smsMessage, setSmsMessage] = useState('');
+  const [notice, setNotice] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
 
   useEffect(() => {
-    api.dashboard().then(d => {
-      setCompany(d.company);
-      setStaff(d.staff);
-      setBranches(d.branches);
-      setServices(d.services);
-      setBranchId(d.branches[0]?.id ?? null);
+    api.dashboard().then((d: DashboardPayload) => {
+      setData(d);
+      // pick branch from staff assignment if available, else first
+      const me = session?.staffId ? d.staff.find((s) => s.id === session.staffId) : null;
+      const myBranch = me?.branchId ? d.branches.find((b) => b.id === me.branchId) : null;
+      const fallbackBranch = d.branches[0] ?? null;
+      const branch = myBranch ?? fallbackBranch;
+      setBranchId(branch?.id ?? null);
+      setCounter(me?.counter ?? 'Counter 1');
+      if (d.services[0] && !walkInForm.serviceId) {
+        setWalkInForm((f) => ({ ...f, serviceId: d.services[0].id }));
+      }
     });
-  }, []);
+  }, [session?.staffId]);
 
-  const { tickets } = useQueueEvents([]);
-  const live = useMemo(() => tickets.filter(t => t.status === 'WAITING' || t.status === 'CALLED' || t.status === 'SERVING' || t.status === 'ON_HOLD'), [tickets]);
-  const head = live.find(t => t.status === 'SERVING') ?? live.find(t => t.status === 'CALLED') ?? null;
-  const next = live.find(t => t.status === 'WAITING');
+  const { tickets } = useQueueEvents(data?.liveTickets ?? []);
+  const live = useMemo(
+    () => tickets.filter((t) => ['WAITING', 'CALLED', 'SERVING', 'ON_HOLD'].includes(t.status) && (!branchId || t.branchId === branchId)),
+    [tickets, branchId],
+  );
+  const head = useMemo(() => live.find((t) => t.status === 'SERVING') ?? live.find((t) => t.status === 'CALLED') ?? null, [live]);
+  const next = useMemo(() => live.find((t) => t.status === 'WAITING'), [live]);
+
+  const me = data?.staff.find((s) => s.id === session?.staffId) ?? null;
+  const branch = data?.branches.find((b) => b.id === branchId) ?? null;
+  const services = data?.services ?? [];
 
   const callNext = async () => {
     if (!branchId) return;
     setActionPending(true);
     try {
-      const { ticket } = await api.staffCallNext(branchId, 'Counter 3');
-      setNotice(`${ticket.ticketNumber} called to Counter 3.`);
-    } finally { setActionPending(false); }
+      const { ticket } = await api.staffCallNext(branchId, counter);
+      setNotice({ kind: 'ok', text: `${ticket.ticketNumber} called to ${counter}.` });
+    } catch (err: any) {
+      setNotice({ kind: 'err', text: err.message });
+    } finally {
+      setActionPending(false);
+    }
   };
-  const markServed = async () => { if (!head) return; setActionPending(true); try { await api.staffServed(head.id); setNotice(`${head.ticketNumber} marked served.`); } finally { setActionPending(false); } };
-  const markMissed = async () => { if (!head) return; setActionPending(true); try { await api.staffMissed(head.id); setNotice(`${head.ticketNumber} marked missed.`); } finally { setActionPending(false); } };
-  const hold = async () => { if (!head) return; setActionPending(true); try { await api.staffHold(head.id); setNotice(`${head.ticketNumber} placed on hold.`); } finally { setActionPending(false); } };
+  const markServed = async () => {
+    if (!head) return;
+    setActionPending(true);
+    try {
+      await api.staffServed(head.id);
+      setNotice({ kind: 'ok', text: `${head.ticketNumber} marked served.` });
+    } catch (err: any) {
+      setNotice({ kind: 'err', text: err.message });
+    } finally {
+      setActionPending(false);
+    }
+  };
+  const markMissed = async () => {
+    if (!head) return;
+    setActionPending(true);
+    try {
+      await api.staffMissed(head.id);
+      setNotice({ kind: 'ok', text: `${head.ticketNumber} marked missed.` });
+    } catch (err: any) {
+      setNotice({ kind: 'err', text: err.message });
+    } finally {
+      setActionPending(false);
+    }
+  };
+  const hold = async () => {
+    if (!head) return;
+    setActionPending(true);
+    try {
+      await api.staffHold(head.id);
+      setNotice({ kind: 'ok', text: `${head.ticketNumber} placed on hold.` });
+    } catch (err: any) {
+      setNotice({ kind: 'err', text: err.message });
+    } finally {
+      setActionPending(false);
+    }
+  };
   const transfer = async () => {
     if (!head) return;
-    const targetService = services.find((service) => service.id !== head.serviceId);
+    const targetService = services.find((s) => s.id !== head.serviceId);
     if (!targetService) {
-      setNotice('No alternate service is configured for transfer.');
+      setNotice({ kind: 'err', text: 'No alternate service is configured for transfer.' });
       return;
     }
     setActionPending(true);
     try {
-      const { ticket } = await api.staffTransfer(head.id, targetService.id, 'Counter 3');
-      setNotice(`${ticket.ticketNumber} transferred to ${ticket.serviceName}.`);
+      const { ticket } = await api.staffTransfer(head.id, targetService.id, counter || me?.name || 'Staff');
+      setNotice({ kind: 'ok', text: `${ticket.ticketNumber} transferred to ${ticket.serviceName}.` });
+    } catch (err: any) {
+      setNotice({ kind: 'err', text: err.message });
     } finally {
       setActionPending(false);
     }
   };
   const sendSms = async () => {
-    if (!head) return;
+    if (!head || !smsMessage.trim()) return;
     setActionPending(true);
     try {
-      const { notification } = await api.staffSendSms(
-        head.id,
-        `Hi ${head.customerName.split(' ')[0]}, this is an update from ${company.name}: your ticket ${head.ticketNumber} is still active. Please keep this page open for live changes.`,
-      );
-      setNotice(`SMS ${notification.status.toLowerCase()} for ${head.customerName}.`);
+      const { notification } = await api.staffSendSms(head.id, smsMessage.trim());
+      setNotice({ kind: 'ok', text: `SMS ${notification.status.toLowerCase()} sent to ${head.customerName}.` });
+      setSmsMessage('');
+      setSmsOpen(false);
+    } catch (err: any) {
+      setNotice({ kind: 'err', text: err.message });
     } finally {
       setActionPending(false);
     }
   };
-  const callCustomer = () => { if (head) setNotice(`Calling ${head.customerName} from Counter 3.`); };
   const addWalkIn = async () => {
-    const service = services[0];
-    if (!branchId || !service) return;
+    if (!branchId || !walkInForm.serviceId || !walkInForm.name.trim() || !walkInForm.phone.trim()) return;
     setActionPending(true);
     try {
       const { ticket } = await api.joinQueue({
         branchId,
-        serviceId: service.id,
-        customerName: 'Walk-in customer',
-        customerPhone: '+264 81 000 0000',
+        serviceId: walkInForm.serviceId,
+        customerName: walkInForm.name.trim(),
+        customerPhone: walkInForm.phone.trim(),
         source: 'STAFF_WALK_IN',
       });
-      setNotice(`Walk-in ${ticket.ticketNumber} added to ${ticket.serviceName}.`);
+      setNotice({ kind: 'ok', text: `Walk-in ${ticket.ticketNumber} added to ${ticket.serviceName}.` });
+      setWalkInForm({ name: '', phone: '', serviceId: walkInForm.serviceId });
+      setWalkInOpen(false);
+    } catch (err: any) {
+      setNotice({ kind: 'err', text: err.message });
     } finally {
       setActionPending(false);
     }
   };
 
-  if (!company) return <div className="card p-6 h-64 animate-pulse" />;
-  const avatars = [img.personAvatar1, img.personAvatar2, img.personAvatar3, img.personAvatar4, img.personAvatar5, img.personAvatar6];
-  const branch = branches.find((item) => item.id === branchId);
+  if (!data) {
+    return <div className="card p-6 h-72 animate-pulse" aria-label="Loading staff console" />;
+  }
+
+  if (!session) {
+    return (
+      <div className="card p-6 max-w-2xl">
+        <h2 className="text-[16px] font-semibold text-ink">Sign in to use the staff console</h2>
+        <p className="mt-2 text-[13px] text-ink-2">Your counter workflow lives behind a staff login.</p>
+        <Link to="/login" className="btn btn-primary btn-md mt-4">Sign in</Link>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-        <img src={img.personAvatar4} alt="" className="w-12 h-12 rounded-full object-cover" />
-        <div className="flex-1 min-w-0">
-          <div className="t-eyebrow text-[10px]">Counter 3 · Operator console</div>
-          <h2 className="text-[16px] font-semibold text-ink">Tendai Moyo</h2>
-          <p className="text-[12px] text-ink-3">{company.name} · {branch?.name ?? 'Active branch'} · Counter workflow</p>
+        <div className="w-12 h-12 rounded-full grid place-items-center text-white text-[15px] font-semibold" style={{ background: data.company.primaryColor }}>
+          {initials(me?.name ?? session.name)}
         </div>
-        <div className="flex items-center gap-2">
-          <select value={branchId ?? ''} onChange={(e) => setBranchId(e.target.value)} className="select h-9 text-[13px]">
-            <option value="">Switch branch…</option>
-            {branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.name}</option>)}
-          </select>
+        <div className="flex-1 min-w-0">
+          <div className="t-eyebrow text-[10px]">{counter || 'Counter'} - {me ? roleLabel(me.role) : roleLabel('OPERATOR')} console</div>
+          <h2 className="text-[16px] font-semibold text-ink">{me?.name ?? session.name}</h2>
+          <p className="text-[12px] text-ink-3">
+            {data.company.name}{branch ? ` - ${branch.name}` : ''}{branch ? ` - ${branch.city}` : ''} - Counter workflow
+          </p>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          {data.branches.length > 1 && (
+            <select value={branchId ?? ''} onChange={(e) => setBranchId(e.target.value)} className="select h-9 text-[13px]">
+              {data.branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+            </select>
+          )}
+          <input
+            value={counter}
+            onChange={(e) => setCounter(e.target.value)}
+            placeholder="Counter name"
+            className="input h-9 w-32 text-[13px]"
+          />
           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Online
           </span>
         </div>
       </div>
 
+      {notice && (
+        <div className={cn('rounded-md px-3 py-2 text-[12px]', notice.kind === 'ok' ? 'border border-emerald-200 bg-emerald-50 text-emerald-700' : 'border border-red-200 bg-red-50 text-red-700')}>
+          {notice.text}
+        </div>
+      )}
+
       <div className="grid sm:grid-cols-3 gap-px bg-line border border-line rounded-lg overflow-hidden">
-        <KpiCard label="Now serving" value={head?.ticketNumber ?? '—'} sub={head?.customerName ?? 'No active ticket'} avatar={avatars[0]} chip={head ? (head.status === 'SERVING' ? 'chip-serve' : 'chip-call') : 'chip-neutral'} chipText={head?.status ?? 'IDLE'} />
-        <KpiCard label="In line" value={String(live.filter(t => t.status === 'WAITING').length)} sub={`~ wait ${next?.estimatedWaitMinutes ?? 0} min`} />
-        <KpiCard label="Served today" value={String(staff.find(s => s.id === 'st_tendai')?.servedToday ?? 0)} sub="+18% vs your avg" subAccent />
+        <KpiCard label="Now serving" value={head?.ticketNumber ?? '-'} sub={head?.customerName ?? 'No active ticket'} chip={head ? (head.status === 'SERVING' ? 'chip-serve' : 'chip-call') : 'chip-neutral'} chipText={head?.status ?? 'IDLE'} />
+        <KpiCard label="In line" value={String(live.filter((t) => t.status === 'WAITING').length)} sub={`~ wait ${next?.estimatedWaitMinutes ?? 0} min`} />
+        <KpiCard label="Served today" value={String(me?.servedToday ?? 0)} sub={me ? `Rating ${me.rating.toFixed(1)}` : '+18% vs your avg'} subAccent={Boolean(me)} />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-5">
         <div className="lg:col-span-2 card p-5">
           <div className="flex items-center justify-between">
             <h3 className="text-[14px] font-semibold text-ink">Waiting list</h3>
-            <span className="t-eyebrow text-[10px]">Auto-updates via WebSocket</span>
+            <span className="t-eyebrow text-[10px]">{branch ? `${branch.name} - auto-updates` : 'Auto-updates via WebSocket'}</span>
           </div>
           <hr className="hairline my-3" />
           <div className="space-y-1.5">
             <AnimatePresence>
-              {live.map((t, i) => (
+              {live.map((t) => (
                 <motion.div
                   key={t.id}
                   layout
@@ -143,14 +280,19 @@ export default function Staff() {
                     'border-line bg-surface',
                   )}
                 >
-                  <img src={avatars[i % avatars.length]} alt="" className="w-8 h-8 rounded-full object-cover" />
+                  <div className="w-8 h-8 rounded-full bg-blue-50 text-accent grid place-items-center text-[12px] font-semibold">
+                    {initials(t.customerName)}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="t-mono text-[13px] text-ink font-medium">{t.ticketNumber}</span>
                       <span className="text-[13px] text-ink font-medium truncate">{t.customerName}</span>
                     </div>
-                    <div className="font-mono text-[11px] text-ink-3">{t.serviceName} · joined {relativeTime(t.joinedAt)}</div>
+                    <div className="font-mono text-[11px] text-ink-3">{t.serviceName} - joined {relativeTime(t.joinedAt)}</div>
                   </div>
+                  <Link to={`/staff/ticket/${t.id}`} className="text-[11px] text-ink-3 hover:text-ink inline-flex items-center gap-1">
+                    Detail <ArrowUpRight size={11} />
+                  </Link>
                   <span className={cn(
                     t.status === 'WAITING' ? 'chip-wait' :
                     t.status === 'CALLED' ? 'chip-call' :
@@ -180,71 +322,80 @@ export default function Staff() {
             <button onClick={transfer} disabled={!head || actionPending} className="btn btn-sm btn-outline bg-surface disabled:opacity-40"><ArrowRightLeft size={13} /> Transfer</button>
           </div>
           <div className="grid grid-cols-2 gap-px bg-line border border-line">
-            <button onClick={sendSms} disabled={!head || actionPending} className="btn btn-sm btn-outline bg-surface disabled:opacity-40"><MessageSquare size={13} /> SMS</button>
-            <button onClick={callCustomer} disabled={!head} className="btn btn-sm btn-outline bg-surface disabled:opacity-40"><Phone size={13} /> Call</button>
+            <button onClick={() => setSmsOpen(true)} disabled={!head || actionPending} className="btn btn-sm btn-outline bg-surface disabled:opacity-40"><MessageSquare size={13} /> SMS</button>
+            <a href={head?.customerPhone ? `tel:${head.customerPhone}` : undefined} className={cn('btn btn-sm btn-outline bg-surface', !head && 'opacity-40 pointer-events-none')}><Phone size={13} /> Call</a>
           </div>
-          <button type="button" onClick={addWalkIn} disabled={actionPending || !branchId || services.length === 0} className="btn btn-sm btn-ghost w-full disabled:opacity-40"><Plus size={13} /> Add walk-in</button>
-          {notice && (
-            <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-[12px] text-emerald-700">
-              {notice}
-            </div>
-          )}
+          <button type="button" onClick={() => setWalkInOpen(true)} disabled={actionPending || !branchId || services.length === 0} className="btn btn-sm btn-ghost w-full disabled:opacity-40"><UserPlus size={13} /> Add walk-in</button>
+          <button type="button" onClick={() => downloadTextFile('staff-queue.csv', toCsv(live), 'text/csv;charset=utf-8')} disabled={live.length === 0} className="btn btn-sm btn-ghost w-full disabled:opacity-40">Export waiting list</button>
           <div className="card p-3 mt-1">
             <div className="flex items-center gap-2 text-[12px] text-ink-2">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-              {company.smsBalance.toLocaleString()} SMS credits
+              {data.metrics.smsBalance.toLocaleString()} SMS credits
             </div>
-            <div className="mt-0.5 t-eyebrow text-[9px]">Auto top-up ON · refills at 200</div>
+            <div className="mt-0.5 t-eyebrow text-[9px]">Auto top-up ON - refills at 200</div>
           </div>
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-2 card p-5">
-          <div className="flex items-center justify-between">
-            <h3 className="text-[14px] font-semibold text-ink">Branch activity</h3>
-            <Activity size={14} className="text-ink-3" />
+      {walkInOpen && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-ink/55 p-4" onClick={() => !actionPending && setWalkInOpen(false)}>
+          <div className="w-full max-w-md rounded-xl border border-line bg-surface p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-[16px] font-semibold text-ink">Add a walk-in customer</h3>
+            <p className="text-[12px] text-ink-3 mt-1">Create a ticket on the spot for someone at the counter.</p>
+            <form onSubmit={(e) => { e.preventDefault(); void addWalkIn(); }} className="mt-4 space-y-3">
+              <label className="block">
+                <span className="label">Service</span>
+                <select className="select" value={walkInForm.serviceId} onChange={(e) => setWalkInForm((f) => ({ ...f, serviceId: e.target.value }))} required>
+                  {services.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+              </label>
+              <label className="block">
+                <span className="label">Customer name</span>
+                <input className="input" required value={walkInForm.name} onChange={(e) => setWalkInForm((f) => ({ ...f, name: e.target.value }))} />
+              </label>
+              <label className="block">
+                <span className="label">Phone for SMS</span>
+                <input className="input" required type="tel" value={walkInForm.phone} onChange={(e) => setWalkInForm((f) => ({ ...f, phone: e.target.value }))} />
+              </label>
+              <div className="flex justify-end gap-2 pt-2">
+                <button type="button" className="btn btn-outline btn-md" onClick={() => setWalkInOpen(false)} disabled={actionPending}>Cancel</button>
+                <button type="submit" className="btn btn-primary btn-md" disabled={actionPending}><Plus size={13} /> Add ticket</button>
+              </div>
+            </form>
           </div>
-          <hr className="hairline my-3" />
-          <ol className="space-y-2.5">
-            {[
-              { t: '12:42', who: 'Linda K.',     what: 'was served at Counter 3',          avatar: img.personAvatar3 },
-              { t: '12:38', who: 'Joseph T.',    what: 'joined the queue · Account opening', avatar: img.personAvatar2 },
-              { t: '12:36', who: 'Daniel M.',    what: 'was called to Counter 1',           avatar: img.personAvatar4 },
-              { t: '12:30', who: 'Maria N.',     what: 'joined the queue · Personal banking', avatar: img.personAvatar1 },
-              { t: '12:24', who: 'Senior Citizen', what: 'joined the queue · Priority',       avatar: img.personAvatar5 },
-            ].map((e, i) => (
-              <li key={i} className="flex items-center gap-2.5 text-[12px] border-b border-dashed border-line pb-2.5 last:border-0 last:pb-0">
-                <img src={e.avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
-                <div className="flex-1 min-w-0">
-                  <div className="text-ink"><span className="font-medium">{e.who}</span> <span className="text-ink-2">{e.what}</span></div>
-                </div>
-                <div className="t-mono text-[10px] text-ink-3">{e.t}</div>
-              </li>
-            ))}
-          </ol>
         </div>
+      )}
 
-        <div className="card overflow-hidden">
-          <div className="aspect-[4/3] bg-surface-2">
-            <img src={img.bankCounter} alt="" className="w-full h-full object-cover" />
-          </div>
-          <div className="p-4">
-            <h3 className="text-[14px] font-semibold text-ink">Counter 3</h3>
-            <p className="text-[12px] text-ink-3 mt-1">Personal banking. 3 staff on shift.</p>
-            <hr className="hairline my-3" />
-            <div className="flex items-center gap-2 text-[12px] text-ink-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-              Avg service 5m · 42 served today
+      {smsOpen && head && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-ink/55 p-4" onClick={() => !actionPending && setSmsOpen(false)}>
+          <div className="w-full max-w-md rounded-xl border border-line bg-surface p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-[16px] font-semibold text-ink">Send SMS to {head.customerName}</h3>
+            <p className="text-[12px] text-ink-3 mt-1">Going to {head.customerPhone} for ticket {head.ticketNumber}.</p>
+            <textarea
+              className="input mt-4 min-h-28"
+              value={smsMessage}
+              onChange={(e) => setSmsMessage(e.target.value)}
+              placeholder="Hi, this is an update from your service team..."
+              required
+            />
+            <div className="flex justify-end gap-2 pt-3">
+              <button type="button" className="btn btn-outline btn-md" onClick={() => setSmsOpen(false)} disabled={actionPending}>Cancel</button>
+              <button type="button" className="btn btn-primary btn-md" onClick={sendSms} disabled={actionPending || !smsMessage.trim()}><MessageSquare size={13} /> Send</button>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
 
-function KpiCard({ label, value, sub, avatar, chip, chipText, subAccent }: { label: string; value: string; sub?: string; avatar?: string; chip?: string; chipText?: string; subAccent?: boolean }) {
+function toCsv(rows: any[]) {
+  const headers = ['Ticket', 'Customer', 'Phone', 'Service', 'Status', 'Joined', 'Position'];
+  const lines = rows.map((r) => [r.ticketNumber, r.customerName, r.customerPhone, r.serviceName, r.status, r.joinedAt, r.position].map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(','));
+  return [headers.join(','), ...lines].join('\n');
+}
+
+function KpiCard({ label, value, sub, chip, chipText, subAccent }: { label: string; value: string; sub?: string; chip?: string; chipText?: string; subAccent?: boolean }) {
   return (
     <div className="bg-surface p-4 flex items-center gap-3">
       <div className="flex-1 min-w-0">
@@ -252,12 +403,7 @@ function KpiCard({ label, value, sub, avatar, chip, chipText, subAccent }: { lab
         <div className="t-mono text-2xl text-ink font-semibold mt-0.5">{value}</div>
         {sub && <div className={cn('font-mono text-[11px] mt-0.5', subAccent ? 'text-emerald-700' : 'text-ink-3')}>{sub}</div>}
       </div>
-      {avatar ? (
-        <div className="flex flex-col items-end gap-1.5">
-          <img src={avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
-          {chip && <span className={cn(chip, 'text-[9px]')}>{chipText}</span>}
-        </div>
-      ) : null}
+      {chip && <span className={cn(chip, 'text-[9px]')}>{chipText}</span>}
     </div>
   );
 }

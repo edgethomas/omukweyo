@@ -24,11 +24,6 @@ export default function ForRunners() {
     <div className="container-x py-12 space-y-12">
       <header className="grid lg:grid-cols-[1fr_470px] gap-8 items-center">
         <div>
-          <div className="text-[12px] text-ink-3 mb-3">
-            <Link to="/" className="hover:text-ink">Home</Link>
-            <span className="mx-2 text-ink-3/40">/</span>
-            For queue assistants
-          </div>
           <h1 className="t-h1 text-balance max-w-3xl">Runner work is a real workspace.</h1>
           <p className="t-body mt-3 max-w-2xl">
             Accept allowed public-line jobs, send proof updates, and keep the customer informed from one screen.

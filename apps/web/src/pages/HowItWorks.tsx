@@ -34,7 +34,6 @@ export default function HowItWorks() {
   return (
     <div className="container-x py-12 space-y-12">
       <header>
-        <div className="text-[12px] text-ink-3 mb-3"><Link to="/" className="hover:text-ink">Home</Link> <span className="mx-2 text-ink-3/40">/</span> How it works</div>
         <h1 className="t-h1 text-balance max-w-3xl">How Omukweyo actually works — customer, staff, and company in three flows.</h1>
         <p className="t-body mt-3 max-w-2xl">Omukweyo works the same way for a one-chair salon, a 14-branch bank, or a government service center. Here's the whole story.</p>
       </header>

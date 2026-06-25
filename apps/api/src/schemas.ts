@@ -131,3 +131,17 @@ export const RunnerAcceptBody = z.object({
 export const RunnerProofBody = z.object({
   message: z.string().min(1).max(320),
 });
+
+export const CreateRunnerRequestBody = z.object({
+  customerId: z.string().optional(),
+  customerName: z.string().min(1).max(80),
+  customerPhone: z.string().min(7).max(20),
+  destinationName: z.string().min(1).max(120),
+  destinationCity: z.string().min(2).max(80),
+  destinationSource: z.string().max(40).optional(),
+  serviceName: z.string().min(1).max(80),
+  targetArrivalAt: z.string().datetime(),
+  maxBudgetCents: z.number().int().min(2000).max(200000),
+  instructions: z.string().min(1).max(500),
+});
+export type CreateRunnerRequestBody = z.infer<typeof CreateRunnerRequestBody>;

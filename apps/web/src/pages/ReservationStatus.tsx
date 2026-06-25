@@ -52,17 +52,10 @@ export default function ReservationStatus() {
 
   return (
     <section className="container-x py-12">
-      <div className="text-[12px] text-ink-3 mb-3">
-        <Link to="/" className="hover:text-ink">Home</Link>
-        <span className="mx-2 text-ink-3/40">/</span>
-        Reservation
-      </div>
-
       <div className="grid lg:grid-cols-[1fr_360px] gap-8 items-start">
         <div className="card p-6">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
             <div>
-              <div className="t-eyebrow mb-2">Paid future spot</div>
               <h1 className="text-2xl font-semibold text-ink leading-tight">
                 {reservation.serviceName} at {reservation.branchName}
               </h1>
