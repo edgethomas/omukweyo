@@ -4,11 +4,14 @@ import { ArrowRight, BadgeCheck, MapPin, Wallet } from 'lucide-react';
 import { api } from '@/lib/api';
 
 const RUNNER_KEY = 'inline_runner';
+const SESSION_KEY = 'omukweyo_session';
 
 export default function RunnerSignup() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     name: '',
+    email: '',
+    password: '',
     phone: '',
     city: 'Windhoek',
     transportMode: 'taxi',
@@ -24,8 +27,9 @@ export default function RunnerSignup() {
     setLoading(true);
     setError(null);
     try {
-      const { application } = await api.runnerApply(form);
+      const { application, session } = await api.runnerApply(form);
       localStorage.setItem(RUNNER_KEY, JSON.stringify(application));
+      if (session) localStorage.setItem(SESSION_KEY, JSON.stringify(session));
       navigate('/runner/work');
     } catch (err: any) {
       setError(err.message);
@@ -63,18 +67,26 @@ export default function RunnerSignup() {
           <div>
             <div className="t-eyebrow mb-1">Runner application</div>
             <h2 className="text-[18px] font-semibold text-ink">Create runner profile</h2>
-            <p className="text-[12px] text-ink-2 mt-1">This demo creates a pending profile and opens the workbench.</p>
+            <p className="text-[12px] text-ink-2 mt-1">Create a runner login, submit the profile for review, and open the workbench.</p>
           </div>
 
           {error && <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">{error}</div>}
 
           <label className="block">
             <span className="label">Full name</span>
-            <input className="input" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} required />
+            <input className="input" name="name" autoComplete="name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} required />
+          </label>
+          <label className="block">
+            <span className="label">Email</span>
+            <input className="input" name="email" autoComplete="email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} required />
+          </label>
+          <label className="block">
+            <span className="label">Password</span>
+            <input className="input" name="password" autoComplete="new-password" type="password" minLength={6} value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} required />
           </label>
           <label className="block">
             <span className="label">Phone</span>
-            <input className="input" type="tel" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} required />
+            <input className="input" name="phone" autoComplete="tel" type="tel" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} required />
           </label>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
@@ -106,13 +118,14 @@ export default function RunnerSignup() {
             </label>
             <label className="block">
               <span className="label">Can start</span>
-              <input className="input" value={form.canStartAt} onChange={(e) => setForm((f) => ({ ...f, canStartAt: e.target.value }))} required />
+              <input className="input" name="canStartAt" value={form.canStartAt} onChange={(e) => setForm((f) => ({ ...f, canStartAt: e.target.value }))} required />
             </label>
           </div>
           <label className="block">
             <span className="label">Notes</span>
             <textarea
               className="input min-h-20 py-2"
+              name="notes"
               value={form.notes}
               onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
               placeholder="Areas you can cover, languages, availability"

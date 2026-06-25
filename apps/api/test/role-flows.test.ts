@@ -54,6 +54,42 @@ test('Prisma-backed store keeps payment and notification state persisted, not ru
   assert.doesNotMatch(storeSource, /export const company/);
 });
 
+test('customer signup can create a password-backed login session', () => {
+  const schemaSource = read('apps/api/src/schemas.ts');
+  const indexSource = read('apps/api/src/index.ts');
+  const storeSource = read('apps/api/src/store.ts');
+
+  assert.match(schemaSource, /password:\s*z\.string\(\)\.min\(6\)\.optional\(\)/);
+  assert.match(storeSource, /export async function createCustomerAccountSession/);
+  assert.match(storeSource, /role:\s*'CUSTOMER'/);
+  assert.match(storeSource, /bcrypt\.hash\(input\.password/);
+  assert.match(storeSource, /prisma\.session\.create/);
+  assert.match(indexSource, /const session = parsed\.data\.password/);
+  assert.match(indexSource, /createCustomerAccountSession/);
+  assert.match(indexSource, /res\.status\(201\)\.json\(\{ customer, session/);
+});
+
+test('business and runner signup create credential-backed sessions', () => {
+  const schemaSource = read('apps/api/src/schemas.ts');
+  const indexSource = read('apps/api/src/index.ts');
+  const storeSource = read('apps/api/src/store.ts');
+
+  assert.match(schemaSource, /ownerPassword:\s*z\.string\(\)\.min\(6\)/);
+  assert.match(storeSource, /ownerPassword:\s*string/);
+  assert.match(storeSource, /bcrypt\.hash\(input\.ownerPassword/);
+  assert.match(indexSource, /ownerPassword:\s*parsed\.data\.ownerPassword/);
+  assert.match(indexSource, /loginDemoUser\(parsed\.data\.ownerEmail,\s*parsed\.data\.ownerPassword\)/);
+  assert.match(indexSource, /res\.status\(201\)\.json\(\{ onboarding, session/);
+
+  assert.match(schemaSource, /email:\s*z\.string\(\)\.email\(\)/);
+  assert.match(schemaSource, /password:\s*z\.string\(\)\.min\(6\)/);
+  assert.match(storeSource, /email:\s*string;\s*password:\s*string/s);
+  assert.match(storeSource, /role:\s*'RUNNER'/);
+  assert.match(storeSource, /destination:\s*'\/runner\/work'/);
+  assert.match(indexSource, /loginDemoUser\(parsed\.data\.email,\s*parsed\.data\.password\)/);
+  assert.match(indexSource, /res\.status\(201\)\.json\(\{ application, session/);
+});
+
 test('database launch path is documented with env, push, seed, and smoke verification', () => {
   const rootPackage = JSON.parse(read('package.json'));
   const apiPackage = JSON.parse(read('apps/api/package.json'));

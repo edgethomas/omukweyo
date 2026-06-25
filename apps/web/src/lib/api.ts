@@ -44,6 +44,7 @@ export const api = {
   businessOnboard: (body: {
     ownerName: string;
     ownerEmail: string;
+    ownerPassword: string;
     ownerPhone: string;
     companyName: string;
     industry: string;
@@ -55,7 +56,7 @@ export const api = {
     serviceName: string;
     averageServiceMinutes: number;
     plan: 'FREE' | 'STARTER' | 'BUSINESS' | 'ENTERPRISE';
-  }) => request<{ onboarding: any }>(`/business/onboard`, { method: 'POST', body: JSON.stringify(body) }),
+  }) => request<{ onboarding: any; session?: any; user?: any }>(`/business/onboard`, { method: 'POST', body: JSON.stringify(body) }),
   businessWidget: () => request<any>(`/business/widget`),
   businessProfile: (body: {
     name?: string;
@@ -90,8 +91,8 @@ export const api = {
   liveQueue: (branchId?: string) => request<{ tickets: any[] }>(`/queue/live${branchId ? `?branchId=${branchId}` : ''}`),
   joinQueue: (body: { branchId: string; serviceId: string; customerName: string; customerPhone: string; source?: 'QR' | 'PUBLIC_PAGE' | 'EMBED' | 'STAFF_WALK_IN' | 'APPOINTMENT' | 'RUNNER' }) =>
     request<{ ticket: any }>(`/queue/join`, { method: 'POST', body: JSON.stringify(body) }),
-  customerSignup: (body: { name: string; phone: string; email?: string }) =>
-    request<{ customer: any }>(`/customers/signup`, { method: 'POST', body: JSON.stringify(body) }),
+  customerSignup: (body: { name: string; phone: string; email?: string; password?: string }) =>
+    request<{ customer: any; session?: any; user?: any }>(`/customers/signup`, { method: 'POST', body: JSON.stringify(body) }),
   customerUploadAvatar: (customerId: string, file: File) => {
     const form = new FormData();
     form.set('avatar', file);
@@ -122,13 +123,15 @@ export const api = {
     request<{ reservation: any; ticket: any }>(`/reservations/${id}/book-now`, { method: 'POST' }),
   runnerApply: (body: {
     name: string;
+    email: string;
+    password: string;
     phone: string;
     city: string;
     transportMode: string;
     payoutMethod: string;
     canStartAt: string;
     notes?: string;
-  }) => request<{ application: any }>(`/runners/apply`, { method: 'POST', body: JSON.stringify(body) }),
+  }) => request<{ application: any; session?: any; user?: any }>(`/runners/apply`, { method: 'POST', body: JSON.stringify(body) }),
   setRunnerApplicationStatus: (id: string, status: 'PENDING' | 'APPROVED' | 'REJECTED') =>
     request<{ application: any }>(`/runners/applications/${id}/status`, { method: 'POST', body: JSON.stringify({ status }) }),
   runnerJobs: () => request<{ jobs: any[] }>(`/runners/jobs`),

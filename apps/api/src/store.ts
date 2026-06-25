@@ -371,12 +371,7 @@ function demoUserFromDb(input: any): DemoUser {
   };
 }
 
-export async function loginDemoUser(email: string, password: string): Promise<DemoSession> {
-  const user = await prisma.user.findUnique({ where: { email: email.trim().toLowerCase() }, include: { company: { select: { slug: true } } } });
-  if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
-    throw new Error('Invalid email or password');
-  }
-
+async function createSessionForUser(user: any, verificationNote: string): Promise<DemoSession> {
   const issuedAt = new Date();
   const expiresAt = new Date(Date.now() + 12 * 60 * 60_000);
   const token = `sess_${nanoid(32)}`;
@@ -389,8 +384,54 @@ export async function loginDemoUser(email: string, password: string): Promise<De
     user: demoUserFromDb(user),
     issuedAt: issuedAt.toISOString(),
     expiresAt: expiresAt.toISOString(),
-    verificationNote: 'Database-backed local session. Email and SMS verification are still simulated for presentation mode.',
+    verificationNote,
   };
+}
+
+export async function loginDemoUser(email: string, password: string): Promise<DemoSession> {
+  const user = await prisma.user.findUnique({ where: { email: email.trim().toLowerCase() }, include: { company: { select: { slug: true } } } });
+  if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+    throw new Error('Invalid email or password');
+  }
+
+  return createSessionForUser(user, 'Database-backed session. Email and SMS verification are still simulated for presentation mode.');
+}
+
+export async function createCustomerAccountSession(input: { customer: CustomerAccount; password: string }): Promise<DemoSession> {
+  const email = input.customer.email?.trim().toLowerCase();
+  if (!email) throw new Error('Email is required to create a login account');
+
+  const existing = await prisma.user.findUnique({
+    where: { email },
+    include: { company: { select: { slug: true } } },
+  });
+
+  if (existing) {
+    if (existing.role !== 'CUSTOMER' || existing.customerId !== input.customer.id) {
+      throw new Error('Email is already used by another workspace account');
+    }
+    if (!(await bcrypt.compare(input.password, existing.passwordHash))) {
+      throw new Error('Customer login already exists. Use login or forgot password.');
+    }
+    return createSessionForUser(existing, 'Customer session opened.');
+  }
+
+  const passwordHash = await bcrypt.hash(input.password, 10);
+  const user = await prisma.user.create({
+    data: {
+      role: 'CUSTOMER',
+      name: input.customer.name,
+      email,
+      phone: input.customer.phone,
+      passwordHash,
+      destination: '/customer',
+      customerId: input.customer.id,
+      emailVerified: false,
+    },
+    include: { company: { select: { slug: true } } },
+  });
+
+  return createSessionForUser(user, 'Customer account created. Email and SMS verification are still simulated for presentation mode.');
 }
 
 export async function getDemoUserByToken(token: string): Promise<DemoUser | undefined> {
@@ -790,6 +831,8 @@ export async function bookReservationNow(id: string): Promise<{ reservation: Fut
 
 export async function createRunnerApplication(input: {
   name: string;
+  email: string;
+  password: string;
   phone: string;
   city: string;
   transportMode: string;
@@ -797,7 +840,35 @@ export async function createRunnerApplication(input: {
   canStartAt: string;
   notes?: string;
 }): Promise<RunnerApplication> {
-  return mapRunnerApplication(await prisma.runnerApplication.create({ data: input }));
+  const email = input.email.trim().toLowerCase();
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) throw new Error('Email is already used by another workspace account');
+  const passwordHash = await bcrypt.hash(input.password, 10);
+  const [application] = await prisma.$transaction([
+    prisma.runnerApplication.create({
+      data: {
+        name: input.name,
+        phone: input.phone,
+        city: input.city,
+        transportMode: input.transportMode,
+        payoutMethod: input.payoutMethod,
+        canStartAt: input.canStartAt,
+        notes: input.notes,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        role: 'RUNNER',
+        name: input.name,
+        email,
+        phone: input.phone,
+        passwordHash,
+        destination: '/runner/work',
+        emailVerified: false,
+      },
+    }),
+  ]);
+  return mapRunnerApplication(application);
 }
 
 export async function setRunnerApplicationStatus(id: string, status: 'PENDING' | 'APPROVED' | 'REJECTED'): Promise<RunnerApplication> {
@@ -1021,6 +1092,7 @@ export async function listBusinessDirectory(query = ''): Promise<BusinessDirecto
 export async function createBusinessOnboarding(input: {
   ownerName: string;
   ownerEmail: string;
+  ownerPassword: string;
   ownerPhone: string;
   companyName: string;
   industry: string;
@@ -1033,7 +1105,7 @@ export async function createBusinessOnboarding(input: {
   averageServiceMinutes: number;
   plan: BusinessOnboarding['plan'];
 }): Promise<BusinessOnboarding> {
-  const passwordHash = await bcrypt.hash('demo123', 10);
+  const passwordHash = await bcrypt.hash(input.ownerPassword, 10);
   const companySlug = await uniqueCompanySlug(input.companyName);
   const branchSlug = slugify(input.branchName);
   const serviceSlug = slugify(input.serviceName);

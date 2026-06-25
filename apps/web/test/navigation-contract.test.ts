@@ -330,6 +330,37 @@ test('logged-in customer utility routes stay inside the product shell', () => {
   assert.match(customerSettingsSource, /SMS consent/);
 });
 
+test('customer signup can open a real customer session', () => {
+  const apiSource = readFileSync(path.join(root, 'lib', 'api.ts'), 'utf8');
+  const signupSource = readFileSync(path.join(root, 'pages', 'CustomerSignup.tsx'), 'utf8');
+
+  assert.match(apiSource, /customerSignup:\s*\(body:\s*\{[^}]*password\?:\s*string/s);
+  assert.match(apiSource, /request<\{ customer: any; session\?: any; user\?: any \}>/);
+  assert.match(signupSource, /password:\s*''/);
+  assert.match(signupSource, /type="password"/);
+  assert.match(signupSource, /localStorage\.setItem\(SESSION_KEY, JSON\.stringify\(session\)\)/);
+  assert.match(signupSource, /navigate\('\/customer'\)/);
+});
+
+test('business and runner signup open real workspace sessions', () => {
+  const apiSource = readFileSync(path.join(root, 'lib', 'api.ts'), 'utf8');
+  const onboardingSource = readFileSync(path.join(root, 'pages', 'Onboarding.tsx'), 'utf8');
+  const runnerSignupSource = readFileSync(path.join(root, 'pages', 'RunnerSignup.tsx'), 'utf8');
+
+  assert.match(apiSource, /ownerPassword:\s*string/);
+  assert.match(apiSource, /request<\{ onboarding: any; session\?: any; user\?: any \}>/);
+  assert.match(onboardingSource, /ownerPassword:\s*''/);
+  assert.match(onboardingSource, /localStorage\.setItem\(SESSION_KEY, JSON\.stringify\(payload\.session\)\)/);
+  assert.match(onboardingSource, /Field[^>]*name="ownerPassword"[^>]*type="password"/);
+
+  assert.match(apiSource, /runnerApply:\s*\(body:\s*\{[^}]*email:\s*string;[^}]*password:\s*string/s);
+  assert.match(apiSource, /request<\{ application: any; session\?: any; user\?: any \}>/);
+  assert.match(runnerSignupSource, /email:\s*''/);
+  assert.match(runnerSignupSource, /password:\s*''/);
+  assert.match(runnerSignupSource, /localStorage\.setItem\(SESSION_KEY, JSON\.stringify\(session\)\)/);
+  assert.match(runnerSignupSource, /navigate\('\/runner\/work'\)/);
+});
+
 test('customer shell keeps profile out of main nav and exposes it through the account menu', () => {
   const customerShellSource = readFileSync(path.join(root, 'components', 'CustomerShell.tsx'), 'utf8');
   const customerNavMatch = customerShellSource.match(/const customerNav: CustomerNavItem\[] = \[([\s\S]*?)\];/);

@@ -6,6 +6,7 @@ import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 const BUSINESS_KEY = 'inline_business';
+const SESSION_KEY = 'omukweyo_session';
 
 const industries = [
   'Banking and financial services',
@@ -33,7 +34,7 @@ const setupCards: { Icon: ElementType; title: string; body: string }[] = [
 ];
 
 const stepFields: Record<number, Array<keyof FormState>> = {
-  1: ['ownerName', 'ownerEmail', 'ownerPhone', 'companyName', 'industry'],
+  1: ['ownerName', 'ownerEmail', 'ownerPassword', 'ownerPhone', 'companyName', 'industry'],
   2: ['branchName', 'city', 'openingHours'],
   3: ['serviceName', 'averageServiceMinutes'],
   4: ['plan'],
@@ -42,6 +43,7 @@ const stepFields: Record<number, Array<keyof FormState>> = {
 type FormState = {
   ownerName: string;
   ownerEmail: string;
+  ownerPassword: string;
   ownerPhone: string;
   companyName: string;
   industry: string;
@@ -58,6 +60,7 @@ type FormState = {
 const initialForm: FormState = {
   ownerName: '',
   ownerEmail: '',
+  ownerPassword: '',
   ownerPhone: '',
   companyName: '',
   industry: 'Service center',
@@ -113,6 +116,7 @@ export default function Onboarding() {
     try {
       const payload = await api.businessOnboard(form);
       localStorage.setItem(BUSINESS_KEY, JSON.stringify(payload.onboarding));
+      if (payload.session) localStorage.setItem(SESSION_KEY, JSON.stringify(payload.session));
       setOnboarding(payload.onboarding);
     } catch (err: any) {
       setError(err.message);
@@ -127,7 +131,7 @@ export default function Onboarding() {
         <div>
           <h1 className="t-h1 text-balance max-w-3xl">Set up a business queue workspace in minutes.</h1>
           <p className="t-body mt-3 max-w-2xl">
-            Create the owner account, first branch, first service, and starter plan. The demo returns live links for the admin console, public queue page, staff console, and embed.
+            Create the owner account, first branch, first service, and starter plan. Omukweyo returns live links for the admin console, public queue page, staff console, and embed.
           </p>
 
           <div className="grid sm:grid-cols-2 gap-3 mt-7 max-w-2xl">
@@ -161,30 +165,32 @@ export default function Onboarding() {
               {step === 1 && (
                 <div className="space-y-3">
                   <h2 className="text-[16px] font-semibold text-ink">Owner and company</h2>
-                  <Field label="Owner name" value={form.ownerName} onChange={(value) => update('ownerName', value)} placeholder="Selma Nakale" />
-                  <Field label="Work email" type="email" value={form.ownerEmail} onChange={(value) => update('ownerEmail', value)} placeholder="selma@company.com" />
-                  <Field label="Phone" type="tel" value={form.ownerPhone} onChange={(value) => update('ownerPhone', value)} placeholder="+264 81 555 1212" />
-                  <Field label="Company name" value={form.companyName} onChange={(value) => update('companyName', value)} placeholder="Selma Services" />
-                  <Select label="Industry" value={form.industry} onChange={(value) => update('industry', value)} options={industries} />
+                  <Field name="ownerName" autoComplete="name" label="Owner name" value={form.ownerName} onChange={(value) => update('ownerName', value)} placeholder="Selma Nakale" />
+                  <Field name="ownerEmail" autoComplete="email" label="Work email" type="email" value={form.ownerEmail} onChange={(value) => update('ownerEmail', value)} placeholder="selma@company.com" />
+                  <Field name="ownerPassword" autoComplete="new-password" label="Password" type="password" value={form.ownerPassword} onChange={(value) => update('ownerPassword', value)} placeholder="At least 6 characters" />
+                  <Field name="ownerPhone" autoComplete="tel" label="Phone" type="tel" value={form.ownerPhone} onChange={(value) => update('ownerPhone', value)} placeholder="+264 81 555 1212" />
+                  <Field name="companyName" label="Company name" value={form.companyName} onChange={(value) => update('companyName', value)} placeholder="Selma Services" />
+                  <Select name="industry" label="Industry" value={form.industry} onChange={(value) => update('industry', value)} options={industries} />
                 </div>
               )}
 
               {step === 2 && (
                 <div className="space-y-3">
                   <h2 className="text-[16px] font-semibold text-ink">First branch</h2>
-                  <Field label="Branch name" value={form.branchName} onChange={(value) => update('branchName', value)} placeholder="Main branch" />
-                  <Field label="Address" value={form.address} onChange={(value) => update('address', value)} placeholder="Independence Ave" optional />
-                  <Field label="City" value={form.city} onChange={(value) => update('city', value)} placeholder="Windhoek" />
-                  <Field label="Branch phone" type="tel" value={form.branchPhone} onChange={(value) => update('branchPhone', value)} placeholder="+264 61 200 1000" optional />
-                  <Field label="Opening hours" value={form.openingHours} onChange={(value) => update('openingHours', value)} placeholder="08:00 - 16:30" />
+                  <Field name="branchName" label="Branch name" value={form.branchName} onChange={(value) => update('branchName', value)} placeholder="Main branch" />
+                  <Field name="address" label="Address" value={form.address} onChange={(value) => update('address', value)} placeholder="Independence Ave" optional />
+                  <Field name="city" label="City" value={form.city} onChange={(value) => update('city', value)} placeholder="Windhoek" />
+                  <Field name="branchPhone" autoComplete="tel" label="Branch phone" type="tel" value={form.branchPhone} onChange={(value) => update('branchPhone', value)} placeholder="+264 61 200 1000" optional />
+                  <Field name="openingHours" label="Opening hours" value={form.openingHours} onChange={(value) => update('openingHours', value)} placeholder="08:00 - 16:30" />
                 </div>
               )}
 
               {step === 3 && (
                 <div className="space-y-3">
                   <h2 className="text-[16px] font-semibold text-ink">First service</h2>
-                  <Field label="Service name" value={form.serviceName} onChange={(value) => update('serviceName', value)} placeholder="General service" />
+                  <Field name="serviceName" label="Service name" value={form.serviceName} onChange={(value) => update('serviceName', value)} placeholder="General service" />
                   <Field
+                    name="averageServiceMinutes"
                     label="Average service time"
                     type="number"
                     value={String(form.averageServiceMinutes)}
@@ -245,33 +251,37 @@ export default function Onboarding() {
 }
 
 function Field({
+  name,
   label,
   value,
   onChange,
   type = 'text',
   placeholder,
   optional,
+  autoComplete,
 }: {
+  name: string;
   label: string;
   value: string;
   onChange: (value: string) => void;
   type?: string;
   placeholder?: string;
   optional?: boolean;
+  autoComplete?: string;
 }) {
   return (
     <label className="block">
       <span className="label">{label}{optional ? <span className="text-ink-3 font-normal"> optional</span> : null}</span>
-      <input value={value} onChange={(event) => onChange(event.target.value)} type={type} placeholder={placeholder} className="input" />
+      <input name={name} autoComplete={autoComplete} value={value} onChange={(event) => onChange(event.target.value)} type={type} placeholder={placeholder} className="input" />
     </label>
   );
 }
 
-function Select({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: string[] }) {
+function Select({ name, label, value, onChange, options }: { name: string; label: string; value: string; onChange: (value: string) => void; options: string[] }) {
   return (
     <label className="block">
       <span className="label">{label}</span>
-      <select value={value} onChange={(event) => onChange(event.target.value)} className="select">
+      <select name={name} value={value} onChange={(event) => onChange(event.target.value)} className="select">
         {options.map((option) => <option key={option} value={option}>{option}</option>)}
       </select>
     </label>

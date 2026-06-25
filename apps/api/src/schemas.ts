@@ -15,6 +15,7 @@ export const CompanySlug = z.object({ slug: z.string().min(1) });
 export const BusinessOnboardingBody = z.object({
   ownerName: z.string().min(1).max(80),
   ownerEmail: z.string().email(),
+  ownerPassword: z.string().min(6),
   ownerPhone: z.string().min(7).max(20),
   companyName: z.string().min(1).max(100),
   industry: z.string().min(2).max(80),
@@ -60,6 +61,7 @@ export const CustomerSignupBody = z.object({
   name: z.string().min(1).max(80),
   phone: z.string().min(7).max(20),
   email: z.string().email().optional().or(z.literal('')),
+  password: z.string().min(6).optional(),
   avatarUrl: z.string().url().optional().or(z.literal('')),
 });
 export type CustomerSignupBody = z.infer<typeof CustomerSignupBody>;
@@ -85,6 +87,8 @@ export const ReservationParams = z.object({
 
 export const RunnerApplicationBody = z.object({
   name: z.string().min(1).max(80),
+  email: z.string().email(),
+  password: z.string().min(6),
   phone: z.string().min(7).max(20),
   city: z.string().min(2).max(80),
   transportMode: z.string().min(2).max(40),

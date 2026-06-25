@@ -13,6 +13,7 @@ import {
   completeRunnerJob,
   computeMetrics,
   createBusinessOnboarding,
+  createCustomerAccountSession,
   createReservation,
   createRunnerApplication,
   createRunnerRequest,
@@ -324,6 +325,7 @@ app.post('/api/business/onboard', asyncRoute(async (req, res) => {
     const onboarding = await createBusinessOnboarding({
       ownerName: parsed.data.ownerName,
       ownerEmail: parsed.data.ownerEmail,
+      ownerPassword: parsed.data.ownerPassword,
       ownerPhone: parsed.data.ownerPhone,
       companyName: parsed.data.companyName,
       industry: parsed.data.industry,
@@ -336,7 +338,8 @@ app.post('/api/business/onboard', asyncRoute(async (req, res) => {
       averageServiceMinutes: parsed.data.averageServiceMinutes,
       plan: parsed.data.plan,
     });
-    res.status(201).json({ onboarding });
+    const session = await loginDemoUser(parsed.data.ownerEmail, parsed.data.ownerPassword);
+    res.status(201).json({ onboarding, session, user: session.user });
   } catch (error: any) {
     res.status(400).json({ error: 'onboarding_failed', message: safeErrorMessage(error, 'Failed to create business') });
   }
@@ -490,12 +493,18 @@ app.post('/api/queue/join', asyncRoute(async (req, res) => {
 app.post('/api/customers/signup', asyncRoute(async (req, res) => {
   const parsed = CustomerSignupBody.safeParse(req.body);
   if (!parsed.success) return void res.status(400).json({ error: 'bad_request', message: 'Invalid signup payload', details: parsed.error.flatten() });
+  if (parsed.data.password && !parsed.data.email) {
+    return void res.status(400).json({ error: 'email_required', message: 'Email is required to create a login account' });
+  }
   const customer = await upsertCustomer({
     name: parsed.data.name,
     phone: parsed.data.phone,
     email: parsed.data.email || undefined,
     avatarUrl: parsed.data.avatarUrl || undefined,
   });
+  const session = parsed.data.password
+    ? await createCustomerAccountSession({ customer, password: parsed.data.password })
+    : undefined;
   const user = await currentUser(req);
   if (user?.role === 'CUSTOMER') {
     await prisma.user.update({
@@ -508,7 +517,7 @@ app.post('/api/customers/signup', asyncRoute(async (req, res) => {
       },
     });
   }
-  res.status(201).json({ customer });
+  res.status(201).json({ customer, session, user: session?.user });
 }));
 
 app.post('/api/customers/:id/avatar', upload.single('avatar'), asyncRoute(async (req, res) => {
@@ -615,6 +624,8 @@ app.post('/api/runners/apply', asyncRoute(async (req, res) => {
   if (!parsed.success) return void res.status(400).json({ error: 'bad_request', message: 'Invalid runner application', details: parsed.error.flatten() });
   const application = await createRunnerApplication({
     name: parsed.data.name,
+    email: parsed.data.email,
+    password: parsed.data.password,
     phone: parsed.data.phone,
     city: parsed.data.city,
     transportMode: parsed.data.transportMode,
@@ -622,7 +633,8 @@ app.post('/api/runners/apply', asyncRoute(async (req, res) => {
     canStartAt: parsed.data.canStartAt,
     notes: parsed.data.notes || undefined,
   });
-  res.status(201).json({ application });
+  const session = await loginDemoUser(parsed.data.email, parsed.data.password);
+  res.status(201).json({ application, session, user: session.user });
 }));
 
 app.post('/api/runners/applications/:id/status', asyncRoute(async (req, res) => {

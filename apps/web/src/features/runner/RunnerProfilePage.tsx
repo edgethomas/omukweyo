@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ArrowRight, RefreshCw, UserCheck, Wallet } from 'lucide-react';
-import { api } from '@/lib/api';
 
 const RUNNER_KEY = 'inline_runner';
 const SESSION_KEY = 'omukweyo_session';
@@ -48,26 +47,12 @@ export default function RunnerProfilePage() {
   const [pending, setPending] = useState(false);
   const [notice, setNotice] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
 
-  useEffect(() => {
-    if (form) return;
-    api.runnerJobs().catch(() => undefined);
-  }, [form]);
-
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form) return;
     setPending(true);
     setNotice(null);
     try {
-      await api.runnerApply({
-        name: form.name,
-        phone: form.phone,
-        city: form.city,
-        transportMode: form.transportMode,
-        payoutMethod: form.payoutMethod,
-        canStartAt: 'Within 2 hours',
-        notes: 'Updated from runner profile page',
-      });
       localStorage.setItem(RUNNER_KEY, JSON.stringify(form));
       setRunner(form);
       setNotice({ kind: 'ok', text: 'Profile saved. Admin will review the change.' });
