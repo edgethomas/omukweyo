@@ -1,0 +1,474 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "InLine home" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+        - generic [ref=e13]: InLine
+      - navigation [ref=e14]:
+        - link "Home" [ref=e15] [cursor=pointer]:
+          - /url: /
+        - link "How it works" [ref=e16] [cursor=pointer]:
+          - /url: /how-it-works
+        - button "Use cases" [ref=e18] [cursor=pointer]:
+          - text: Use cases
+          - img [ref=e19]
+        - link "Pricing" [ref=e21] [cursor=pointer]:
+          - /url: /pricing
+        - link "Contact" [ref=e22] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=e23]:
+        - link "Reserve spot" [ref=e24] [cursor=pointer]:
+          - /url: /customer/signup
+        - link "Start business" [ref=e25] [cursor=pointer]:
+          - /url: /onboarding
+          - text: Start business
+          - img [ref=e26]
+  - main [ref=e28]:
+    - generic [ref=e31]:
+      - generic [ref=e32]:
+        - heading "Stand in line without standing there." [level=1] [ref=e33]
+        - paragraph [ref=e34]: InLine lets customers join now or reserve a future spot, while businesses run live queues, staff counters, SMS updates, analytics, and runner handoffs from one simple platform.
+        - generic [ref=e35]:
+          - link "Sign up as customer" [ref=e36] [cursor=pointer]:
+            - /url: /customer/signup
+            - text: Sign up as customer
+            - img [ref=e37]
+          - link "Start business" [ref=e39] [cursor=pointer]:
+            - /url: /onboarding
+        - generic [ref=e40]:
+          - img [ref=e41]
+          - generic [ref=e44]: Search businesses
+          - textbox "Search businesses" [ref=e45]
+          - button "Search" [ref=e46] [cursor=pointer]
+        - generic [ref=e47]:
+          - generic [ref=e48]:
+            - img [ref=e49]
+            - text: Reserve tomorrow for a tight arrival window
+          - generic [ref=e51]:
+            - img [ref=e52]
+            - text: Join from QR, link, or embedded website
+          - generic [ref=e54]:
+            - img [ref=e55]
+            - text: SMS updates without installing an app
+          - generic [ref=e57]:
+            - img [ref=e58]
+            - text: Staff, runners, managers, and admins all covered
+      - generic [ref=e61]:
+        - generic [ref=e66]: inline.app/customer
+        - generic [ref=e67]:
+          - generic [ref=e68]:
+            - img "Customer using InLine on a phone" [ref=e69]
+            - generic [ref=e70]:
+              - generic [ref=e71]: Tomorrow at 5:00 PM
+              - generic [ref=e72]: Protected arrival window
+          - generic [ref=e73]:
+            - generic [ref=e74]:
+              - generic [ref=e75]:
+                - generic [ref=e76]: Paid future spot
+                - generic [ref=e77]: Bank Windhoek - Katutura
+                - paragraph [ref=e78]: Personal banking, smart booking, live ticket handoff.
+              - generic [ref=e79]: SCHEDULED
+            - generic [ref=e80]:
+              - generic [ref=e81]:
+                - generic [ref=e82]: Fee
+                - generic [ref=e83]: N$35
+              - generic [ref=e84]:
+                - generic [ref=e85]: Target
+                - generic [ref=e86]: 17:00
+              - generic [ref=e87]:
+                - generic [ref=e88]: Window
+                - generic [ref=e89]: 30m
+            - generic [ref=e90]:
+              - generic [ref=e91]:
+                - img [ref=e93]
+                - generic [ref=e97]: Customer reserves tomorrow's spot
+              - generic [ref=e98]:
+                - img [ref=e100]
+                - generic [ref=e102]: InLine watches live demand
+              - generic [ref=e103]:
+                - img [ref=e105]
+                - generic [ref=e107]: Ticket is created before the slot is gone
+              - generic [ref=e108]:
+                - img [ref=e110]
+                - generic [ref=e112]: SMS sends the customer in at the right time
+    - generic [ref=e114]:
+      - generic [ref=e115]:
+        - heading "Every user has a clear path." [level=2] [ref=e116]
+        - paragraph [ref=e117]: A full queue product cannot only serve the business. Customers, staff, runners, and admins all need their own simple workspace.
+      - generic [ref=e118]:
+        - link "Normal customers Create a simple account, reserve a future spot, join live queues, and track tickets. Create customer account" [ref=e119] [cursor=pointer]:
+          - /url: /customer/signup
+          - img [ref=e120]
+          - heading "Normal customers" [level=3] [ref=e123]
+          - paragraph [ref=e124]: Create a simple account, reserve a future spot, join live queues, and track tickets.
+          - generic [ref=e125]:
+            - text: Create customer account
+            - img [ref=e126]
+        - link "Business owners Set up branches, services, public pages, embeds, billing, and operating rules. Start business setup" [ref=e128] [cursor=pointer]:
+          - /url: /onboarding
+          - img [ref=e129]
+          - heading "Business owners" [level=3] [ref=e133]
+          - paragraph [ref=e134]: Set up branches, services, public pages, embeds, billing, and operating rules.
+          - generic [ref=e135]:
+            - text: Start business setup
+            - img [ref=e136]
+        - link "Managers Watch wait time, branch load, staff performance, SMS spend, and daily demand. Open dashboard" [ref=e138] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e139]
+          - heading "Managers" [level=3] [ref=e141]
+          - paragraph [ref=e142]: Watch wait time, branch load, staff performance, SMS spend, and daily demand.
+          - generic [ref=e143]:
+            - text: Open dashboard
+            - img [ref=e144]
+        - link "Staff operators Call next, mark served or missed, hold tickets, and keep the counter moving. Open staff console" [ref=e146] [cursor=pointer]:
+          - /url: /staff
+          - img [ref=e147]
+          - heading "Staff operators" [level=3] [ref=e149]
+          - paragraph [ref=e150]: Call next, mark served or missed, hold tickets, and keep the counter moving.
+          - generic [ref=e151]:
+            - text: Open staff console
+            - img [ref=e152]
+        - link "Queue runners Apply, accept allowed public-line jobs, send proof updates, and track payout. Apply as runner" [ref=e154] [cursor=pointer]:
+          - /url: /runner/signup
+          - img [ref=e155]
+          - heading "Queue runners" [level=3] [ref=e159]
+          - paragraph [ref=e160]: Apply, accept allowed public-line jobs, send proof updates, and track payout.
+          - generic [ref=e161]:
+            - text: Apply as runner
+            - img [ref=e162]
+        - link "Platform admins Monitor role coverage, reservations, runner applications, and network health. Open admin overview" [ref=e164] [cursor=pointer]:
+          - /url: /admin
+          - img [ref=e165]
+          - heading "Platform admins" [level=3] [ref=e167]
+          - paragraph [ref=e168]: Monitor role coverage, reservations, runner applications, and network health.
+          - generic [ref=e169]:
+            - text: Open admin overview
+            - img [ref=e170]
+    - generic [ref=e173]:
+      - generic [ref=e174]:
+        - heading "Simple enough for a walk-in. Complete enough for operations." [level=2] [ref=e175]
+        - paragraph [ref=e176]: The same backend powers the public page, customer account, staff console, runner workbench, and admin overview.
+      - generic [ref=e177]:
+        - generic [ref=e178]:
+          - generic [ref=e179]:
+            - img [ref=e180]
+            - generic [ref=e182]: "01"
+          - heading "Customer joins or reserves" [level=3] [ref=e183]
+          - paragraph [ref=e184]: A customer uses a QR link, the public page, the embedded widget, or a customer account to reserve a future slot.
+        - generic [ref=e185]:
+          - generic [ref=e186]:
+            - img [ref=e187]
+            - generic [ref=e190]: "02"
+          - heading "InLine controls timing" [level=3] [ref=e191]
+          - paragraph [ref=e192]: The platform tracks live queue load, calculates the right booking time, and keeps the customer updated by SMS.
+        - generic [ref=e193]:
+          - generic [ref=e194]:
+            - img [ref=e195]
+            - generic [ref=e197]: "03"
+          - heading "Staff calls and serves" [level=3] [ref=e198]
+          - paragraph [ref=e199]: Front desk staff manage the queue while managers see bottlenecks, branches, and service speed in real time.
+        - generic [ref=e200]:
+          - generic [ref=e201]:
+            - img [ref=e202]
+            - generic [ref=e206]: "04"
+          - heading "Runners cover outside lines" [level=3] [ref=e207]
+          - paragraph [ref=e208]: When a place is not installed yet, a verified runner can hold an allowed public-line spot with proof updates.
+    - generic [ref=e210]:
+      - generic [ref=e211]:
+        - heading "The product is already explorable." [level=2] [ref=e212]
+        - paragraph [ref=e213]: "Open any workspace and the path is clear. This is what makes the product easier to sell: people can immediately see where they fit."
+      - generic [ref=e214]:
+        - link "Customer account Reservations and live tickets in one place Future reservation Tomorrow 17:00 Smart booking 16:18 Payment PAID Open workspace" [ref=e215] [cursor=pointer]:
+          - /url: /customer
+          - generic [ref=e217]:
+            - generic [ref=e218]: Customer account
+            - heading "Reservations and live tickets in one place" [level=3] [ref=e219]
+            - separator [ref=e220]
+            - generic [ref=e221]:
+              - generic [ref=e222]:
+                - generic [ref=e223]: Future reservation
+                - generic [ref=e224]: Tomorrow 17:00
+              - generic [ref=e225]:
+                - generic [ref=e226]: Smart booking
+                - generic [ref=e227]: 16:18
+              - generic [ref=e228]:
+                - generic [ref=e229]: Payment
+                - generic [ref=e230]: PAID
+            - generic [ref=e231]:
+              - text: Open workspace
+              - img [ref=e232]
+        - link "Public page Join a real queue from a link Branch Katutura Average wait 11 min Status OPEN Open workspace" [ref=e234] [cursor=pointer]:
+          - /url: /c/bank-windhoek
+          - generic [ref=e236]:
+            - generic [ref=e237]: Public page
+            - heading "Join a real queue from a link" [level=3] [ref=e238]
+            - separator [ref=e239]
+            - generic [ref=e240]:
+              - generic [ref=e241]:
+                - generic [ref=e242]: Branch
+                - generic [ref=e243]: Katutura
+              - generic [ref=e244]:
+                - generic [ref=e245]: Average wait
+                - generic [ref=e246]: 11 min
+              - generic [ref=e247]:
+                - generic [ref=e248]: Status
+                - generic [ref=e249]: OPEN
+            - generic [ref=e250]:
+              - text: Open workspace
+              - img [ref=e251]
+        - link "Staff console One counter workflow for operators Now serving A-031 Next action Call next Counter Counter 3 Open workspace" [ref=e253] [cursor=pointer]:
+          - /url: /staff
+          - generic [ref=e255]:
+            - generic [ref=e256]: Staff console
+            - heading "One counter workflow for operators" [level=3] [ref=e257]
+            - separator [ref=e258]
+            - generic [ref=e259]:
+              - generic [ref=e260]:
+                - generic [ref=e261]: Now serving
+                - generic [ref=e262]: A-031
+              - generic [ref=e263]:
+                - generic [ref=e264]: Next action
+                - generic [ref=e265]: Call next
+              - generic [ref=e266]:
+                - generic [ref=e267]: Counter
+                - generic [ref=e268]: Counter 3
+            - generic [ref=e269]:
+              - text: Open workspace
+              - img [ref=e270]
+        - link "Manager dashboard Wait time, branches, SMS, and staff Waiting 7 Avg wait 7m Served 142 Open workspace" [ref=e272] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e274]:
+            - generic [ref=e275]: Manager dashboard
+            - heading "Wait time, branches, SMS, and staff" [level=3] [ref=e276]
+            - separator [ref=e277]
+            - generic [ref=e278]:
+              - generic [ref=e279]:
+                - generic [ref=e280]: Waiting
+                - generic [ref=e281]: "7"
+              - generic [ref=e282]:
+                - generic [ref=e283]: Avg wait
+                - generic [ref=e284]: 7m
+              - generic [ref=e285]:
+                - generic [ref=e286]: Served
+                - generic [ref=e287]: "142"
+            - generic [ref=e288]:
+              - text: Open workspace
+              - img [ref=e289]
+        - link "Runner workbench Public-line jobs with proof updates Open jobs 2 Payout N$95 Proof REQUIRED Open workspace" [ref=e291] [cursor=pointer]:
+          - /url: /runner/work
+          - generic [ref=e293]:
+            - generic [ref=e294]: Runner workbench
+            - heading "Public-line jobs with proof updates" [level=3] [ref=e295]
+            - separator [ref=e296]
+            - generic [ref=e297]:
+              - generic [ref=e298]:
+                - generic [ref=e299]: Open jobs
+                - generic [ref=e300]: "2"
+              - generic [ref=e301]:
+                - generic [ref=e302]: Payout
+                - generic [ref=e303]: N$95
+              - generic [ref=e304]:
+                - generic [ref=e305]: Proof
+                - generic [ref=e306]: REQUIRED
+            - generic [ref=e307]:
+              - text: Open workspace
+              - img [ref=e308]
+        - link "Platform admin All roles and network health visible Role coverage 6 roles Runner applications Live Network HEALTHY Open workspace" [ref=e310] [cursor=pointer]:
+          - /url: /admin
+          - generic [ref=e312]:
+            - generic [ref=e313]: Platform admin
+            - heading "All roles and network health visible" [level=3] [ref=e314]
+            - separator [ref=e315]
+            - generic [ref=e316]:
+              - generic [ref=e317]:
+                - generic [ref=e318]: Role coverage
+                - generic [ref=e319]: 6 roles
+              - generic [ref=e320]:
+                - generic [ref=e321]: Runner applications
+                - generic [ref=e322]: Live
+              - generic [ref=e323]:
+                - generic [ref=e324]: Network
+                - generic [ref=e325]: HEALTHY
+            - generic [ref=e326]:
+              - text: Open workspace
+              - img [ref=e327]
+    - generic [ref=e331]:
+      - generic [ref=e332]:
+        - heading "Why people will feel they need it." [level=2] [ref=e333]
+        - paragraph [ref=e334]: "InLine removes the pain from both sides: customers protect their time, and businesses stop managing messy waiting rooms."
+        - generic [ref=e335]:
+          - link "Reserve a future spot" [ref=e336] [cursor=pointer]:
+            - /url: /reserve
+          - link "Book a walkthrough" [ref=e337] [cursor=pointer]:
+            - /url: /contact
+      - generic [ref=e338]:
+        - generic [ref=e339]:
+          - img [ref=e340]
+          - heading "Banks and branches" [level=3] [ref=e344]
+          - paragraph [ref=e345]: Multi-counter queues, branch comparisons, and customer SMS updates.
+        - generic [ref=e346]:
+          - img [ref=e347]
+          - heading "Clinics and offices" [level=3] [ref=e353]
+          - paragraph [ref=e354]: People queue from home instead of crowding the reception area.
+        - generic [ref=e355]:
+          - img [ref=e356]
+          - heading "Websites and portals" [level=3] [ref=e360]
+          - paragraph [ref=e361]: Embed the queue into an existing site without rebuilding the business flow.
+        - generic [ref=e362]:
+          - img [ref=e363]
+          - heading "Public places" [level=3] [ref=e366]
+          - paragraph [ref=e367]: Runner jobs extend coverage where InLine is not installed yet.
+    - generic [ref=e369]:
+      - generic [ref=e370]:
+        - heading "Pricing is easy to understand." [level=2] [ref=e371]
+        - paragraph [ref=e372]: Customers pay only when they reserve a future slot. Businesses start simple and upgrade when the queue becomes operationally important.
+      - generic [ref=e373]:
+        - generic [ref=e374]:
+          - generic [ref=e375]: Customer reservation
+          - generic [ref=e376]: N$35
+          - paragraph [ref=e377]: per protected future spot
+          - separator [ref=e378]
+          - list [ref=e379]:
+            - listitem [ref=e380]:
+              - img [ref=e381]
+              - text: Clear value before payment
+            - listitem [ref=e383]:
+              - img [ref=e384]
+              - text: No app download required
+            - listitem [ref=e386]:
+              - img [ref=e387]
+              - text: SMS-first experience
+          - link "Reserve spot" [ref=e389] [cursor=pointer]:
+            - /url: /reserve
+        - generic [ref=e390]:
+          - generic [ref=e391]: Starter business
+          - generic [ref=e392]: N$399
+          - paragraph [ref=e393]: per month for one branch
+          - separator [ref=e394]
+          - list [ref=e395]:
+            - listitem [ref=e396]:
+              - img [ref=e397]
+              - text: Clear value before payment
+            - listitem [ref=e399]:
+              - img [ref=e400]
+              - text: No app download required
+            - listitem [ref=e402]:
+              - img [ref=e403]
+              - text: SMS-first experience
+          - link "Start business" [ref=e405] [cursor=pointer]:
+            - /url: /onboarding
+        - generic [ref=e406]:
+          - generic [ref=e407]: Business network
+          - generic [ref=e408]: N$999
+          - paragraph [ref=e409]: multi-branch operations
+          - separator [ref=e410]
+          - list [ref=e411]:
+            - listitem [ref=e412]:
+              - img [ref=e413]
+              - text: Clear value before payment
+            - listitem [ref=e415]:
+              - img [ref=e416]
+              - text: No app download required
+            - listitem [ref=e418]:
+              - img [ref=e419]
+              - text: SMS-first experience
+          - link "Contact sales" [ref=e421] [cursor=pointer]:
+            - /url: /contact
+    - generic [ref=e424]:
+      - heading "Pick your role and try the real flow." [level=2] [ref=e425]
+      - paragraph [ref=e426]: Customer, business, staff, runner, manager, and platform admin paths are all visible from the product today.
+      - generic [ref=e427]:
+        - link "Choose role" [ref=e428] [cursor=pointer]:
+          - /url: /login
+          - text: Choose role
+          - img [ref=e429]
+        - link "Simple customer signup" [ref=e431] [cursor=pointer]:
+          - /url: /customer/signup
+  - contentinfo [ref=e432]:
+    - generic [ref=e433]:
+      - generic [ref=e434]:
+        - generic [ref=e435]:
+          - generic [ref=e436]:
+            - img [ref=e437]
+            - text: InLine
+          - paragraph [ref=e440]: The queueing operating system for any business. Built for Namibia, designed for the world.
+          - generic [ref=e441]: All systems operational · v1.0
+        - generic [ref=e443]:
+          - heading "Product" [level=4] [ref=e444]
+          - list [ref=e445]:
+            - listitem [ref=e446]:
+              - link "How it works" [ref=e447] [cursor=pointer]:
+                - /url: /how-it-works
+            - listitem [ref=e448]:
+              - link "For companies" [ref=e449] [cursor=pointer]:
+                - /url: /for-companies
+            - listitem [ref=e450]:
+              - link "For customers" [ref=e451] [cursor=pointer]:
+                - /url: /for-customers
+            - listitem [ref=e452]:
+              - link "Customer signup" [ref=e453] [cursor=pointer]:
+                - /url: /customer/signup
+            - listitem [ref=e454]:
+              - link "Find businesses" [ref=e455] [cursor=pointer]:
+                - /url: /businesses
+            - listitem [ref=e456]:
+              - link "Customer home" [ref=e457] [cursor=pointer]:
+                - /url: /customer
+            - listitem [ref=e458]:
+              - link "For runners" [ref=e459] [cursor=pointer]:
+                - /url: /for-runners
+            - listitem [ref=e460]:
+              - link "Runner signup" [ref=e461] [cursor=pointer]:
+                - /url: /runner/signup
+            - listitem [ref=e462]:
+              - link "Pricing" [ref=e463] [cursor=pointer]:
+                - /url: /pricing
+        - generic [ref=e464]:
+          - heading "Live preview" [level=4] [ref=e465]
+          - list [ref=e466]:
+            - listitem [ref=e467]:
+              - link "Public company page" [ref=e468] [cursor=pointer]:
+                - /url: /c/bank-windhoek
+            - listitem [ref=e469]:
+              - link "Live ticket" [ref=e470] [cursor=pointer]:
+                - /url: /ticket
+            - listitem [ref=e471]:
+              - link "Staff console" [ref=e472] [cursor=pointer]:
+                - /url: /staff
+            - listitem [ref=e473]:
+              - link "Manager dashboard" [ref=e474] [cursor=pointer]:
+                - /url: /dashboard
+            - listitem [ref=e475]:
+              - link "Billing workspace" [ref=e476] [cursor=pointer]:
+                - /url: /billing
+            - listitem [ref=e477]:
+              - link "Runner workbench" [ref=e478] [cursor=pointer]:
+                - /url: /runner/work
+            - listitem [ref=e479]:
+              - link "Platform admin" [ref=e480] [cursor=pointer]:
+                - /url: /admin
+            - listitem [ref=e481]:
+              - link "Embed widget" [ref=e482] [cursor=pointer]:
+                - /url: /embed
+        - generic [ref=e483]:
+          - heading "Company" [level=4] [ref=e484]
+          - list [ref=e485]:
+            - listitem [ref=e486]:
+              - link "Contact" [ref=e487] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=e488]:
+              - link "Log in" [ref=e489] [cursor=pointer]:
+                - /url: /login
+            - listitem [ref=e490]:
+              - link "Start free" [ref=e491] [cursor=pointer]:
+                - /url: /onboarding
+            - listitem [ref=e492]:
+              - link "Privacy" [ref=e493] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=e494]:
+              - link "Terms" [ref=e495] [cursor=pointer]:
+                - /url: /terms
+      - generic [ref=e496]:
+        - generic [ref=e497]: © 2026 InLine · A product by Edge Work · Made in Windhoek
+        - generic [ref=e498]: English (NA) · UTC+2

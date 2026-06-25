@@ -1,0 +1,192 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - link "InLine" [ref=e5] [cursor=pointer]:
+      - /url: /
+      - img [ref=e6]
+      - generic [ref=e9]: InLine
+    - navigation [ref=e10]:
+      - generic [ref=e11]: Operate
+      - generic [ref=e12]:
+        - link "Dashboard" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e14]
+          - text: Dashboard
+        - link "Staff console" [ref=e19] [cursor=pointer]:
+          - /url: /staff
+          - img [ref=e20]
+          - text: Staff console
+        - link "Public page" [ref=e22] [cursor=pointer]:
+          - /url: /c/bank-windhoek
+          - img [ref=e23]
+          - text: Public page
+        - link "Live ticket" [ref=e28] [cursor=pointer]:
+          - /url: /ticket
+          - img [ref=e29]
+          - text: Live ticket
+        - link "Embed widget" [ref=e34] [cursor=pointer]:
+          - /url: /embed
+          - img [ref=e35]
+          - text: Embed widget
+      - generic [ref=e39]: People
+      - generic [ref=e40]:
+        - link "Customer home" [ref=e41] [cursor=pointer]:
+          - /url: /customer
+          - img [ref=e42]
+          - text: Customer home
+        - link "Runner workbench" [ref=e45] [cursor=pointer]:
+          - /url: /runner/work
+          - img [ref=e46]
+          - text: Runner workbench
+      - generic [ref=e50]: Platform
+      - link "Platform admin" [ref=e52] [cursor=pointer]:
+        - /url: /admin
+        - img [ref=e53]
+        - text: Platform admin
+      - generic [ref=e55]: Setup
+      - generic [ref=e56]:
+        - link "Onboarding" [ref=e57] [cursor=pointer]:
+          - /url: /onboarding
+          - img [ref=e58]
+          - text: Onboarding
+        - link "Billing" [ref=e61] [cursor=pointer]:
+          - /url: /billing
+          - img [ref=e62]
+          - text: Billing
+        - link "Help" [ref=e65] [cursor=pointer]:
+          - /url: /contact
+          - img [ref=e66]
+          - text: Help
+    - generic [ref=e69]:
+      - generic [ref=e70]:
+        - generic [ref=e71]: Selma N.
+        - generic [ref=e72]: selma@bankwindhoek.com.na
+      - link "Log out" [ref=e73] [cursor=pointer]:
+        - /url: /login
+        - img [ref=e74]
+  - generic [ref=e77]:
+    - banner [ref=e78]:
+      - generic [ref=e79]:
+        - heading "Billing" [level=1] [ref=e80]
+        - paragraph [ref=e81]: Subscription, invoices, and SMS credits
+      - generic [ref=e82]:
+        - generic [ref=e83]: API live · 7 tickets
+        - button "Notifications" [ref=e85] [cursor=pointer]:
+          - img [ref=e86]
+    - generic [ref=e90]:
+      - generic [ref=e91]:
+        - generic [ref=e92]:
+          - generic [ref=e93]: Billing
+          - heading "Bank Windhoek subscription and SMS wallet" [level=2] [ref=e94]
+          - paragraph [ref=e95]: Mock billing flow for plan upgrades, invoices, and SMS credit top-ups.
+        - generic [ref=e96]:
+          - button "Invoice" [ref=e97] [cursor=pointer]
+          - button "EFT" [ref=e98] [cursor=pointer]
+          - button "Card" [ref=e99] [cursor=pointer]
+          - button "Refresh" [ref=e100] [cursor=pointer]:
+            - img [ref=e101]
+            - text: Refresh
+      - generic [ref=e218]: 1,800 SMS credits added.
+      - generic [ref=e106]:
+        - generic [ref=e107]:
+          - generic [ref=e108]:
+            - heading "Current plan" [level=3] [ref=e109]
+            - generic [ref=e110]: ACTIVE
+          - generic [ref=e111]:
+            - generic [ref=e112]:
+              - generic [ref=e113]: Plan
+              - generic [ref=e114]: ENTERPRISE
+            - generic [ref=e115]:
+              - generic [ref=e116]: Amount
+              - generic [ref=e117]: N$2,500
+            - generic [ref=e118]:
+              - generic [ref=e119]: Renews
+              - generic [ref=e120]: 19 Jul 2026
+          - generic [ref=e121]:
+            - generic [ref=e122]:
+              - generic [ref=e124]: FREE
+              - generic [ref=e125]: N$0
+              - paragraph [ref=e126]: One branch, one service, public page, trial SMS.
+              - button "Switch plan" [ref=e127] [cursor=pointer]
+            - generic [ref=e128]:
+              - generic [ref=e130]: STARTER
+              - generic [ref=e131]: N$399
+              - paragraph [ref=e132]: One branch, embed, many services, analytics.
+              - button "Switch plan" [ref=e133] [cursor=pointer]
+            - generic [ref=e134]:
+              - generic [ref=e136]: BUSINESS
+              - generic [ref=e138]: N$999
+              - paragraph [ref=e139]: Multi-branch, branding, exports, priority support.
+              - button "Switch plan" [ref=e207] [cursor=pointer]
+            - generic [ref=e141]:
+              - generic [ref=e142]:
+                - generic [ref=e143]: ENTERPRISE
+                - generic [ref=e208]: ACTIVE
+              - generic [ref=e144]: Custom
+              - paragraph [ref=e145]: White-label, custom domain, API, SLA.
+              - button "Current plan" [disabled] [ref=e209]
+        - complementary [ref=e147]:
+          - generic [ref=e148]:
+            - generic [ref=e149]:
+              - heading "SMS wallet" [level=3] [ref=e150]
+              - img [ref=e151]
+            - generic [ref=e154]: 3,632
+            - paragraph [ref=e155]: credits available for queue and reservation messages.
+          - generic [ref=e156]:
+            - generic [ref=e157]: Payment method
+            - generic [ref=e158]:
+              - img [ref=e159]
+              - text: EFT
+            - paragraph [ref=e161]: This demo records a paid invoice immediately.
+      - generic [ref=e162]:
+        - generic [ref=e163]:
+          - generic [ref=e164]:
+            - heading "SMS credit packages" [level=3] [ref=e165]
+            - paragraph [ref=e166]: Top up when the queue gets busy
+          - generic [ref=e167]:
+            - generic [ref=e168]:
+              - img [ref=e169]
+              - generic [ref=e171]: Starter SMS
+              - generic [ref=e172]: N$100
+              - paragraph [ref=e173]: 330 credits
+              - button "Buy credits" [ref=e174] [cursor=pointer]
+            - generic [ref=e175]:
+              - img [ref=e176]
+              - generic [ref=e178]: Growth SMS
+              - generic [ref=e179]: N$500
+              - paragraph [ref=e180]: 1,800 credits + 180 bonus
+              - button "Buy credits" [ref=e181] [cursor=pointer]
+            - generic [ref=e182]:
+              - img [ref=e183]
+              - generic [ref=e185]: Scale SMS
+              - generic [ref=e186]: N$1,000
+              - paragraph [ref=e187]: 4,000 credits + 600 bonus
+              - button "Buy credits" [ref=e188] [cursor=pointer]
+        - generic [ref=e189]:
+          - generic [ref=e190]:
+            - heading "Recent invoices" [level=3] [ref=e191]
+            - paragraph [ref=e192]: Paid in demo mode
+          - generic [ref=e193]:
+            - generic [ref=e220]:
+              - generic [ref=e221]:
+                - generic [ref=e222]: Growth SMS - 1,800 credits
+                - generic [ref=e223]: SMS_CREDITS - 08:02 AM
+              - generic [ref=e224]:
+                - generic [ref=e225]: N$500
+                - generic [ref=e226]: PAID
+            - generic [ref=e211]:
+              - generic [ref=e212]:
+                - generic [ref=e213]: Enterprise plan - new billing cycle
+                - generic [ref=e214]: SUBSCRIPTION - 08:02 AM
+              - generic [ref=e215]:
+                - generic [ref=e216]: N$2,500
+                - generic [ref=e217]: PAID
+            - generic [ref=e195]:
+              - generic [ref=e196]:
+                - generic [ref=e197]: Business plan - current month
+                - generic [ref=e198]: SUBSCRIPTION - 07:55 AM
+              - generic [ref=e199]:
+                - generic [ref=e200]: N$999
+                - generic [ref=e201]: PAID
+          - button "Export invoices" [ref=e202] [cursor=pointer]:
+            - img [ref=e203]
+            - text: Export invoices

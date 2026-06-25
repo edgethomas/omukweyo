@@ -1,0 +1,191 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "InLine home" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+        - generic [ref=e13]: InLine
+      - navigation [ref=e14]:
+        - link "Home" [ref=e15] [cursor=pointer]:
+          - /url: /
+        - link "How it works" [ref=e16] [cursor=pointer]:
+          - /url: /how-it-works
+        - button "Use cases" [ref=e18] [cursor=pointer]:
+          - text: Use cases
+          - img [ref=e19]
+        - link "Pricing" [ref=e21] [cursor=pointer]:
+          - /url: /pricing
+        - link "Contact" [ref=e22] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=e23]:
+        - link "Reserve spot" [ref=e24] [cursor=pointer]:
+          - /url: /customer/signup
+        - link "Start business" [ref=e25] [cursor=pointer]:
+          - /url: /onboarding
+          - text: Start business
+          - img [ref=e26]
+  - main [ref=e28]:
+    - generic [ref=e29]:
+      - generic [ref=e30]:
+        - link "Home" [ref=e31] [cursor=pointer]:
+          - /url: /
+        - text: /Business onboarding
+      - generic [ref=e32]:
+        - generic [ref=e33]:
+          - heading "Set up a business queue workspace in minutes." [level=1] [ref=e34]
+          - paragraph [ref=e35]: Create the owner account, first branch, first service, and starter plan. The demo returns live links for the dashboard, public queue page, staff console, and embed.
+          - generic [ref=e36]:
+            - generic [ref=e37]:
+              - img [ref=e38]
+              - heading "Public queue page" [level=3] [ref=e44]
+              - paragraph [ref=e45]: Customers can join from a QR or link.
+            - generic [ref=e46]:
+              - img [ref=e47]
+              - heading "Staff console" [level=3] [ref=e49]
+              - paragraph [ref=e50]: Operators can call, serve, hold, or miss tickets.
+            - generic [ref=e51]:
+              - img [ref=e52]
+              - heading "Manager dashboard" [level=3] [ref=e54]
+              - paragraph [ref=e55]: Owners see branch load, SMS, and service speed.
+            - generic [ref=e56]:
+              - img [ref=e57]
+              - heading "Website embed" [level=3] [ref=e61]
+              - paragraph [ref=e62]: Businesses can drop the queue into their own site.
+        - generic [ref=e182]:
+          - generic [ref=e183]:
+            - generic [ref=e184]: Company ready
+            - heading "Selma CLI Services is live in demo mode." [level=2] [ref=e185]
+            - paragraph [ref=e186]: Branch, service, staff console, public page, embed, and billing links are ready.
+          - generic [ref=e187]:
+            - link "Open dashboard" [ref=e188] [cursor=pointer]:
+              - /url: /dashboard
+              - generic [ref=e189]:
+                - img [ref=e190]
+                - text: Open dashboard
+              - img [ref=e192]
+            - link "Public page" [ref=e194] [cursor=pointer]:
+              - /url: /c/bank-windhoek
+              - generic [ref=e195]:
+                - img [ref=e196]
+                - text: Public page
+              - img [ref=e202]
+            - link "Staff console" [ref=e204] [cursor=pointer]:
+              - /url: /staff
+              - generic [ref=e205]:
+                - img [ref=e206]
+                - text: Staff console
+              - img [ref=e208]
+            - link "Embed widget" [ref=e210] [cursor=pointer]:
+              - /url: /embed
+              - generic [ref=e211]:
+                - img [ref=e212]
+                - text: Embed widget
+              - img [ref=e216]
+            - link "Billing" [ref=e218] [cursor=pointer]:
+              - /url: /pricing
+              - generic [ref=e219]:
+                - img [ref=e220]
+                - text: Billing
+              - img [ref=e222]
+          - generic [ref=e224]:
+            - generic [ref=e225]: Launch checklist
+            - generic [ref=e226]:
+              - generic [ref=e227]:
+                - img [ref=e228]
+                - text: Company profile created
+              - generic [ref=e230]:
+                - img [ref=e231]
+                - text: First branch configured
+              - generic [ref=e233]:
+                - img [ref=e234]
+                - text: First service configured
+              - generic [ref=e236]:
+                - img [ref=e237]
+                - text: Public queue page ready
+              - generic [ref=e239]:
+                - img [ref=e240]
+                - text: Staff console ready
+              - generic [ref=e242]:
+                - img [ref=e243]
+                - text: Billing plan selected
+  - contentinfo [ref=e92]:
+    - generic [ref=e93]:
+      - generic [ref=e94]:
+        - generic [ref=e95]:
+          - generic [ref=e96]:
+            - img [ref=e97]
+            - text: InLine
+          - paragraph [ref=e100]: The queueing operating system for any business. Built for Namibia, designed for the world.
+          - generic [ref=e101]: All systems operational · v1.0
+        - generic [ref=e103]:
+          - heading "Product" [level=4] [ref=e104]
+          - list [ref=e105]:
+            - listitem [ref=e106]:
+              - link "How it works" [ref=e107] [cursor=pointer]:
+                - /url: /how-it-works
+            - listitem [ref=e108]:
+              - link "For companies" [ref=e109] [cursor=pointer]:
+                - /url: /for-companies
+            - listitem [ref=e110]:
+              - link "For customers" [ref=e111] [cursor=pointer]:
+                - /url: /for-customers
+            - listitem [ref=e112]:
+              - link "Customer signup" [ref=e113] [cursor=pointer]:
+                - /url: /customer/signup
+            - listitem [ref=e114]:
+              - link "Customer home" [ref=e115] [cursor=pointer]:
+                - /url: /customer
+            - listitem [ref=e116]:
+              - link "For runners" [ref=e117] [cursor=pointer]:
+                - /url: /for-runners
+            - listitem [ref=e118]:
+              - link "Runner signup" [ref=e119] [cursor=pointer]:
+                - /url: /runner/signup
+            - listitem [ref=e120]:
+              - link "Pricing" [ref=e121] [cursor=pointer]:
+                - /url: /pricing
+        - generic [ref=e122]:
+          - heading "Live preview" [level=4] [ref=e123]
+          - list [ref=e124]:
+            - listitem [ref=e125]:
+              - link "Public company page" [ref=e126] [cursor=pointer]:
+                - /url: /c/bank-windhoek
+            - listitem [ref=e127]:
+              - link "Live ticket" [ref=e128] [cursor=pointer]:
+                - /url: /ticket
+            - listitem [ref=e129]:
+              - link "Staff console" [ref=e130] [cursor=pointer]:
+                - /url: /staff
+            - listitem [ref=e131]:
+              - link "Manager dashboard" [ref=e132] [cursor=pointer]:
+                - /url: /dashboard
+            - listitem [ref=e133]:
+              - link "Runner workbench" [ref=e134] [cursor=pointer]:
+                - /url: /runner/work
+            - listitem [ref=e135]:
+              - link "Platform admin" [ref=e136] [cursor=pointer]:
+                - /url: /admin
+            - listitem [ref=e137]:
+              - link "Embed widget" [ref=e138] [cursor=pointer]:
+                - /url: /embed
+        - generic [ref=e139]:
+          - heading "Company" [level=4] [ref=e140]
+          - list [ref=e141]:
+            - listitem [ref=e142]:
+              - link "Contact" [ref=e143] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=e144]:
+              - link "Log in" [ref=e145] [cursor=pointer]:
+                - /url: /login
+            - listitem [ref=e146]:
+              - link "Start free" [ref=e147] [cursor=pointer]:
+                - /url: /onboarding
+            - listitem [ref=e148]:
+              - link "Privacy" [ref=e149] [cursor=pointer]:
+                - /url: /onboarding
+            - listitem [ref=e150]:
+              - link "Terms" [ref=e151] [cursor=pointer]:
+                - /url: /onboarding
+      - generic [ref=e152]:
+        - generic [ref=e153]: © 2026 InLine · A product by Edge Work · Made in Windhoek
+        - generic [ref=e154]: English (NA) · UTC+2

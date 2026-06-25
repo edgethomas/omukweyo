@@ -1,0 +1,246 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "InLine home" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+        - generic [ref=e13]: InLine
+      - navigation [ref=e14]:
+        - link "Home" [ref=e15] [cursor=pointer]:
+          - /url: /
+        - link "How it works" [ref=e16] [cursor=pointer]:
+          - /url: /how-it-works
+        - button "Use cases" [ref=e18] [cursor=pointer]:
+          - text: Use cases
+          - img [ref=e19]
+        - link "Pricing" [ref=e21] [cursor=pointer]:
+          - /url: /pricing
+        - link "Contact" [ref=e22] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=e23]:
+        - link "Reserve spot" [ref=e24] [cursor=pointer]:
+          - /url: /customer/signup
+        - link "Start business" [ref=e25] [cursor=pointer]:
+          - /url: /onboarding
+          - text: Start business
+          - img [ref=e26]
+  - main [ref=e28]:
+    - generic [ref=e499]:
+      - generic [ref=e500]:
+        - generic [ref=e501]:
+          - generic [ref=e502]:
+            - link "Home" [ref=e503] [cursor=pointer]:
+              - /url: /
+            - text: /Businesses
+          - generic [ref=e504]: Business search
+          - heading "Search results for \"bank\"" [level=1] [ref=e505]
+          - paragraph [ref=e506]: Search for a branch, company, city, or service. Scan a QR code to join the queue or open the business page directly.
+        - generic [ref=e507]:
+          - img [ref=e508]
+          - textbox "Search businesses" [ref=e511]: bank
+          - button "Search" [ref=e512] [cursor=pointer]
+      - article [ref=e514]:
+        - generic [ref=e515]:
+          - generic [ref=e516]:
+            - generic [ref=e519]:
+              - generic [ref=e520]:
+                - generic [ref=e521]: 4 open branches
+                - heading "Bank Windhoek" [level=2] [ref=e523]
+                - paragraph [ref=e524]: Banking & Financial Services
+              - link "Open page" [ref=e525] [cursor=pointer]:
+                - /url: /c/bank-windhoek
+                - text: Open page
+                - img [ref=e526]
+            - generic [ref=e528]:
+              - generic [ref=e529]:
+                - generic [ref=e530]:
+                  - img [ref=e531]
+                  - generic [ref=e536]: Waiting now
+                - generic [ref=e537]: "5"
+              - generic [ref=e538]:
+                - generic [ref=e539]:
+                  - img [ref=e540]
+                  - generic [ref=e543]: Avg wait
+                - generic [ref=e544]: 9 min
+              - generic [ref=e545]:
+                - generic [ref=e546]:
+                  - img [ref=e547]
+                  - generic [ref=e551]: Services
+                - generic [ref=e552]: "5"
+            - generic [ref=e553]:
+              - generic [ref=e554]:
+                - heading "Branches" [level=3] [ref=e555]
+                - generic [ref=e556]: 5 listed
+              - generic [ref=e557]:
+                - generic [ref=e558]:
+                  - generic [ref=e559]:
+                    - generic [ref=e560]:
+                      - generic [ref=e561]: Katutura
+                      - generic [ref=e562]:
+                        - img [ref=e563]
+                        - text: Windhoek
+                    - generic [ref=e566]: OPEN
+                  - generic [ref=e567]: Independence Ave, Katutura
+                  - generic [ref=e568]:
+                    - generic [ref=e569]: 5 waiting
+                    - generic [ref=e570]: ~11 min
+                - generic [ref=e571]:
+                  - generic [ref=e572]:
+                    - generic [ref=e573]:
+                      - generic [ref=e574]: Windhoek West
+                      - generic [ref=e575]:
+                        - img [ref=e576]
+                        - text: Windhoek
+                    - generic [ref=e579]: OPEN
+                  - generic [ref=e580]: Cnr Bahnhof & Post St
+                  - generic [ref=e581]:
+                    - generic [ref=e582]: 0 waiting
+                    - generic [ref=e583]: ~8 min
+                - generic [ref=e584]:
+                  - generic [ref=e585]:
+                    - generic [ref=e586]:
+                      - generic [ref=e587]: Klein Windhoek
+                      - generic [ref=e588]:
+                        - img [ref=e589]
+                        - text: Windhoek
+                    - generic [ref=e592]: OPEN
+                  - generic [ref=e593]: Schoemans St 5
+                  - generic [ref=e594]:
+                    - generic [ref=e595]: 0 waiting
+                    - generic [ref=e596]: ~11 min
+                - generic [ref=e597]:
+                  - generic [ref=e598]:
+                    - generic [ref=e599]:
+                      - generic [ref=e600]: Swakopmund
+                      - generic [ref=e601]:
+                        - img [ref=e602]
+                        - text: Swakopmund
+                    - generic [ref=e605]: OPEN
+                  - generic [ref=e606]: Bismarck St 19
+                  - generic [ref=e607]:
+                    - generic [ref=e608]: 0 waiting
+                    - generic [ref=e609]: ~9 min
+                - generic [ref=e610]:
+                  - generic [ref=e611]:
+                    - generic [ref=e612]:
+                      - generic [ref=e613]: Ongwediva
+                      - generic [ref=e614]:
+                        - img [ref=e615]
+                        - text: Ongwediva
+                    - generic [ref=e618]: CLOSED
+                  - generic [ref=e619]: Main Rd 47
+                  - generic [ref=e620]:
+                    - generic [ref=e621]: 0 waiting
+                    - generic [ref=e622]: ~7 min
+          - complementary [ref=e623]:
+            - generic [ref=e625]:
+              - img [ref=e627]
+              - generic [ref=e630]:
+                - generic [ref=e631]:
+                  - img [ref=e632]
+                  - text: QR code
+                - heading "Scan to join" [level=3] [ref=e638]
+                - paragraph [ref=e639]: Put this at the door, receipt desk, poster, or front counter.
+                - generic [ref=e640]: http://localhost:5173/c/bank-windhoek
+                - button "Copy link" [ref=e641] [cursor=pointer]:
+                  - img [ref=e642]
+                  - text: Copy link
+            - generic [ref=e647]:
+              - img [ref=e649]
+              - generic [ref=e652]:
+                - generic [ref=e653]:
+                  - img [ref=e654]
+                  - text: QR code
+                - heading "Scan to reserve" [level=3] [ref=e660]
+                - paragraph [ref=e661]: For customers who need a future arrival window protected.
+                - generic [ref=e662]: http://localhost:5173/reserve
+                - button "Copy link" [ref=e663] [cursor=pointer]:
+                  - img [ref=e664]
+                  - text: Copy link
+  - contentinfo [ref=e432]:
+    - generic [ref=e433]:
+      - generic [ref=e434]:
+        - generic [ref=e435]:
+          - generic [ref=e436]:
+            - img [ref=e437]
+            - text: InLine
+          - paragraph [ref=e440]: The queueing operating system for any business. Built for Namibia, designed for the world.
+          - generic [ref=e441]: All systems operational · v1.0
+        - generic [ref=e443]:
+          - heading "Product" [level=4] [ref=e444]
+          - list [ref=e445]:
+            - listitem [ref=e446]:
+              - link "How it works" [ref=e447] [cursor=pointer]:
+                - /url: /how-it-works
+            - listitem [ref=e448]:
+              - link "For companies" [ref=e449] [cursor=pointer]:
+                - /url: /for-companies
+            - listitem [ref=e450]:
+              - link "For customers" [ref=e451] [cursor=pointer]:
+                - /url: /for-customers
+            - listitem [ref=e452]:
+              - link "Customer signup" [ref=e453] [cursor=pointer]:
+                - /url: /customer/signup
+            - listitem [ref=e454]:
+              - link "Find businesses" [ref=e455] [cursor=pointer]:
+                - /url: /businesses
+            - listitem [ref=e456]:
+              - link "Customer home" [ref=e457] [cursor=pointer]:
+                - /url: /customer
+            - listitem [ref=e458]:
+              - link "For runners" [ref=e459] [cursor=pointer]:
+                - /url: /for-runners
+            - listitem [ref=e460]:
+              - link "Runner signup" [ref=e461] [cursor=pointer]:
+                - /url: /runner/signup
+            - listitem [ref=e462]:
+              - link "Pricing" [ref=e463] [cursor=pointer]:
+                - /url: /pricing
+        - generic [ref=e464]:
+          - heading "Live preview" [level=4] [ref=e465]
+          - list [ref=e466]:
+            - listitem [ref=e467]:
+              - link "Public company page" [ref=e468] [cursor=pointer]:
+                - /url: /c/bank-windhoek
+            - listitem [ref=e469]:
+              - link "Live ticket" [ref=e470] [cursor=pointer]:
+                - /url: /ticket
+            - listitem [ref=e471]:
+              - link "Staff console" [ref=e472] [cursor=pointer]:
+                - /url: /staff
+            - listitem [ref=e473]:
+              - link "Manager dashboard" [ref=e474] [cursor=pointer]:
+                - /url: /dashboard
+            - listitem [ref=e475]:
+              - link "Billing workspace" [ref=e476] [cursor=pointer]:
+                - /url: /billing
+            - listitem [ref=e477]:
+              - link "Runner workbench" [ref=e478] [cursor=pointer]:
+                - /url: /runner/work
+            - listitem [ref=e479]:
+              - link "Platform admin" [ref=e480] [cursor=pointer]:
+                - /url: /admin
+            - listitem [ref=e481]:
+              - link "Embed widget" [ref=e482] [cursor=pointer]:
+                - /url: /embed
+        - generic [ref=e483]:
+          - heading "Company" [level=4] [ref=e484]
+          - list [ref=e485]:
+            - listitem [ref=e486]:
+              - link "Contact" [ref=e487] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=e488]:
+              - link "Log in" [ref=e489] [cursor=pointer]:
+                - /url: /login
+            - listitem [ref=e490]:
+              - link "Start free" [ref=e491] [cursor=pointer]:
+                - /url: /onboarding
+            - listitem [ref=e492]:
+              - link "Privacy" [ref=e493] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=e494]:
+              - link "Terms" [ref=e495] [cursor=pointer]:
+                - /url: /terms
+      - generic [ref=e496]:
+        - generic [ref=e497]: © 2026 InLine · A product by Edge Work · Made in Windhoek
+        - generic [ref=e498]: English (NA) · UTC+2

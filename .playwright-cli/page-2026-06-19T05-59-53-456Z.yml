@@ -1,0 +1,73 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - link "InLine" [ref=e5] [cursor=pointer]:
+      - /url: /
+      - img [ref=e6]
+      - generic [ref=e9]: InLine
+    - navigation [ref=e10]:
+      - generic [ref=e11]: Operate
+      - generic [ref=e12]:
+        - link "Dashboard" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e14]
+          - text: Dashboard
+        - link "Staff console" [ref=e19] [cursor=pointer]:
+          - /url: /staff
+          - img [ref=e20]
+          - text: Staff console
+        - link "Public page" [ref=e22] [cursor=pointer]:
+          - /url: /c/bank-windhoek
+          - img [ref=e23]
+          - text: Public page
+        - link "Live ticket" [ref=e28] [cursor=pointer]:
+          - /url: /ticket
+          - img [ref=e29]
+          - text: Live ticket
+        - link "Embed widget" [ref=e34] [cursor=pointer]:
+          - /url: /embed
+          - img [ref=e35]
+          - text: Embed widget
+      - generic [ref=e39]: People
+      - generic [ref=e40]:
+        - link "Customer home" [ref=e41] [cursor=pointer]:
+          - /url: /customer
+          - img [ref=e42]
+          - text: Customer home
+        - link "Runner workbench" [ref=e45] [cursor=pointer]:
+          - /url: /runner/work
+          - img [ref=e46]
+          - text: Runner workbench
+      - generic [ref=e50]: Platform
+      - link "Platform admin" [ref=e52] [cursor=pointer]:
+        - /url: /admin
+        - img [ref=e53]
+        - text: Platform admin
+      - generic [ref=e55]: Setup
+      - generic [ref=e56]:
+        - link "Onboarding" [ref=e57] [cursor=pointer]:
+          - /url: /onboarding
+          - img [ref=e58]
+          - text: Onboarding
+        - link "Billing" [ref=e61] [cursor=pointer]:
+          - /url: /billing
+          - img [ref=e62]
+          - text: Billing
+        - link "Help" [ref=e65] [cursor=pointer]:
+          - /url: /contact
+          - img [ref=e66]
+          - text: Help
+    - generic [ref=e69]:
+      - generic [ref=e70]:
+        - generic [ref=e71]: Selma N.
+        - generic [ref=e72]: selma@bankwindhoek.com.na
+      - link "Log out" [ref=e73] [cursor=pointer]:
+        - /url: /login
+        - img [ref=e74]
+  - banner [ref=e78]:
+    - generic [ref=e79]:
+      - heading "Billing" [level=1] [ref=e80]
+      - paragraph [ref=e81]: Subscription, invoices, and SMS credits
+    - generic [ref=e82]:
+      - generic [ref=e83]: API live · – tickets
+      - button "Notifications" [ref=e85] [cursor=pointer]:
+        - img [ref=e86]

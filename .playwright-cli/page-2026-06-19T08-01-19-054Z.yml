@@ -1,0 +1,241 @@
+- generic [ref=e667]:
+  - complementary [ref=e668]:
+    - link "InLine" [ref=e669] [cursor=pointer]:
+      - /url: /
+      - img [ref=e670]
+      - generic [ref=e673]: InLine
+    - navigation [ref=e674]:
+      - generic [ref=e675]: Operate
+      - generic [ref=e676]:
+        - link "Dashboard" [ref=e677] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e678]
+          - text: Dashboard
+        - link "Staff console" [ref=e683] [cursor=pointer]:
+          - /url: /staff
+          - img [ref=e684]
+          - text: Staff console
+        - link "Public page" [ref=e686] [cursor=pointer]:
+          - /url: /c/bank-windhoek
+          - img [ref=e687]
+          - text: Public page
+        - link "Live ticket" [ref=e692] [cursor=pointer]:
+          - /url: /ticket
+          - img [ref=e693]
+          - text: Live ticket
+        - link "Embed widget" [ref=e698] [cursor=pointer]:
+          - /url: /embed
+          - img [ref=e699]
+          - text: Embed widget
+      - generic [ref=e703]: People
+      - generic [ref=e704]:
+        - link "Customer home" [ref=e705] [cursor=pointer]:
+          - /url: /customer
+          - img [ref=e706]
+          - text: Customer home
+        - link "Runner workbench" [ref=e709] [cursor=pointer]:
+          - /url: /runner/work
+          - img [ref=e710]
+          - text: Runner workbench
+      - generic [ref=e714]: Platform
+      - link "Platform admin" [ref=e716] [cursor=pointer]:
+        - /url: /admin
+        - img [ref=e717]
+        - text: Platform admin
+      - generic [ref=e719]: Setup
+      - generic [ref=e720]:
+        - link "Onboarding" [ref=e721] [cursor=pointer]:
+          - /url: /onboarding
+          - img [ref=e722]
+          - text: Onboarding
+        - link "Billing" [ref=e725] [cursor=pointer]:
+          - /url: /billing
+          - img [ref=e726]
+          - text: Billing
+        - link "Help" [ref=e729] [cursor=pointer]:
+          - /url: /contact
+          - img [ref=e730]
+          - text: Help
+    - generic [ref=e733]:
+      - generic [ref=e734]:
+        - generic [ref=e735]: Selma N.
+        - generic [ref=e736]: selma@bankwindhoek.com.na
+      - link "Log out" [ref=e737] [cursor=pointer]:
+        - /url: /login
+        - img [ref=e738]
+  - generic [ref=e741]:
+    - banner [ref=e742]:
+      - generic [ref=e743]:
+        - heading "Bank Windhoek - Katutura" [level=1] [ref=e744]
+        - paragraph [ref=e745]: Live public company page
+      - generic [ref=e746]:
+        - generic [ref=e747]: API live · 7 tickets
+        - button "Notifications" [ref=e749] [cursor=pointer]:
+          - img [ref=e750]
+    - generic [ref=e754]:
+      - generic [ref=e755]:
+        - generic [ref=e758]:
+          - generic [ref=e759]:
+            - generic [ref=e760]: Branch · Katutura, Windhoek
+            - heading "Bank Windhoek" [level=2] [ref=e761]
+            - paragraph [ref=e762]: Join now, reserve for later, or scan from the front door.
+            - generic [ref=e763]:
+              - button "Join queue" [active] [ref=e764] [cursor=pointer]:
+                - text: Join queue
+                - img [ref=e765]
+              - link "Reserve later" [ref=e767] [cursor=pointer]:
+                - /url: /reserve
+                - img [ref=e768]
+                - text: Reserve later
+          - generic [ref=e772]: ● Open · 08–16:30
+        - generic [ref=e773]:
+          - generic [ref=e774]: BW
+          - generic [ref=e776]:
+            - generic [ref=e777]:
+              - img [ref=e778]
+              - text: Independence Ave, Katutura, Windhoek
+            - generic [ref=e781]:
+              - img [ref=e782]
+              - text: +264 61 299 1100
+            - generic [ref=e784]:
+              - img [ref=e785]
+              - text: bankwindhoek.com.na
+            - generic [ref=e788]:
+              - img [ref=e789]
+              - text: 4.8 · 1.2k reviews
+          - generic [ref=e791]:
+            - generic [ref=e792]: In line now
+            - generic [ref=e793]: "5"
+            - generic [ref=e794]: ~ 15 min wait
+      - generic [ref=e795]:
+        - generic [ref=e796]:
+          - generic [ref=e797]:
+            - heading "Choose a service" [level=3] [ref=e798]
+            - generic [ref=e799]: 5 services
+          - paragraph [ref=e800]: Tap to join the right queue. You'll get an SMS with your ticket and live position.
+          - separator [ref=e801]
+          - generic [ref=e802]:
+            - button "PE Personal banking Deposits, withdrawals, statements ~5m" [ref=e803] [cursor=pointer]:
+              - generic [ref=e804]: PE
+              - generic [ref=e805]:
+                - generic [ref=e806]: Personal banking
+                - generic [ref=e807]: Deposits, withdrawals, statements
+              - generic [ref=e808]: ~5m
+            - button "AC Account opening New accounts, upgrades, KYC ~12m" [ref=e809] [cursor=pointer]:
+              - generic [ref=e810]: AC
+              - generic [ref=e811]:
+                - generic [ref=e812]: Account opening
+                - generic [ref=e813]: New accounts, upgrades, KYC
+              - generic [ref=e814]: ~12m
+            - button "CA Card & ATM help Card issues, ATM support, PIN resets ~4m" [ref=e815] [cursor=pointer]:
+              - generic [ref=e816]: CA
+              - generic [ref=e817]:
+                - generic [ref=e818]: Card & ATM help
+                - generic [ref=e819]: Card issues, ATM support, PIN resets
+              - generic [ref=e820]: ~4m
+            - button "FO Forex & transfers Cross-border, currency exchange ~7m" [ref=e821] [cursor=pointer]:
+              - generic [ref=e822]: FO
+              - generic [ref=e823]:
+                - generic [ref=e824]: Forex & transfers
+                - generic [ref=e825]: Cross-border, currency exchange
+              - generic [ref=e826]: ~7m
+            - button "LO Loans & mortgages Applications, advice, follow-up ~18m" [ref=e827] [cursor=pointer]:
+              - generic [ref=e828]: LO
+              - generic [ref=e829]:
+                - generic [ref=e830]: Loans & mortgages
+                - generic [ref=e831]: Applications, advice, follow-up
+              - generic [ref=e832]: ~18m
+          - generic [ref=e833]:
+            - button "Join now" [ref=e834] [cursor=pointer]:
+              - text: Join now
+              - img [ref=e835]
+            - link "Reserve for later" [ref=e837] [cursor=pointer]:
+              - /url: /reserve
+              - img [ref=e838]
+              - text: Reserve for later
+          - paragraph [ref=e842]: Phone number used only for queue updates · Reply STOP to opt out
+        - generic [ref=e843]:
+          - generic [ref=e846]:
+            - generic [ref=e847]: Now serving
+            - generic [ref=e848]:
+              - generic [ref=e849]:
+                - generic [ref=e850]: A·024
+                - generic [ref=e851]: Maria N. · Counter 3
+              - generic [ref=e852]: CALLED
+          - generic [ref=e853]:
+            - generic [ref=e854]:
+              - generic [ref=e855]:
+                - img [ref=e856]
+                - text: Live queue
+              - generic [ref=e861]: "6"
+            - generic [ref=e862]:
+              - generic [ref=e863]:
+                - generic [ref=e864]:
+                  - generic [ref=e865]: Joseph T.
+                  - generic [ref=e866]: A·032 · Personal banking
+                - generic [ref=e867]: CALLED
+              - generic [ref=e868]:
+                - generic [ref=e869]:
+                  - generic [ref=e870]: Linda K.
+                  - generic [ref=e871]: A·033 · Account opening
+                - generic [ref=e872]: WAITING
+              - generic [ref=e873]:
+                - generic [ref=e874]:
+                  - generic [ref=e875]: Daniel M.
+                  - generic [ref=e876]: A·034 · Card & ATM help
+                - generic [ref=e877]: WAITING
+              - generic [ref=e878]:
+                - generic [ref=e879]:
+                  - generic [ref=e880]: Hanna S.
+                  - generic [ref=e881]: A·035 · Forex & transfers
+                - generic [ref=e882]: WAITING
+              - generic [ref=e883]:
+                - generic [ref=e884]:
+                  - generic [ref=e885]: Erick N.
+                  - generic [ref=e886]: A·036 · Personal banking
+                - generic [ref=e887]: WAITING
+              - generic [ref=e888]:
+                - generic [ref=e889]:
+                  - generic [ref=e890]: Senior Citizen
+                  - generic [ref=e891]: A·037 · Personal banking
+                - generic [ref=e892]: WAITING
+          - generic [ref=e894]:
+            - img [ref=e896]
+            - generic [ref=e899]:
+              - generic [ref=e900]:
+                - img [ref=e901]
+                - text: QR code
+              - heading "Scan to join" [level=3] [ref=e907]
+              - paragraph [ref=e908]: Customers can scan this code at the door and join this branch queue.
+              - generic [ref=e909]: http://localhost:5173/c/bank-windhoek
+              - button "Copy link" [ref=e910] [cursor=pointer]:
+                - img [ref=e911]
+                - text: Copy link
+          - generic [ref=e916]:
+            - img [ref=e918]
+            - generic [ref=e921]:
+              - generic [ref=e922]:
+                - img [ref=e923]
+                - text: QR code
+              - heading "Scan to reserve" [level=3] [ref=e929]
+              - paragraph [ref=e930]: Use this for customers who need to protect a future arrival window.
+              - generic [ref=e931]: http://localhost:5173/reserve
+              - button "Copy link" [ref=e932] [cursor=pointer]:
+                - img [ref=e933]
+                - text: Copy link
+      - generic [ref=e937]:
+        - generic [ref=e938]:
+          - generic [ref=e939]: Join queue
+          - button [ref=e940] [cursor=pointer]:
+            - img [ref=e941]
+        - heading "Personal banking" [level=3] [ref=e944]
+        - paragraph [ref=e945]: Enter your name and phone. That's the whole form.
+        - separator [ref=e946]
+        - generic [ref=e947]:
+          - generic [ref=e948]:
+            - generic [ref=e949]: Your name
+            - textbox "e.g. Selma Nakale" [ref=e950]
+          - generic [ref=e951]:
+            - generic [ref=e952]: Phone (for SMS updates)
+            - textbox "+264 81 …" [ref=e953]
+          - button "Get my ticket" [ref=e954] [cursor=pointer]

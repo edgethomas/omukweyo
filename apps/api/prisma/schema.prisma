@@ -1,0 +1,424 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  COMPANY_OWNER
+  COMPANY_MANAGER
+  STAFF
+  CUSTOMER
+  RUNNER
+}
+
+enum TicketStatus {
+  WAITING
+  CALLED
+  SERVING
+  SERVED
+  MISSED
+  CANCELLED
+  TRANSFERRED
+  ON_HOLD
+}
+
+enum TicketSource {
+  QR
+  PUBLIC_PAGE
+  EMBED
+  STAFF_WALK_IN
+  APPOINTMENT
+  RUNNER
+}
+
+enum Plan {
+  FREE
+  STARTER
+  BUSINESS
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+  MANUAL_ACTIVE
+}
+
+enum ReservationStatus {
+  SCHEDULED
+  BOOKED
+  CANCELLED
+  EXPIRED
+}
+
+enum ReservationPaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+  FAILED
+}
+
+enum BillingPaymentMethod {
+  MOCK_CARD
+  MOCK_EFT
+  MOCK_INVOICE
+  MOCK_WALLET
+}
+
+enum BillingInvoiceStatus {
+  PAID
+  PENDING
+  FAILED
+}
+
+enum RunnerApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum RunnerJobStatus {
+  OPEN
+  ACCEPTED
+  IN_LINE
+  HANDOFF_READY
+  COMPLETE
+  CANCELLED
+}
+
+model User {
+  id            String   @id @default(cuid())
+  role          Role
+  name          String
+  email         String   @unique
+  phone         String?
+  passwordHash  String
+  destination   String
+  emailVerified Boolean  @default(false)
+  companyId     String?
+  customerId    String?
+  staffId       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  company  Company?     @relation(fields: [companyId], references: [id])
+  customer Customer?    @relation(fields: [customerId], references: [id])
+  staff    StaffMember? @relation(fields: [staffId], references: [id])
+  sessions Session[]
+}
+
+model Session {
+  token     String   @id
+  userId    String
+  issuedAt  DateTime @default(now())
+  expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Company {
+  id                String   @id @default(cuid())
+  slug              String   @unique
+  name              String
+  industry          String
+  primaryColor      String   @default("#2563EB")
+  secondaryColor    String   @default("#10B981")
+  logoText          String
+  logoUrl           String?
+  heroImageUrl      String?
+  tagline           String?
+  websiteUrl        String?
+  publicDescription String?  @db.Text
+  plan              Plan     @default(FREE)
+  smsBalance        Int      @default(250)
+  healthScore       Int      @default(90)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  assets             CompanyAsset[]
+  branches           Branch[]
+  services           Service[]
+  staff              StaffMember[]
+  users              User[]
+  tickets            QueueTicket[]
+  reservations       FutureReservation[]
+  subscription       Subscription?
+  invoices           BillingInvoice[]
+  smsCreditPurchases SmsCreditPurchase[]
+  widgetInstalls     WidgetInstall[]
+}
+
+model CompanyAsset {
+  id        String   @id @default(cuid())
+  companyId String
+  type      String
+  url       String
+  filename  String
+  mimeType  String
+  sizeBytes Int
+  createdAt DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model Branch {
+  id           String  @id @default(cuid())
+  companyId    String
+  slug         String
+  name         String
+  address      String
+  city         String
+  phone        String
+  openingHours String
+  isOpen       Boolean @default(true)
+  liveWaiting  Int     @default(0)
+  avgWaitMin   Int     @default(0)
+  servedToday  Int     @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  company      Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  services     Service[]
+  staff        StaffMember[]
+  tickets      QueueTicket[]
+  reservations FutureReservation[]
+
+  @@unique([companyId, slug])
+}
+
+model Service {
+  id                    String  @id @default(cuid())
+  companyId             String
+  branchId              String?
+  slug                  String
+  name                  String
+  description           String  @db.Text
+  averageServiceMinutes Int
+  icon                  String  @default("ticket")
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  company      Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  branch       Branch?             @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  tickets      QueueTicket[]
+  reservations FutureReservation[]
+
+  @@unique([companyId, slug])
+}
+
+model StaffMember {
+  id          String  @id @default(cuid())
+  companyId   String
+  branchId    String?
+  name        String
+  role        String
+  counter     String?
+  servedToday Int     @default(0)
+  rating      Float   @default(4.8)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  branch  Branch? @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  users   User[]
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String   @unique
+  email     String?  @unique
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users        User[]
+  reservations FutureReservation[]
+}
+
+model QueueTicket {
+  id                   String       @id @default(cuid())
+  ticketNumber         String       @unique
+  companyId            String
+  companySlug          String
+  branchId             String
+  branchSlug           String
+  serviceId            String
+  serviceName          String
+  customerName         String
+  customerPhone        String
+  status               TicketStatus @default(WAITING)
+  source               TicketSource @default(PUBLIC_PAGE)
+  reservationId        String?
+  targetArrivalAt      DateTime?
+  position             Int          @default(1)
+  peopleAhead          Int          @default(0)
+  estimatedWaitMinutes Int          @default(0)
+  counter              String?
+  joinedAt             DateTime     @default(now())
+  calledAt             DateTime?
+  servingAt            DateTime?
+  servedAt             DateTime?
+  updatedAt            DateTime     @updatedAt
+
+  company     Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  branch      Branch             @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  service     Service            @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  reservation FutureReservation? @relation(fields: [reservationId], references: [id], onDelete: SetNull)
+  events      TicketEvent[]
+}
+
+model TicketEvent {
+  id       String   @id @default(cuid())
+  ticketId String
+  type     String
+  label    String
+  at       DateTime @default(now())
+  metadata Json?
+
+  ticket QueueTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+}
+
+model FutureReservation {
+  id                   String                   @id @default(cuid())
+  customerId           String?
+  customerName         String
+  customerPhone        String
+  customerEmail        String?
+  companyId            String
+  companySlug          String
+  branchId             String
+  branchSlug           String
+  branchName           String
+  serviceId            String
+  serviceName          String
+  targetArrivalAt      DateTime
+  smartJoinAt          DateTime
+  arrivalWindowMinutes Int
+  status               ReservationStatus        @default(SCHEDULED)
+  paymentStatus        ReservationPaymentStatus @default(PAID)
+  paymentMethod        BillingPaymentMethod     @default(MOCK_CARD)
+  feeCents             Int                      @default(3500)
+  currency             String                   @default("NAD")
+  ticketId             String?
+  createdAt            DateTime                 @default(now())
+  paidAt               DateTime?
+  bookedAt             DateTime?
+  updatedAt            DateTime                 @updatedAt
+
+  customer Customer?          @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  company  Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  branch   Branch             @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  service  Service            @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  tickets  QueueTicket[]
+  events   ReservationEvent[]
+}
+
+model ReservationEvent {
+  id            String   @id @default(cuid())
+  reservationId String
+  type          String
+  label         String
+  at            DateTime @default(now())
+  metadata      Json?
+
+  reservation FutureReservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id            String   @id @default(cuid())
+  to            String
+  template      String
+  status        String   @default("SENT")
+  message       String   @db.Text
+  ticketId      String?
+  reservationId String?
+  at            DateTime @default(now())
+}
+
+model Subscription {
+  id               String             @id @default(cuid())
+  companyId        String             @unique
+  plan             Plan
+  status           SubscriptionStatus @default(ACTIVE)
+  paymentMethod    BillingPaymentMethod @default(MOCK_INVOICE)
+  currentPeriodEnd DateTime?
+  updatedAt        DateTime           @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model BillingInvoice {
+  id            String               @id @default(cuid())
+  companyId     String
+  type          String
+  description   String
+  amountCents   Int
+  currency      String               @default("NAD")
+  status        BillingInvoiceStatus @default(PAID)
+  paymentMethod BillingPaymentMethod @default(MOCK_INVOICE)
+  createdAt     DateTime             @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model SmsCreditPurchase {
+  id            String               @id @default(cuid())
+  companyId     String
+  packageId     String
+  credits       Int
+  amountCents   Int
+  paymentMethod BillingPaymentMethod
+  invoiceId     String?
+  createdAt     DateTime             @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model RunnerApplication {
+  id            String                  @id @default(cuid())
+  name          String
+  phone         String
+  city          String
+  transportMode String
+  payoutMethod  String
+  canStartAt    String
+  notes         String?                 @db.Text
+  status        RunnerApplicationStatus @default(PENDING)
+  createdAt     DateTime                @default(now())
+}
+
+model RunnerJob {
+  id                  String          @id @default(cuid())
+  customerName        String
+  customerPhone       String
+  placeName           String
+  city                String
+  serviceName         String
+  targetArrivalAt     DateTime
+  expectedWaitMinutes Int
+  payoutCents         Int
+  currency            String          @default("NAD")
+  status              RunnerJobStatus @default(OPEN)
+  instructions        String          @db.Text
+  runnerName          String?
+  updatedAt           DateTime        @updatedAt
+}
+
+model WidgetInstall {
+  id        String   @id @default(cuid())
+  companyId String
+  domain    String?
+  theme     Json?
+  createdAt DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
