@@ -97,7 +97,7 @@ export default function Login() {
   const RoleIcon = roleIcons[selectedAccount.role];
 
   return (
-    <section className="container-x py-10">
+    <section className="container-x py-8 sm:py-10">
       <div className="mx-auto max-w-4xl">
         <div className="mb-6 flex items-center justify-between gap-4">
           <Link to="/" aria-label="Omukweyo home">
@@ -107,12 +107,12 @@ export default function Login() {
         </div>
 
         <div className="grid lg:grid-cols-[1fr_1fr] gap-5 items-start">
-          <div className="rounded-xl border border-line bg-surface p-5 shadow-sm">
-            <div className="flex items-center gap-3 mb-5">
+          <div className="overflow-hidden rounded-xl border border-line bg-surface p-4 shadow-sm sm:p-5">
+            <div className="mb-5 flex items-start gap-3">
               <span className="h-10 w-10 rounded-lg bg-blue-50 text-accent grid place-items-center">
                 <KeyRound size={18} />
               </span>
-              <div>
+              <div className="min-w-0">
                 <h1 className="text-[22px] font-semibold text-ink leading-tight">Open a demo workspace.</h1>
                 <p className="text-[12px] text-ink-2 mt-0.5">Use the arrows to flip through demo accounts. Password for all: <span className="font-mono text-ink">{demoPassword}</span></p>
               </div>
@@ -120,7 +120,7 @@ export default function Login() {
 
             <div
               data-testid={`demo-account-${selectedAccount.role.toLowerCase().replace(/\s+/g, '-')}`}
-              className="relative rounded-xl border border-accent/40 bg-blue-50/60 p-5"
+              className="relative overflow-hidden rounded-xl border border-accent/40 bg-blue-50/60 p-4 sm:p-5"
             >
               <button
                 type="button"
@@ -139,20 +139,20 @@ export default function Login() {
                 <ArrowRight size={14} />
               </button>
 
-              <div className="flex items-start gap-4 px-10">
-                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-white text-accent border border-accent/30">
+              <div className="flex flex-col items-center gap-3 px-8 text-center sm:flex-row sm:items-start sm:gap-4 sm:px-10 sm:text-left">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white text-accent border border-accent/30 sm:h-14 sm:w-14">
                   <RoleIcon size={26} />
                 </span>
                 <div className="min-w-0">
                   <div className="text-[11px] uppercase tracking-[0.14em] text-accent font-semibold">{selectedAccount.role}</div>
                   <div className="text-[18px] font-semibold text-ink mt-1">{selectedAccount.name}</div>
-                  <div className="font-mono text-[12px] text-ink-3 mt-0.5 truncate">{selectedAccount.email}</div>
+                  <div className="break-all font-mono text-[12px] text-ink-3 mt-0.5 sm:truncate">{selectedAccount.email}</div>
                   <p className="text-[13px] text-ink-2 mt-3 leading-relaxed">{selectedAccount.description}</p>
                 </div>
               </div>
 
-              <div className="mt-5 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-1.5">
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center justify-center gap-1.5">
                   {demoAccounts.map((account, index) => (
                     <button
                       key={account.email}
@@ -168,7 +168,7 @@ export default function Login() {
                   type="button"
                   onClick={() => void enterWorkspace(selectedAccount)}
                   disabled={!!opening}
-                  className="btn btn-primary btn-lg"
+                  className="btn btn-primary btn-lg w-full sm:w-auto"
                 >
                   {opening === selectedAccount.role ? 'Opening...' : `Log in as ${selectedAccount.role}`}
                   <ArrowRight size={15} />
@@ -176,7 +176,7 @@ export default function Login() {
               </div>
             </div>
 
-            <div className="mt-3 grid grid-cols-5 gap-1.5">
+            <div className="mt-3 grid grid-cols-2 gap-1.5 sm:grid-cols-5">
               {demoAccounts.map((account, index) => {
                 const Icon = roleIcons[account.role];
                 const active = index === demoIndex;
@@ -214,7 +214,7 @@ export default function Login() {
             )}
           </div>
 
-          <form onSubmit={submitLogin} className="rounded-xl border border-line bg-surface p-5 shadow-sm">
+          <form onSubmit={submitLogin} className="rounded-xl border border-line bg-surface p-4 shadow-sm sm:p-5">
             <div className="flex items-center gap-2 mb-4">
               <LogIn size={16} className="text-accent" />
               <h2 className="text-[16px] font-semibold text-ink">Use credentials</h2>

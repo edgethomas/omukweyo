@@ -4,11 +4,24 @@ import { CheckCircle2, Clock3, MapPin, ShieldCheck, Wallet } from 'lucide-react'
 import { api } from '@/lib/api';
 
 const RUNNER_KEY = 'inline_runner';
+const SESSION_KEY = 'omukweyo_session';
 
 function loadRunner() {
   try {
     const raw = localStorage.getItem(RUNNER_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (raw) return JSON.parse(raw);
+    const sessionRaw = localStorage.getItem(SESSION_KEY);
+    const session = sessionRaw ? JSON.parse(sessionRaw) : null;
+    if (session?.user?.role === 'RUNNER') {
+      return {
+        id: session.user.id ?? 'session',
+        name: session.user.name ?? 'Runner',
+        phone: session.user.phone ?? '',
+        city: session.user.city ?? 'Windhoek',
+        status: 'APPROVED',
+      };
+    }
+    return null;
   } catch {
     return null;
   }
@@ -135,7 +148,7 @@ export default function RunnerWorkspace() {
             <h2 className="t-h2">{runner.name}</h2>
             <p className="text-[13px] text-ink-2 mt-1">{runner.city} - {runner.phone} - {runner.status}</p>
           </div>
-          <div className="grid grid-cols-3 gap-px bg-line border border-line rounded-lg overflow-hidden min-w-[320px]">
+          <div className="grid w-full min-w-0 grid-cols-3 gap-px overflow-hidden rounded-lg border border-line bg-line sm:min-w-[320px] md:w-auto">
             <MiniStat label="Open jobs" value={openJobCount} />
             <MiniStat label="Rating" value="New" />
             <MiniStat label="Payout" value="N$0" />
@@ -170,11 +183,11 @@ export default function RunnerWorkspace() {
                   </div>
                   <p className="text-[12px] text-ink-2 mt-3">{job.instructions}</p>
                 </div>
-                <div className="flex lg:flex-col gap-2 lg:items-stretch">
+                <div className="flex flex-col gap-2 sm:flex-row lg:flex-col lg:items-stretch">
                   <button
                     disabled={(!!acceptedJobId && acceptedJobId !== job.id) || actionPending === `accept-${job.id}` || job.status === 'COMPLETE'}
                     onClick={() => acceptJob(job.id)}
-                    className="btn btn-primary btn-sm"
+                    className="btn btn-primary btn-sm w-full"
                   >
                     {job.status === 'COMPLETE' ? 'Completed' : acceptedJobId === job.id || job.status !== 'OPEN' ? job.status : actionPending === `accept-${job.id}` ? 'Accepting...' : 'Accept job'}
                   </button>

@@ -174,14 +174,14 @@ export default function CustomerHistory() {
             <h2 className="text-[15px] font-semibold text-ink">Tickets and reservations for {customerName}</h2>
             <p className="t-eyebrow text-[10px] mt-0.5">All past and upcoming queue activity</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="relative">
+          <div className="flex w-full flex-wrap items-center gap-2 md:w-auto">
+            <div className="relative w-full sm:w-auto">
               <Search size={13} className="text-ink-3 absolute left-2.5 top-1/2 -translate-y-1/2" />
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search ticket, service, or branch"
-                className="input h-9 pl-8 text-[12px] w-64"
+                className="input h-9 w-full pl-8 text-[12px] sm:w-64"
               />
             </div>
           </div>

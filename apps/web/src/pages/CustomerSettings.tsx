@@ -259,7 +259,7 @@ export default function CustomerSettings() {
               </div>
             </form>
           ) : (
-            <div className="px-4 py-3.5 flex items-center justify-between gap-3">
+            <div className="flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0 flex items-center gap-3">
                 <KeyRound size={14} className="text-accent shrink-0" />
                 <div>
@@ -267,19 +267,19 @@ export default function CustomerSettings() {
                   <p className="text-[11px] text-ink-2 mt-0.5">Update the password you use to sign in.</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <button type="button" onClick={submitForgot} disabled={forgotBusy || forgotSent} className="btn btn-ghost btn-sm">
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:shrink-0">
+                <button type="button" onClick={submitForgot} disabled={forgotBusy || forgotSent} className="btn btn-ghost btn-sm w-full sm:w-auto">
                   <Mail size={12} />
                   {forgotSent ? 'Reset sent' : forgotBusy ? 'Sending...' : 'Email reset link'}
                 </button>
-                <button type="button" onClick={() => setShowChangePw(true)} className="btn btn-outline btn-sm">
+                <button type="button" onClick={() => setShowChangePw(true)} className="btn btn-outline btn-sm w-full sm:w-auto">
                   Change password
                 </button>
               </div>
             </div>
           )}
 
-          <div className="px-4 py-3.5 flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 px-4 py-3.5">
             <div className="min-w-0 flex items-start gap-2">
               <Smartphone size={14} className="text-accent mt-0.5 shrink-0" />
               <div>
@@ -410,7 +410,7 @@ export default function CustomerSettings() {
           </div>
         </div>
         <div className="divide-y divide-line">
-          <div className="px-4 py-3 flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-3 px-4 py-3">
             <div className="min-w-0 flex items-center gap-3">
               <Phone size={14} className="text-accent shrink-0" />
               <div className="min-w-0">
@@ -422,7 +422,7 @@ export default function CustomerSettings() {
               Edit <ArrowRight size={12} />
             </Link>
           </div>
-          <div className="px-4 py-3 flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-3 px-4 py-3">
             <div className="min-w-0 flex items-center gap-3">
               <Mail size={14} className="text-accent shrink-0" />
               <div className="min-w-0">

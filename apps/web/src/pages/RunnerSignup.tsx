@@ -35,7 +35,7 @@ export default function RunnerSignup() {
   };
 
   return (
-    <section className="container-x py-12">
+    <section className="container-x py-8 sm:py-12">
       <div className="grid lg:grid-cols-[1fr_420px] gap-8 items-start">
         <div className="pt-4">
           <div className="t-eyebrow mb-2">Verified queue assistant</div>
@@ -59,7 +59,7 @@ export default function RunnerSignup() {
           </div>
         </div>
 
-        <form onSubmit={submit} className="card p-6 space-y-4">
+        <form onSubmit={submit} className="card p-4 space-y-4 sm:p-6">
           <div>
             <div className="t-eyebrow mb-1">Runner application</div>
             <h2 className="text-[18px] font-semibold text-ink">Create runner profile</h2>
@@ -76,7 +76,7 @@ export default function RunnerSignup() {
             <span className="label">Phone</span>
             <input className="input" type="tel" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} required />
           </label>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
               <span className="label">City</span>
               <select className="select" value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}>
@@ -95,7 +95,7 @@ export default function RunnerSignup() {
               </select>
             </label>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
               <span className="label">Payout</span>
               <select className="select" value={form.payoutMethod} onChange={(e) => setForm((f) => ({ ...f, payoutMethod: e.target.value }))}>
@@ -119,7 +119,7 @@ export default function RunnerSignup() {
             />
           </label>
 
-          <button type="submit" disabled={loading} className="btn btn-primary w-full">
+          <button type="submit" disabled={loading} className="btn btn-primary btn-md w-full">
             {loading ? 'Submitting...' : 'Submit and open workbench'} <ArrowRight size={14} />
           </button>
         </form>

@@ -134,7 +134,7 @@ export default function RunnerProfilePage() {
           </label>
         </div>
         <div className="flex justify-end">
-          <button type="submit" className="btn btn-primary btn-md" disabled={pending}>
+          <button type="submit" className="btn btn-primary btn-md w-full sm:w-auto" disabled={pending}>
             <Wallet size={13} /> {pending ? 'Saving...' : 'Save profile'}
           </button>
         </div>

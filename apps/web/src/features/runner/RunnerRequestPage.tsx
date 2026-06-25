@@ -142,12 +142,12 @@ export default function RunnerRequestPage() {
                   setSearch(item.name);
                   setForm((f) => ({ ...f, destinationName: item.name, destinationCity: item.city }));
                 }}
-                className="w-full text-left px-3 py-2 text-[12px] hover:bg-surface flex items-center gap-2"
+                className="flex w-full min-w-0 items-center gap-2 px-3 py-2 text-left text-[12px] hover:bg-surface"
               >
                 <MapPin size={12} className="text-accent" />
-                <span className="text-ink font-medium">{item.name}</span>
-                <span className="text-ink-3">{item.city}</span>
-                <span className="ml-auto text-[10px] uppercase tracking-wider text-ink-3">{item.source}</span>
+                <span className="min-w-0 flex-1 truncate font-medium text-ink">{item.name}</span>
+                <span className="shrink-0 text-ink-3">{item.city}</span>
+                <span className="ml-auto hidden shrink-0 text-[10px] uppercase tracking-wider text-ink-3 sm:inline">{item.source}</span>
               </button>
             ))}
           </div>
@@ -213,7 +213,7 @@ export default function RunnerRequestPage() {
         {error && <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">{error}</div>}
 
         <div className="flex justify-end">
-          <button type="submit" className="btn btn-primary btn-md" disabled={pending || !agreed}>
+          <button type="submit" className="btn btn-primary btn-md w-full sm:w-auto" disabled={pending || !agreed}>
             {pending ? 'Submitting...' : 'Submit request'} <ArrowRight size={13} />
           </button>
         </div>

@@ -51,10 +51,10 @@ export default function RunnerRequestStatusPage() {
       <section className="card p-5">
         <h3 className="text-[14px] font-semibold text-ink">Status timeline</h3>
         <hr className="hairline my-3" />
-        <div className="flex items-center gap-0 border border-line rounded-md overflow-hidden">
+        <div className="grid overflow-hidden rounded-md border border-line sm:grid-cols-5">
           {stages.map((s, i) => (
             <div key={s.key} className={cn(
-              'flex-1 py-2.5 text-center border-r border-line last:border-r-0',
+              'border-b border-line py-2.5 text-center last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0',
               i < stageIndex ? 'text-accent bg-accent-soft' :
               i === stageIndex ? 'bg-ink text-white' : 'text-ink-3 bg-surface-2',
             )}>

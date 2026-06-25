@@ -139,6 +139,11 @@ function fallbackHomeForRole(role: Role) {
   return '/dashboard';
 }
 
+function navIsActive(pathname: string, target: string) {
+  if (target === '/runner/work') return pathname === target || pathname.startsWith('/runner/jobs');
+  return pathname === target || (target !== '/' && pathname.startsWith(target));
+}
+
 /**
  * AppShell — persistent left nav, top app header, dense content.
  * Used on /dashboard, /staff, /ticket, /c/:slug, /embed.
@@ -156,6 +161,7 @@ export default function AppShell({ children, title, subtitle, actions }: { child
     email: session?.user?.email ?? fallbackIdentity[currentRole].email,
   };
   const homePath = session?.user?.destination ?? fallbackHomeForRole(currentRole);
+  const mobileNavItems = navGroups.flatMap((group) => group.items).slice(0, 5);
 
   return (
     <div className="app-shell">
@@ -170,7 +176,7 @@ export default function AppShell({ children, title, subtitle, actions }: { child
               <div className="app-nav-section">{group.label}</div>
               <div className="flex flex-col gap-0.5">
                 {group.items.map((l) => {
-                  const active = loc.pathname === l.to || (l.to !== '/' && loc.pathname.startsWith(l.to));
+                  const active = navIsActive(loc.pathname, l.to);
                   return (
                     <NavLink
                       key={l.to}
@@ -208,11 +214,14 @@ export default function AppShell({ children, title, subtitle, actions }: { child
 
       <div className="app-main">
         <header className="app-header">
+          <Link to={homePath} className="flex shrink-0 md:hidden">
+            <BrandLogo />
+          </Link>
           <div className="min-w-0">
             <h1 className="text-[15px] font-semibold text-ink truncate">{title}</h1>
             {subtitle && <p className="text-[12px] text-ink-3 truncate">{subtitle}</p>}
           </div>
-          <div className="ml-auto flex items-center gap-3">
+          <div className="ml-auto flex min-w-0 items-center gap-2 md:gap-3">
             <StatusPill />
             <button
               type="button"
@@ -232,6 +241,20 @@ export default function AppShell({ children, title, subtitle, actions }: { child
         )}
         <div className="app-content">{children}</div>
       </div>
+
+      {mobileNavItems.length > 0 && (
+        <nav className="app-mobile-nav" aria-label={`${currentRole.toLowerCase().replace('_', ' ')} navigation`} style={{ gridTemplateColumns: `repeat(${mobileNavItems.length}, minmax(0, 1fr))` }}>
+          {mobileNavItems.map((item) => {
+            const active = navIsActive(loc.pathname, item.to);
+            return (
+              <NavLink key={item.to} to={item.to} className={() => cn('app-mobile-link', active && 'active')}>
+                <item.icon size={16} strokeWidth={1.9} />
+                <span className="app-mobile-label">{item.label.replace('Runner ', '').replace('Company ', '')}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
+      )}
     </div>
   );
 }

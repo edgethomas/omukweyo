@@ -130,13 +130,21 @@ function httpError(status: number, code: string, message: string) {
   return new ApiError(status, code, message);
 }
 
+function safeErrorMessage(error: any, fallback: string) {
+  const message = typeof error?.message === 'string' ? error.message : '';
+  if (!message) return fallback;
+  if (/prisma|database|invocation|C:\\|\/app\/|unknown authentication plugin/i.test(message)) return fallback;
+  return message;
+}
+
 function asyncRoute(handler: (req: express.Request, res: express.Response) => Promise<void>) {
   return (req: express.Request, res: express.Response) => {
     handler(req, res).catch((error) => {
       console.error(error);
-      const status = error instanceof ApiError ? error.status : 500;
-      const code = error instanceof ApiError ? error.code : 'server_error';
-      res.status(status).json({ error: code, message: error?.message ?? 'Unexpected server error' });
+      const isApiError = error instanceof ApiError;
+      const status = isApiError ? error.status : 500;
+      const code = isApiError ? error.code : 'server_error';
+      res.status(status).json({ error: code, message: isApiError ? error.message : 'Unexpected server error' });
     });
   };
 }
@@ -235,7 +243,8 @@ app.post('/api/auth/login', asyncRoute(async (req, res) => {
     const session = await loginDemoUser(parsed.data.email, parsed.data.password);
     res.json({ session, user: session.user });
   } catch (error: any) {
-    res.status(401).json({ error: 'invalid_credentials', message: error?.message ?? 'Invalid email or password' });
+    console.error('Login failed', error);
+    res.status(401).json({ error: 'invalid_credentials', message: 'Invalid email or password' });
   }
 }));
 
@@ -329,7 +338,7 @@ app.post('/api/business/onboard', asyncRoute(async (req, res) => {
     });
     res.status(201).json({ onboarding });
   } catch (error: any) {
-    res.status(400).json({ error: 'onboarding_failed', message: error?.message ?? 'Failed to create business' });
+    res.status(400).json({ error: 'onboarding_failed', message: safeErrorMessage(error, 'Failed to create business') });
   }
 }));
 
@@ -445,7 +454,7 @@ app.post('/api/billing/sms-credits', asyncRoute(async (req, res) => {
     const purchase = await purchaseSmsCredits(parsed.data.packageId, parsed.data.paymentMethod, companySlug);
     res.status(201).json({ purchase, billing: await getBillingOverview(companySlug) });
   } catch (error: any) {
-    res.status(400).json({ error: 'purchase_failed', message: error?.message ?? 'Failed to buy credits' });
+    res.status(400).json({ error: 'purchase_failed', message: safeErrorMessage(error, 'Failed to buy credits') });
   }
 }));
 
@@ -474,7 +483,7 @@ app.post('/api/queue/join', asyncRoute(async (req, res) => {
     broadcast({ type: 'metrics:updated', metrics: await computeMetrics(ticket.companySlug) });
     res.status(201).json({ ticket });
   } catch (error: any) {
-    res.status(400).json({ error: 'join_failed', message: error?.message ?? 'Failed to join' });
+    res.status(400).json({ error: 'join_failed', message: safeErrorMessage(error, 'Failed to join') });
   }
 }));
 
@@ -525,7 +534,7 @@ app.get('/api/customers/:id/visit', asyncRoute(async (req, res) => {
   try {
     res.json(await getCustomerVisit(req.params.id));
   } catch (error: any) {
-    res.status(404).json({ error: 'not_found', message: error?.message ?? 'Customer not found' });
+    res.status(404).json({ error: 'not_found', message: safeErrorMessage(error, 'Customer not found') });
   }
 }));
 
@@ -534,7 +543,7 @@ app.get('/api/customers/:id/history', asyncRoute(async (req, res) => {
   try {
     res.json(await getCustomerHistory(req.params.id));
   } catch (error: any) {
-    res.status(404).json({ error: 'not_found', message: error?.message ?? 'Customer not found' });
+    res.status(404).json({ error: 'not_found', message: safeErrorMessage(error, 'Customer not found') });
   }
 }));
 
@@ -565,7 +574,7 @@ app.post('/api/reservations', asyncRoute(async (req, res) => {
     broadcast({ type: 'notification:logged', notification });
     res.status(201).json({ reservation });
   } catch (error: any) {
-    res.status(400).json({ error: 'reservation_failed', message: error?.message ?? 'Failed to reserve ticket' });
+    res.status(400).json({ error: 'reservation_failed', message: safeErrorMessage(error, 'Failed to reserve ticket') });
   }
 }));
 
@@ -595,7 +604,7 @@ app.post('/api/reservations/:id/book-now', asyncRoute(async (req, res) => {
     broadcast({ type: 'notification:logged', notification });
     res.json({ reservation, ticket });
   } catch (error: any) {
-    res.status(400).json({ error: 'book_failed', message: error?.message ?? 'Failed to book reservation' });
+    res.status(400).json({ error: 'book_failed', message: safeErrorMessage(error, 'Failed to book reservation') });
   }
 }));
 
@@ -625,7 +634,7 @@ app.post('/api/runners/applications/:id/status', asyncRoute(async (req, res) => 
     const application = await setRunnerApplicationStatus(req.params.id, status);
     res.json({ application });
   } catch (err: any) {
-    res.status(404).json({ error: 'not_found', message: err?.message ?? 'Runner application not found.' });
+    res.status(404).json({ error: 'not_found', message: safeErrorMessage(err, 'Runner application not found.') });
   }
 }));
 
@@ -648,7 +657,7 @@ app.post('/api/runner-requests', asyncRoute(async (req, res) => {
     });
     res.status(201).json({ request });
   } catch (error: any) {
-    res.status(400).json({ error: 'request_failed', message: error?.message ?? 'Failed to create runner request' });
+    res.status(400).json({ error: 'request_failed', message: safeErrorMessage(error, 'Failed to create runner request') });
   }
 }));
 
@@ -688,7 +697,7 @@ app.post('/api/runners/jobs/:id/accept', asyncRoute(async (req, res) => {
     const job = await acceptRunnerJob(params.data.id, body.data.runnerName);
     res.json({ job, jobs: await listRunnerJobs() });
   } catch (error: any) {
-    res.status(400).json({ error: 'runner_job_failed', message: error?.message ?? 'Failed to accept runner job' });
+    res.status(400).json({ error: 'runner_job_failed', message: safeErrorMessage(error, 'Failed to accept runner job') });
   }
 }));
 
@@ -701,7 +710,7 @@ app.post('/api/runners/jobs/:id/check-in', asyncRoute(async (req, res) => {
     broadcast({ type: 'notification:logged', notification });
     res.json({ job, notification, jobs: await listRunnerJobs() });
   } catch (error: any) {
-    res.status(400).json({ error: 'runner_job_failed', message: error?.message ?? 'Failed to check in' });
+    res.status(400).json({ error: 'runner_job_failed', message: safeErrorMessage(error, 'Failed to check in') });
   }
 }));
 
@@ -715,7 +724,7 @@ app.post('/api/runners/jobs/:id/proof', asyncRoute(async (req, res) => {
     broadcast({ type: 'notification:logged', notification });
     res.json({ job, notification, jobs: await listRunnerJobs() });
   } catch (error: any) {
-    res.status(400).json({ error: 'runner_job_failed', message: error?.message ?? 'Failed to send runner proof' });
+    res.status(400).json({ error: 'runner_job_failed', message: safeErrorMessage(error, 'Failed to send runner proof') });
   }
 }));
 
@@ -728,7 +737,7 @@ app.post('/api/runners/jobs/:id/complete', asyncRoute(async (req, res) => {
     broadcast({ type: 'notification:logged', notification });
     res.json({ job, notification, jobs: await listRunnerJobs() });
   } catch (error: any) {
-    res.status(400).json({ error: 'runner_job_failed', message: error?.message ?? 'Failed to complete runner job' });
+    res.status(400).json({ error: 'runner_job_failed', message: safeErrorMessage(error, 'Failed to complete runner job') });
   }
 }));
 
@@ -747,7 +756,7 @@ app.post('/api/ticket/:id/cancel', asyncRoute(async (req, res) => {
     broadcast({ type: 'ticket:updated', ticket });
     res.json({ ticket });
   } catch (error: any) {
-    res.status(400).json({ error: error?.message ?? 'cancel_failed' });
+    res.status(400).json({ error: 'cancel_failed', message: safeErrorMessage(error, 'Failed to cancel ticket') });
   }
 }));
 
@@ -825,7 +834,7 @@ app.post('/api/staff/transfer', asyncRoute(async (req, res) => {
     broadcast({ type: 'ticket:updated', ticket });
     res.json({ ticket });
   } catch (error: any) {
-    res.status(400).json({ error: 'transfer_failed', message: error?.message ?? 'Failed to transfer ticket' });
+    res.status(400).json({ error: 'transfer_failed', message: safeErrorMessage(error, 'Failed to transfer ticket') });
   }
 }));
 
@@ -840,7 +849,7 @@ app.post('/api/staff/send-sms', asyncRoute(async (req, res) => {
     broadcast({ type: 'notification:logged', notification });
     res.json({ notification, ticket });
   } catch (error: any) {
-    res.status(400).json({ error: 'sms_failed', message: error?.message ?? 'Failed to send SMS' });
+    res.status(400).json({ error: 'sms_failed', message: safeErrorMessage(error, 'Failed to send SMS') });
   }
 }));
 

@@ -20,6 +20,7 @@
     --danger: #EF4444;
   }
   html, body, #root { height: 100%; }
+  html, body { overflow-x: hidden; }
   body {
     font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     background: var(--bg);
@@ -38,7 +39,7 @@
 }
 
 @layer components {
-  .container-x { @apply max-w-[1200px] mx-auto px-6 lg:px-8; }
+  .container-x { @apply max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8; }
 
   /* Type — Inter only, restrained sizes */
   .t-h1 { @apply text-2xl md:text-3xl font-semibold tracking-tight text-ink leading-tight; }
@@ -51,7 +52,7 @@
   .t-display { @apply text-3xl md:text-5xl font-semibold tracking-[-0.02em] text-ink leading-[1.1]; }
 
   /* Buttons */
-  .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-md text-sm font-medium transition-colors select-none disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn { @apply inline-flex max-w-full min-w-0 items-center justify-center gap-1.5 rounded-md text-sm font-medium transition-colors select-none disabled:opacity-50 disabled:cursor-not-allowed; }
   .btn-sm { @apply h-8 px-3 text-[13px]; }
   .btn-md { @apply h-9 px-3.5; }
   .btn-lg { @apply h-10 px-4; }
@@ -84,14 +85,18 @@
   .label { @apply block text-[12px] font-medium text-ink-2 mb-1.5; }
 
   /* App shell */
-  .app-shell { @apply min-h-screen flex bg-bg; }
-  .app-sidebar { @apply w-60 shrink-0 bg-surface border-r border-line flex flex-col h-screen sticky top-0; }
-  .app-main { @apply flex-1 min-w-0 flex flex-col; }
-  .app-header { @apply h-14 bg-surface border-b border-line px-6 flex items-center gap-4 sticky top-0 z-30; }
-  .app-content { @apply flex-1 p-6 lg:p-8; }
+  .app-shell { @apply min-h-screen bg-bg md:flex; }
+  .app-sidebar { @apply hidden w-60 shrink-0 bg-surface border-r border-line flex-col h-screen sticky top-0 md:flex; }
+  .app-main { @apply flex min-w-0 w-full flex-1 flex-col; }
+  .app-header { @apply min-h-14 bg-surface border-b border-line px-4 py-3 md:px-6 md:py-0 flex flex-wrap md:flex-nowrap items-center gap-3 md:gap-4 sticky top-0 z-30; }
+  .app-content { @apply flex-1 p-4 pb-24 md:p-6 md:pb-6 lg:p-8; }
   .app-nav-link { @apply flex items-center gap-2.5 h-9 px-3 rounded-md text-[13px] font-medium text-ink-2 hover:bg-surface-2 hover:text-ink; }
   .app-nav-link.active { @apply bg-blue-50 text-accent; }
   .app-nav-section { @apply t-eyebrow px-3 mt-5 mb-1.5; }
+  .app-mobile-nav { @apply fixed inset-x-3 z-40 overflow-hidden rounded-lg border border-line bg-white shadow-lg md:hidden; bottom: max(0.75rem, env(safe-area-inset-bottom)); }
+  .app-mobile-link { @apply flex min-w-0 flex-col items-center justify-center gap-1 px-1 py-2 text-[10px] font-medium text-ink-3; }
+  .app-mobile-link.active { @apply bg-blue-50 text-accent; }
+  .app-mobile-label { @apply block max-w-full truncate; }
 
   /* Customer shell */
   .customer-shell { @apply min-h-screen bg-bg; }
@@ -105,7 +110,7 @@
   .customer-account.active { @apply bg-blue-50 text-accent; }
   .customer-account-avatar { @apply grid h-8 w-8 place-items-center rounded-full bg-blue-50 text-[11px] font-semibold text-accent; }
   .customer-logout { @apply grid h-9 w-9 place-items-center rounded-md text-ink-3 hover:bg-surface-2 hover:text-ink; }
-  .customer-bottom-nav { @apply fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 overflow-hidden rounded-lg border border-line bg-white shadow-lg; }
+  .customer-bottom-nav { @apply fixed inset-x-3 z-40 grid grid-cols-4 overflow-hidden rounded-lg border border-line bg-white shadow-lg; bottom: max(0.75rem, env(safe-area-inset-bottom)); }
   .customer-bottom-link { @apply flex flex-col items-center justify-center gap-1 py-2 text-[11px] font-medium text-ink-3; }
   .customer-bottom-link.active { @apply bg-blue-50 text-accent; }
 }
