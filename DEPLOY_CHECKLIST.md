@@ -59,8 +59,10 @@ VITE_WS_URL=http://omukweyo.com
 ##### Install Dependencies
 ```bash
 cd /httpdocs
-npm install --production
+npm install --production --no-optional
 ```
+
+**Note**: Use `--no-optional` to skip Windows-specific packages on Linux servers.
 
 ##### Database Setup
 ```bash

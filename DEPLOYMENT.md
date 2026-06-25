@@ -48,6 +48,14 @@ npm install
 npm run build
 ```
 
+**⚠️ Important for Linux Servers**: If your production server is Linux and you develop on Windows, install production dependencies with:
+
+```bash
+npm install --production --no-optional
+```
+
+This skips Windows-specific packages like `@esbuild/win32-x64` that cause "EBADPLATFORM" errors.
+
 This creates:
 - `apps/api/dist/` - Compiled API server
 - `apps/web/dist/` - Built frontend (HTML, CSS, JS)
@@ -143,6 +151,10 @@ Once deployed, verify:
 
 ### Application Won't Start
 
+**Error**: "EBADPLATFORM" or "Unsupported platform for @esbuild/win32-x64"
+- ✅ **Solution**: Install with `npm install --production --no-optional`
+- This skips Windows-specific optional dependencies on Linux servers
+
 **Error**: "app.js does not exist"
 - ✅ **Fixed**: `app.js` is now created
 
@@ -196,8 +208,8 @@ Once deployed, verify:
 
 1. **Upload files** to `/httpdocs/` via FTP/SFTP
 2. **SSH into server** (if available)
-3. **Install dependencies**: `npm install --production`
-4. **Build project**: `npm run build`
+3. **Install dependencies**: `npm install --production --no-optional`
+4. **Build project** (if not built locally): `npm run build`
 5. **Set environment variables** in hosting control panel
 6. **Update document root** to `apps/web/dist`
 7. **Set startup file** to `app.js`
