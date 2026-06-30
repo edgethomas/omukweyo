@@ -15,7 +15,7 @@ export default function ResetPassword() {
   useEffect(() => {
     let mounted = true;
     getBrowserSupabase().auth.getSession()
-      .then(({ data, error: sessionError }) => {
+      .then(({ data, error: sessionError }: { data: any; error: any }) => {
         if (!mounted) return;
         if (sessionError) {
           setError(sessionError.message);
@@ -24,7 +24,7 @@ export default function ResetPassword() {
         setReady(Boolean(data.session));
         if (!data.session) setError('Open the latest password reset email link to set a new password.');
       })
-      .catch((err) => {
+      .catch((err: any) => {
         if (mounted) setError(err?.message ?? 'Could not read the reset session.');
       });
     return () => {
