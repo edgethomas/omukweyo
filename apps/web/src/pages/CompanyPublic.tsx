@@ -47,7 +47,10 @@ export default function CompanyPublic() {
     if (match) setActiveService(match.id);
   }, [serviceSlug, services]);
 
-  const { tickets } = useQueueEvents([]);
+  const { tickets } = useQueueEvents([], {
+    branchId: branch?.id,
+    enabled: Boolean(branch),
+  });
   const branchTickets = tickets.filter((ticket) => !branch || ticket.branchId === branch.id).slice(0, 6);
   const liveWaiting = branchTickets.filter((ticket) => ticket.status === 'WAITING').length || branch?.liveWaiting || 0;
   const avgWait = liveWaiting === 0 ? branch?.avgWaitMin ?? 0 : Math.round(branchTickets.reduce((sum, ticket) => sum + ticket.estimatedWaitMinutes, 0) / Math.max(1, liveWaiting));
@@ -132,14 +135,14 @@ export default function CompanyPublic() {
               {company.name}
             </h1>
             <p className="mt-4 max-w-2xl text-base md:text-lg font-medium text-white drop-shadow-lg leading-relaxed">
-              {company.tagline || company.publicDescription || 'Join the queue, reserve a future spot, and get SMS updates without waiting around.'}
+              {company.tagline || company.publicDescription || 'Join the queue, reserve an arrival window, and get SMS updates without waiting around.'}
             </p>
             <div className="mt-7 flex flex-col sm:flex-row gap-3">
               <button type="button" onClick={() => setActiveService(services[0]?.id ?? null)} className="btn btn-primary btn-lg bg-white text-ink hover:bg-white/90">
                 Join queue <ArrowRight size={15} />
               </button>
               <Link to={reservePath} className="btn btn-outline btn-lg border-white/35 bg-white/10 text-white hover:bg-white/20">
-                <CalendarClock size={15} /> Reserve future spot
+                <CalendarClock size={15} /> Reserve arrival window
               </Link>
             </div>
           </div>
@@ -211,7 +214,7 @@ export default function CompanyPublic() {
             />
             <BusinessQr
               title="Scan to reserve"
-              subtitle="For customers who need tomorrow or later protected."
+              subtitle="For customers booking tomorrow or later."
               path={reservePath}
               color={company.primaryColor}
               compact

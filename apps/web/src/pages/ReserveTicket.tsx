@@ -132,7 +132,7 @@ export default function ReserveTicket() {
 
   return (
     <section className="container-x py-10 max-w-2xl mx-auto">
-      <h1 className="t-h1 text-balance">Reserve a future queue spot.</h1>
+      <h1 className="t-h1 text-balance">Reserve an arrival window.</h1>
       <p className="t-body mt-2 max-w-xl">
         Pick when you need to arrive at {data?.company?.name ?? 'the business'}. We will create your live ticket before the window opens.
       </p>
@@ -148,9 +148,9 @@ export default function ReserveTicket() {
         {showHelp && (
           <div className="rounded-md border border-line bg-surface-2 p-3 text-[12px] text-ink-2 space-y-1.5">
             <p className="font-medium text-ink">Smart booking in 3 quick steps</p>
-            <p>1. Pick a date, time, and service. The fee protects a small arrival window.</p>
-            <p>2. Omukweyo watches the live queue and creates your ticket before your window.</p>
-            <p>3. You get the ticket by SMS. Arrive close to the start of your window.</p>
+            <p>1. Pick a date, time, and service. The fee reserves a small arrival window.</p>
+            <p>2. Omukweyo watches the live queue and creates your ticket before that window.</p>
+            <p>3. You get the ticket by SMS. Arrive near the start of your window.</p>
           </div>
         )}
 
@@ -231,7 +231,7 @@ export default function ReserveTicket() {
           <div className="rounded-md border border-line bg-surface-2 p-3 text-[12px] text-ink-2 flex items-center gap-2">
             <Clock size={13} className="text-accent" />
             <span>
-              {selectedService.name} at {branch.name} around {form.time}. <Sparkles size={11} className="inline text-accent" /> Smart join is calculated when you submit.
+              {selectedService.name} at {branch.name} around {form.time}. <Sparkles size={11} className="inline text-accent" /> Ticket timing is calculated when you submit.
             </span>
           </div>
         )}

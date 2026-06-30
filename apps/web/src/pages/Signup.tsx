@@ -5,14 +5,14 @@ import { BrandLogo } from '@/components/Brand';
 const signupOptions = [
   {
     title: 'Customer',
-    body: 'Reserve future spots and track live tickets.',
+    body: 'Reserve arrival windows and track live tickets.',
     to: '/customer/signup',
     cta: 'Customer signup',
     icon: User,
   },
   {
     title: 'Business',
-    body: 'Create branches, QR codes, widgets, and the company admin console.',
+    body: 'Set up branches, QR codes, widgets, and the company admin console.',
     to: '/onboarding',
     cta: 'Business signup',
     icon: Building2,
@@ -62,7 +62,7 @@ export default function Signup() {
         </div>
 
         <div className="mt-5 rounded-lg border border-line bg-surface-2 px-4 py-3 text-[12px] text-ink-2">
-          Presenting the system? Use <Link to="/login" className="font-medium text-accent hover:underline">demo login</Link> to open each workspace instantly.
+          Want to preview the workspaces? Use <Link to="/login" className="font-medium text-accent hover:underline">demo login</Link> to open each role instantly.
         </div>
       </div>
     </section>

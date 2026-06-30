@@ -3,15 +3,15 @@ import { ArrowRight, UserCheck } from 'lucide-react';
 import { img } from '@/lib/images';
 
 const steps = [
-  { n: '01', t: 'Customer searches or scans', d: 'They find a business, open the public page, or reserve a future spot.', img: img.inlinePublicPage },
+  { n: '01', t: 'Customer searches or scans', d: 'They find a business, open the public page, or reserve an arrival window.', img: img.inlinePublicPage },
   { n: '02', t: 'Business operates the queue', d: 'Staff call tickets while managers watch live demand and branch load.', img: img.inlineOperationsDashboard },
   { n: '03', t: 'Runner covers outside lines', d: 'Approved runners can handle public-line jobs with proof updates.', img: img.inlineRunnerWorkflow },
 ];
 
 const customerSteps = [
   { n: '01', t: 'Scan the QR or open the link', d: 'No app, no account, no friction. Just a phone.' },
-  { n: '02', t: 'Pick a service and your name', d: 'Two fields. Under five seconds. That\'s the whole form.' },
-  { n: '03', t: 'Get a ticket and walk away', d: 'Live position, live ETA, live counter. Stay at the café.' },
+  { n: '02', t: 'Pick a service and add your name', d: 'The form stays short so customers can join quickly.' },
+  { n: '03', t: 'Get a ticket and wait elsewhere', d: 'Live position, live ETA, and counter updates stay on the ticket page.' },
   { n: '04', t: 'Get an SMS when it\'s your turn', d: '"Your turn is coming. 2 people ahead. Please start heading there."' },
   { n: '05', t: 'Walk in, get served, rate the visit', d: 'Optionally save your favorites for next time.' },
 ];
@@ -24,9 +24,9 @@ const staffSteps = [
 ];
 
 const companySteps = [
-  { n: '01', t: 'Sign up in 60 seconds', d: 'Free forever for one branch. No card. No procurement.' },
-  { n: '02', t: 'Add a branch and services', d: '"Personal banking" or "Haircut" — name them as your customers know them.' },
-  { n: '03', t: 'Generate a QR or copy an embed', d: 'Print and stick. Drop on your site. Both work.' },
+  { n: '01', t: 'Create the business account', d: 'Start with one branch, one service, and no card required.' },
+  { n: '02', t: 'Add a branch and services', d: '"Personal banking" or "Haircut" - name them as your customers know them.' },
+  { n: '03', t: 'Generate a QR or copy an embed', d: 'Print the QR for the counter or add the queue to your website.' },
   { n: '04', t: 'Take your first ticket', d: 'You\'re live. The SMS wallet is prefilled with trial credits.' },
 ];
 
@@ -34,8 +34,8 @@ export default function HowItWorks() {
   return (
     <div className="container-x py-12 space-y-12">
       <header>
-        <h1 className="t-h1 text-balance max-w-3xl">How Omukweyo actually works — customer, staff, and company in three flows.</h1>
-        <p className="t-body mt-3 max-w-2xl">Omukweyo works the same way for a one-chair salon, a 14-branch bank, or a government service center. Here's the whole story.</p>
+        <h1 className="t-h1 text-balance max-w-3xl">How Omukweyo works for customers, staff, and businesses.</h1>
+        <p className="t-body mt-3 max-w-2xl">The same queue workflow can support a one-chair salon, a multi-branch bank, or a government service center.</p>
       </header>
 
       <section>
@@ -96,7 +96,7 @@ export default function HowItWorks() {
       </section>
 
       <section>
-        <div className="t-eyebrow mb-4">Runner flow · live demo</div>
+        <div className="t-eyebrow mb-4">Runner flow</div>
         <div className="card p-5 grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-line">
           {[
             { t: 'Review jobs', d: 'The workbench lists allowed public-line jobs with payout and instructions.' },
@@ -114,7 +114,7 @@ export default function HowItWorks() {
       </section>
 
       <section className="card p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-        <h3 className="t-h2 max-w-xl">Spin up a working Omukweyo in under five minutes.</h3>
+        <h3 className="t-h2 max-w-xl">Set up a working queue in under five minutes.</h3>
         <div className="flex gap-2">
           <Link to="/onboarding" className="btn btn-primary btn-md">Start free <ArrowRight size={14} /></Link>
           <Link to="/businesses" className="btn btn-outline btn-md">Find a live queue</Link>

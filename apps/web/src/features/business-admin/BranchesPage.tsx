@@ -31,7 +31,7 @@ export default function BranchesPage() {
 
   const load = () => {
     setLoading(true);
-    api.dashboard()
+    api.businessWorkspace()
       .then((payload: any) => setBranches(payload.branches ?? []))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));

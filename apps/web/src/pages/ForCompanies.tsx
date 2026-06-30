@@ -4,12 +4,12 @@ import { img } from '@/lib/images';
 import { Banknote, Stethoscope, Scissors, Building2, GraduationCap, Car } from 'lucide-react';
 
 const outcomes = [
-  { t: 'Walk-in complaints ↓ 60–80%', d: 'Customers stop showing up at 6am for a 9am service. They join from home and arrive when it\'s time.' },
+  { t: 'Fewer early arrivals', d: 'Customers join from home and arrive when the queue is ready for them.' },
   { t: 'Lower SMS cost, full audit', d: 'Only SMS at the right moments. Every action is logged for compliance and dispute resolution.' },
   { t: 'Real-time branch comparison', d: 'See which branch is slow, which service dominates, and where to add a counter.' },
-  { t: 'Front desk loves it', d: 'One big "Call next" button. No more sticky notes, no more angry customers at the front.' },
+  { t: 'Cleaner front-desk workflow', d: 'Staff call, hold, serve, and miss tickets from one focused counter screen.' },
   { t: 'Multi-tenant, multi-branch', d: 'Isolated data, role-based access, branch-level controls, corporate-level analytics.' },
-  { t: 'No procurement. No IT.', d: 'No hardware to buy, no system to install, no vendor to negotiate with.' },
+  { t: 'No hardware rollout', d: 'Run from phones, tablets, laptops, or waiting-room screens already in the branch.' },
 ];
 
 const industries = [
@@ -35,8 +35,8 @@ export default function ForCompanies() {
     <div className="container-x py-12 space-y-12">
       <header className="grid lg:grid-cols-[1fr_500px] gap-8 items-center">
         <div>
-        <h1 className="t-h1 text-balance max-w-3xl">Your queue should open as an admin console, not a brochure.</h1>
-        <p className="t-body mt-3 max-w-2xl">Banks, clinics, salons, government offices, schools, restaurants, and service centers — Omukweyo replaces paper lists, ticket machines, and WhatsApp chaos with a fast, fair, auditable queue.</p>
+        <h1 className="t-h1 text-balance max-w-3xl">Run the queue from one admin console.</h1>
+        <p className="t-body mt-3 max-w-2xl">Banks, clinics, salons, government offices, schools, restaurants, and service centers can replace paper lists, ticket machines, and scattered messages with a fast, fair, auditable queue.</p>
         <div className="mt-5 flex flex-wrap gap-2">
           <Link to="/signup" className="btn btn-primary btn-md">Sign up <ArrowRight size={14} /></Link>
           <Link to="/contact" className="btn btn-outline btn-md">Book a walkthrough</Link>

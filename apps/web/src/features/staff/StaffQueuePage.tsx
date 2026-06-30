@@ -5,6 +5,11 @@ import { api } from '@/lib/api';
 import { useQueueEvents } from '@/lib/useQueueEvents';
 import { cn, relativeTime } from '@/lib/utils';
 
+function customerCounter(value?: string) {
+  const trimmed = value?.trim();
+  return trimmed && trimmed.toLowerCase() !== 'admin' ? trimmed : 'Counter 1';
+}
+
 export default function StaffQueuePage() {
   const [data, setData] = useState<any>(null);
   const [counter, setCounter] = useState<string>('');
@@ -16,14 +21,19 @@ export default function StaffQueuePage() {
   const [notice, setNotice] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
 
   useEffect(() => {
-    api.dashboard().then((d: any) => {
+    api.queueWorkspace().then((d: any) => {
       setData(d);
-      if (d.staff[0] && !counter) setCounter(d.staff[0].counter ?? 'Counter 1');
+      if (d.staff[0] && !counter) setCounter(customerCounter(d.staff[0].counter));
       if (d.services[0] && !walkIn.serviceId) setWalkIn((f) => ({ ...f, serviceId: d.services[0].id }));
     });
   }, []);
 
-  const { tickets } = useQueueEvents(data?.liveTickets ?? []);
+  const branchId = data?.branches?.[0]?.id;
+  const { tickets } = useQueueEvents(data?.liveTickets ?? [], {
+    branchId,
+    enabled: Boolean(data),
+    refreshOnMount: false,
+  });
   const live = useMemo(() => tickets.filter((t) => ['WAITING', 'CALLED', 'SERVING', 'ON_HOLD'].includes(t.status)), [tickets]);
   const head = live.find((t) => t.status === 'SERVING') ?? live.find((t) => t.status === 'CALLED') ?? null;
   const next = live.find((t) => t.status === 'WAITING');
@@ -38,7 +48,7 @@ export default function StaffQueuePage() {
     setActionPending(true);
     try {
       const { ticket } = await api.staffCallNext(branches[0].id, counter);
-      setNotice({ kind: 'ok', text: `${ticket.ticketNumber} called to ${counter}.` });
+      setNotice({ kind: 'ok', text: `${ticket.ticketNumber} called to ${ticket.counter ?? customerCounter(counter)}.` });
     } catch (err: any) { setNotice({ kind: 'err', text: err.message }); }
     finally { setActionPending(false); }
   };
@@ -89,7 +99,7 @@ export default function StaffQueuePage() {
         </div>
       )}
 
-      <div className="grid sm:grid-cols-3 gap-px bg-line border border-line rounded-lg overflow-hidden">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-line border border-line rounded-lg overflow-hidden">
         <Kpi label="Now serving" value={head?.ticketNumber ?? '-'} sub={head?.customerName ?? 'No active ticket'} chip={head ? (head.status === 'SERVING' ? 'chip-serve' : 'chip-call') : 'chip-neutral'} chipText={head?.status ?? 'IDLE'} />
         <Kpi label="In line" value={String(live.filter((t) => t.status === 'WAITING').length)} sub={`~ wait ${next?.estimatedWaitMinutes ?? 0} min`} />
         <Kpi label="Counter" value={<input className="input h-9 w-24 text-[13px]" value={counter} onChange={(e) => setCounter(e.target.value)} />} />
@@ -99,7 +109,7 @@ export default function StaffQueuePage() {
         <section className="card p-5">
           <div className="flex items-center justify-between">
             <h3 className="text-[14px] font-semibold text-ink">Waiting list</h3>
-            <button type="button" onClick={() => api.dashboard().then((d: any) => setData(d))} className="btn btn-ghost btn-sm"><RefreshCw size={13} /> Refresh</button>
+            <button type="button" onClick={() => api.queueWorkspace().then((d: any) => setData(d))} className="btn btn-ghost btn-sm"><RefreshCw size={13} /> Refresh</button>
           </div>
           <hr className="hairline my-3" />
           {live.length === 0 ? (

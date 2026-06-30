@@ -11,7 +11,7 @@ export default function QrCodesPage() {
   const [branches, setBranches] = useState<{ id: string; slug: string; name: string }[]>([]);
 
   useEffect(() => {
-    api.dashboard().then((d: any) => {
+    api.businessWorkspace().then((d: any) => {
       setCompany(d.company);
       setBranches(d.branches ?? []);
     });

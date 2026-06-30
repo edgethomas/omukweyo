@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
+  envDir: path.resolve(__dirname, '../..'),
   plugins: [react()],
   resolve: {
     alias: { '@': path.resolve(__dirname, './src') },
@@ -10,9 +11,18 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
-    proxy: {
-      '/api': { target: 'http://localhost:4000', changeOrigin: true },
-      '/socket.io': { target: 'http://localhost:4000', changeOrigin: true, ws: true },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined;
+          if (id.includes('@supabase')) return 'supabase';
+          if (id.includes('recharts') || id.includes('d3-')) return 'charts';
+          if (id.includes('lucide-react') || id.includes('lucide')) return 'icons';
+          return 'vendor';
+        },
+      },
     },
   },
 });

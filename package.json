@@ -8,22 +8,19 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently -k -n API,WEB -c blue,magenta \"npm:dev:api\" \"npm:dev:web\"",
-    "dev:api": "npm --workspace apps/api run dev",
+    "dev": "npm run dev:web",
     "dev:web": "npm --workspace apps/web run dev",
-    "build": "npm --workspace packages/shared run build && npm --workspace apps/api run build && npm --workspace apps/web run build",
+    "build": "npm --workspace packages/shared run build && npm --workspace apps/web run build",
     "test": "npm run test:contracts",
     "test:web": "npm --workspace apps/web run test",
-    "test:api": "npm --workspace apps/api run test",
-    "test:contracts": "npm run test:web && npm run test:api",
-    "db:push": "npm --workspace apps/api run db:push",
-    "db:seed": "npm --workspace apps/api run db:seed",
-    "smoke:db": "tsx apps/api/test/db-smoke.ts",
-    "start:api": "npm --workspace apps/api run start",
+    "test:browser": "playwright test --config apps/web/playwright.config.ts",
+    "test:contracts": "npm run test:web",
+    "test:all": "npm run test:contracts && npm run test:browser",
+    "db:push": "supabase db push --linked",
     "preview:web": "npm --workspace apps/web run preview"
   },
   "devDependencies": {
-    "concurrently": "^9.0.1"
+    "@playwright/test": "^1.61.1"
   },
   "optionalDependencies": {
     "@esbuild/win32-x64": "^0.28.1"

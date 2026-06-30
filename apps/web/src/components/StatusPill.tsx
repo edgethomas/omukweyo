@@ -5,8 +5,14 @@ import { useLocation } from 'react-router-dom';
 /** Tiny live health indicator that sits in the app header. */
 export default function StatusPill() {
   const loc = useLocation();
+  const hidden = loc.pathname.startsWith('/dashboard') || loc.pathname.startsWith('/staff');
   const [data, setData] = useState<{ tickets?: number; notifications?: number; ok?: boolean } | null>(null);
+
   useEffect(() => {
+    if (hidden) {
+      setData(null);
+      return undefined;
+    }
     let mounted = true;
     const tick = async () => {
       try { const h = await api.health(); if (mounted) setData(h); } catch {}
@@ -14,9 +20,9 @@ export default function StatusPill() {
     tick();
     const id = setInterval(tick, 8000);
     return () => { mounted = false; clearInterval(id); };
-  }, []);
+  }, [hidden]);
 
-  if (loc.pathname.startsWith('/dashboard') || loc.pathname.startsWith('/staff')) return null;
+  if (hidden) return null;
 
   return (
     <div className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 text-[11px] font-medium text-ink-2 bg-surface-2 border border-line rounded-full">

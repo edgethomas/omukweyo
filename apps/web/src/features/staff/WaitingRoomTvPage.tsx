@@ -22,7 +22,10 @@ export default function WaitingRoomTvPage() {
     });
   }, [params]);
 
-  const { tickets } = useQueueEvents([]);
+  const { tickets } = useQueueEvents([], {
+    branchId,
+    enabled: Boolean(branchId),
+  });
   const live = tickets.filter((t) => !branchId || t.branchId === branchId);
   const serving = live.find((t) => t.status === 'SERVING');
   const called = live.filter((t) => t.status === 'CALLED');

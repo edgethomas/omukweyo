@@ -36,6 +36,7 @@ export interface DemoUser {
   companyId?: string;
   companySlug?: string;
   staffId?: string;
+  avatarUrl?: string;
 }
 
 export interface DemoSession {

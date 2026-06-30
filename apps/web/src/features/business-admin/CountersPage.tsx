@@ -12,7 +12,7 @@ export default function CountersPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.dashboard()
+    api.businessWorkspace()
       .then((d: any) => {
         setStaff(d.staff ?? []);
         setBranches(d.branches ?? []);
@@ -35,7 +35,7 @@ export default function CountersPage() {
             <h2 className="text-[18px] font-semibold text-ink">Counters</h2>
             <p className="text-[12px] text-ink-3 mt-0.5">Counter labels are managed per staff member - assign them in Staff</p>
           </div>
-          <button type="button" onClick={() => api.dashboard().then((d: any) => { setStaff(d.staff ?? []); setBranches(d.branches ?? []); })} className="btn btn-ghost btn-sm"><RefreshCw size={13} /> Refresh</button>
+          <button type="button" onClick={() => api.businessWorkspace().then((d: any) => { setStaff(d.staff ?? []); setBranches(d.branches ?? []); })} className="btn btn-ghost btn-sm"><RefreshCw size={13} /> Refresh</button>
         </div>
 
         {loading ? (

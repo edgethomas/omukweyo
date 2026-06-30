@@ -2,7 +2,8 @@ import { ElementType, ReactNode, useMemo, useState } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, ScanLine, Headphones, Code2, Settings, LogOut, Bell, User, UserCheck, Shield,
-  CalendarClock, Building2, Tv, Tablet, ListOrdered,
+  CalendarClock, Building2, Tv, Tablet, ListOrdered, IdCard, CreditCard, Palette, QrCode,
+  Users, Hash, HelpCircle,
 } from 'lucide-react';
 import type { Role } from '@inline/shared';
 import { cn } from '@/lib/utils';
@@ -23,7 +24,7 @@ type DemoSession = {
   };
 };
 
-function roleNavGroups(publicPagePath: string): Record<Role, NavGroup[]> {
+function roleNavGroups(_publicPagePath: string): Record<Role, NavGroup[]> {
   return {
   CUSTOMER: [
     {
@@ -31,7 +32,7 @@ function roleNavGroups(publicPagePath: string): Record<Role, NavGroup[]> {
       items: [
         { to: '/customer', label: 'Your visit', icon: User },
         { to: '/businesses', label: 'Find businesses', icon: ScanLine },
-        { to: '/reserve', label: 'Reserve future spot', icon: CalendarClock },
+        { to: '/reserve', label: 'Reserve window', icon: CalendarClock },
         { to: '/ticket', label: 'Live ticket', icon: ScanLine },
         { to: '/runner/request', label: 'Request a runner', icon: UserCheck },
       ],
@@ -41,30 +42,73 @@ function roleNavGroups(publicPagePath: string): Record<Role, NavGroup[]> {
     {
       label: 'Operate',
       items: [
-        { to: '/dashboard', label: 'Admin console', icon: LayoutDashboard },
+        { to: '/dashboard', label: 'Overview', icon: LayoutDashboard },
+        { to: '/dashboard/queues', label: 'Live queues', icon: ListOrdered },
+        { to: '/dashboard/customers', label: 'Customers', icon: Users },
         { to: '/staff', label: 'Staff console', icon: Headphones },
-        { to: '/embed', label: 'Embed widget', icon: Code2 },
       ],
     },
     {
       label: 'Setup',
       items: [
-        { to: '/dashboard/billing', label: 'Billing', icon: Settings },
-        { to: '/dashboard/branding', label: 'Branding', icon: Settings },
-        { to: '/dashboard/staff', label: 'Manage staff', icon: User },
-        { to: '/dashboard/qr-codes', label: 'QR codes', icon: ScanLine },
-        { to: '/contact', label: 'Help', icon: Settings },
+        { to: '/dashboard/branches', label: 'Branches', icon: Building2 },
+        { to: '/dashboard/services', label: 'Services', icon: Hash },
+        { to: '/dashboard/counters', label: 'Counters', icon: ScanLine },
+        { to: '/dashboard/staff', label: 'Team', icon: User },
+        { to: '/dashboard/qr-codes', label: 'QR codes', icon: QrCode },
+        { to: '/dashboard/embed', label: 'Widget', icon: Code2 },
+      ],
+    },
+    {
+      label: 'Business',
+      items: [
+        { to: '/dashboard/branding', label: 'Store page', icon: Palette },
+        { to: '/dashboard/billing', label: 'Billing', icon: CreditCard },
+        { to: '/dashboard/settings', label: 'Settings', icon: Settings },
+      ],
+    },
+    {
+      label: 'Account',
+      items: [
+        { to: '/dashboard/profile', label: 'My profile', icon: IdCard },
+        { to: '/contact', label: 'Help', icon: HelpCircle },
       ],
     },
   ],
   COMPANY_MANAGER: [
     {
-      label: 'Manage',
+      label: 'Operate',
       items: [
-        { to: '/dashboard', label: 'Operations', icon: LayoutDashboard },
+        { to: '/dashboard', label: 'Overview', icon: LayoutDashboard },
+        { to: '/dashboard/queues', label: 'Live queues', icon: ListOrdered },
+        { to: '/dashboard/customers', label: 'Customers', icon: Users },
         { to: '/staff', label: 'Staff console', icon: Headphones },
-        { to: '/embed', label: 'Embed widget', icon: Code2 },
-        { to: '/dashboard/branding', label: 'Branding', icon: Settings },
+      ],
+    },
+    {
+      label: 'Setup',
+      items: [
+        { to: '/dashboard/branches', label: 'Branches', icon: Building2 },
+        { to: '/dashboard/services', label: 'Services', icon: Hash },
+        { to: '/dashboard/counters', label: 'Counters', icon: ScanLine },
+        { to: '/dashboard/staff', label: 'Team', icon: User },
+        { to: '/dashboard/qr-codes', label: 'QR codes', icon: QrCode },
+        { to: '/dashboard/embed', label: 'Widget', icon: Code2 },
+      ],
+    },
+    {
+      label: 'Business',
+      items: [
+        { to: '/dashboard/branding', label: 'Store page', icon: Palette },
+        { to: '/dashboard/billing', label: 'Billing', icon: CreditCard },
+        { to: '/dashboard/settings', label: 'Settings', icon: Settings },
+      ],
+    },
+    {
+      label: 'Account',
+      items: [
+        { to: '/dashboard/profile', label: 'My profile', icon: IdCard },
+        { to: '/contact', label: 'Help', icon: HelpCircle },
       ],
     },
   ],
@@ -78,6 +122,13 @@ function roleNavGroups(publicPagePath: string): Record<Role, NavGroup[]> {
         { to: '/staff/tv', label: 'Waiting room TV', icon: Tv },
       ],
     },
+    {
+      label: 'Account',
+      items: [
+        { to: '/staff/profile', label: 'My profile', icon: IdCard },
+        { to: '/staff/settings', label: 'Settings', icon: Settings },
+      ],
+    },
   ],
   RUNNER: [
     {
@@ -85,6 +136,7 @@ function roleNavGroups(publicPagePath: string): Record<Role, NavGroup[]> {
       items: [
         { to: '/runner/work', label: 'Runner workbench', icon: UserCheck },
         { to: '/runner/profile', label: 'Runner profile', icon: User },
+        { to: '/runner/settings', label: 'Settings', icon: Settings },
       ],
     },
   ],
@@ -92,21 +144,19 @@ function roleNavGroups(publicPagePath: string): Record<Role, NavGroup[]> {
     {
       label: 'Platform',
       items: [
-        { to: '/admin', label: 'Platform admin', icon: Shield },
+        { to: '/admin', label: 'Overview', icon: Shield },
         { to: '/admin/companies', label: 'Companies', icon: Building2 },
         { to: '/admin/runners', label: 'Runners', icon: UserCheck },
-        { to: '/admin/billing', label: 'Billing', icon: Settings },
+        { to: '/admin/billing', label: 'Billing', icon: CreditCard },
         { to: '/admin/support', label: 'Support', icon: Headphones },
         { to: '/admin/audit-logs', label: 'Audit logs', icon: Shield },
         { to: '/admin/settings', label: 'Platform settings', icon: Settings },
       ],
     },
     {
-      label: 'Network',
+      label: 'Account',
       items: [
-        { to: '/dashboard', label: 'Company admin', icon: LayoutDashboard },
-        { to: '/staff', label: 'Staff console', icon: Headphones },
-        { to: '/runner/work', label: 'Runner workbench', icon: UserCheck },
+        { to: '/admin/profile', label: 'My profile', icon: IdCard },
       ],
     },
   ],
@@ -141,7 +191,26 @@ function fallbackHomeForRole(role: Role) {
 
 function navIsActive(pathname: string, target: string) {
   if (target === '/runner/work') return pathname === target || pathname.startsWith('/runner/jobs');
+  if (['/dashboard', '/staff', '/admin', '/customer'].includes(target)) return pathname === target;
   return pathname === target || (target !== '/' && pathname.startsWith(target));
+}
+
+function mobileNavForRole(role: Role, navGroups: NavGroup[], profilePath: string) {
+  const allItems = navGroups.flatMap((group) => group.items);
+  const byPath = new Map(allItems.map((item) => [item.to, item]));
+  const picksByRole: Partial<Record<Role, string[]>> = {
+    COMPANY_OWNER: ['/dashboard', '/dashboard/queues', '/staff', '/dashboard/branding'],
+    COMPANY_MANAGER: ['/dashboard', '/dashboard/queues', '/staff', '/dashboard/branding'],
+    STAFF: ['/staff', '/staff/queue', '/staff/kiosk', '/staff/tv'],
+    RUNNER: ['/runner/work', '/runner/profile', '/runner/settings'],
+    SUPER_ADMIN: ['/admin', '/admin/companies', '/admin/runners', '/admin/support'],
+  };
+  const picked = (picksByRole[role] ?? allItems.map((item) => item.to))
+    .map((path) => byPath.get(path))
+    .filter((item): item is NavItem => Boolean(item))
+    .filter((item) => item.to !== profilePath)
+    .slice(0, 4);
+  return picked.concat([{ to: profilePath, label: 'Profile', icon: IdCard }]).slice(0, 5);
 }
 
 /**
@@ -161,7 +230,16 @@ export default function AppShell({ children, title, subtitle, actions }: { child
     email: session?.user?.email ?? fallbackIdentity[currentRole].email,
   };
   const homePath = session?.user?.destination ?? fallbackHomeForRole(currentRole);
-  const mobileNavItems = navGroups.flatMap((group) => group.items).slice(0, 5);
+  const profilePath = currentRole === 'COMPANY_OWNER' || currentRole === 'COMPANY_MANAGER'
+    ? '/dashboard/profile'
+    : currentRole === 'STAFF'
+      ? '/staff/profile'
+      : currentRole === 'RUNNER'
+        ? '/runner/profile'
+        : currentRole === 'SUPER_ADMIN'
+          ? '/admin/profile'
+          : '/customer/profile';
+  const mobileNavItems = mobileNavForRole(currentRole, navGroups, profilePath);
 
   return (
     <div className="app-shell">
@@ -194,17 +272,19 @@ export default function AppShell({ children, title, subtitle, actions }: { child
         </nav>
 
         <div className="border-t border-line p-3 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-blue-50 text-accent grid place-items-center text-[11px] font-semibold">
-            {identity.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-[13px] font-medium text-ink truncate">{identity.name}</div>
-            <div className="text-[11px] text-ink-3 truncate">{identity.email}</div>
-          </div>
+          <Link to={profilePath} className="flex items-center gap-3 flex-1 min-w-0 hover:bg-surface-2 -m-1 p-1 rounded-md transition-colors" title="Open my profile">
+            <div className="w-8 h-8 rounded-full bg-blue-50 text-accent grid place-items-center text-[11px] font-semibold shrink-0">
+              {identity.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[13px] font-medium text-ink truncate">{identity.name}</div>
+              <div className="text-[11px] text-ink-3 truncate">{identity.email}</div>
+            </div>
+          </Link>
           <Link
             to="/login"
             onClick={() => localStorage.removeItem(SESSION_KEY)}
-            className="text-ink-3 hover:text-ink p-1"
+            className="text-ink-3 hover:text-ink p-1 shrink-0"
             title="Log out"
           >
             <LogOut size={15} />
@@ -217,7 +297,7 @@ export default function AppShell({ children, title, subtitle, actions }: { child
           <Link to={homePath} className="flex shrink-0 md:hidden">
             <BrandLogo />
           </Link>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1 text-center md:text-left">
             <h1 className="text-[15px] font-semibold text-ink truncate">{title}</h1>
             {subtitle && <p className="text-[12px] text-ink-3 truncate">{subtitle}</p>}
           </div>

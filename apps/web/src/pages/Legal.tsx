@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 const copy = {
   privacy: {
     title: 'Privacy policy',
-    intro: 'How Omukweyo handles customer, business, staff, runner, ticket, and reservation data in this demo product.',
+    intro: 'How Omukweyo handles customer, business, staff, runner, ticket, and reservation data.',
     sections: [
       ['Data we collect', 'Names, phone numbers, emails, queue tickets, reservation windows, runner applications, and business setup details entered into the app.'],
       ['How it is used', 'To create tickets, send queue updates, reserve future places, operate staff consoles, manage billing, and support platform oversight.'],
       ['Visibility', 'Customers see their own tickets and reservations. Businesses see their queue operations. Platform admins see aggregated operational and role coverage data.'],
-      ['Contact', 'For privacy requests, use the contact form or email hello@omukweyo.app.'],
+      ['Contact', 'For privacy requests, use the contact form or email hello@omukweyo.com.'],
     ],
   },
   terms: {
@@ -18,7 +18,7 @@ const copy = {
       ['Customer use', 'Customers must enter accurate contact details and only reserve queue places they intend to use.'],
       ['Business use', 'Businesses are responsible for service setup, counter operations, and honoring tickets created through their public queue pages.'],
       ['Runner use', 'Runners may only hold spots in normal public lines where this is allowed, with clear proof and customer updates.'],
-      ['Demo billing', 'Payments, subscriptions, and invoices in this workspace are mocked for product validation.'],
+      ['Billing', 'Payments, subscriptions, and invoices are recorded against the workspace that created them.'],
     ],
   },
 } as const;

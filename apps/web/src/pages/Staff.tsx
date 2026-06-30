@@ -61,6 +61,11 @@ function roleLabel(role: string) {
   return 'Staff';
 }
 
+function customerCounter(value?: string) {
+  const trimmed = value?.trim();
+  return trimmed && trimmed.toLowerCase() !== 'admin' ? trimmed : 'Counter 1';
+}
+
 export default function Staff() {
   const [session, setSession] = useState<SessionUser | null>(() => loadSessionUser());
   const [data, setData] = useState<DashboardPayload | null>(null);
@@ -74,7 +79,7 @@ export default function Staff() {
   const [notice, setNotice] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
 
   useEffect(() => {
-    api.dashboard().then((d: DashboardPayload) => {
+    api.staffWorkspace().then((d: DashboardPayload) => {
       setData(d);
       // pick branch from staff assignment if available, else first
       const me = session?.staffId ? d.staff.find((s) => s.id === session.staffId) : null;
@@ -82,14 +87,18 @@ export default function Staff() {
       const fallbackBranch = d.branches[0] ?? null;
       const branch = myBranch ?? fallbackBranch;
       setBranchId(branch?.id ?? null);
-      setCounter(me?.counter ?? 'Counter 1');
+      setCounter(customerCounter(me?.counter));
       if (d.services[0] && !walkInForm.serviceId) {
         setWalkInForm((f) => ({ ...f, serviceId: d.services[0].id }));
       }
     });
   }, [session?.staffId]);
 
-  const { tickets } = useQueueEvents(data?.liveTickets ?? []);
+  const { tickets } = useQueueEvents(data?.liveTickets ?? [], {
+    branchId,
+    enabled: Boolean(data),
+    refreshOnMount: false,
+  });
   const live = useMemo(
     () => tickets.filter((t) => ['WAITING', 'CALLED', 'SERVING', 'ON_HOLD'].includes(t.status) && (!branchId || t.branchId === branchId)),
     [tickets, branchId],
@@ -106,7 +115,7 @@ export default function Staff() {
     setActionPending(true);
     try {
       const { ticket } = await api.staffCallNext(branchId, counter);
-      setNotice({ kind: 'ok', text: `${ticket.ticketNumber} called to ${counter}.` });
+      setNotice({ kind: 'ok', text: `${ticket.ticketNumber} called to ${ticket.counter ?? customerCounter(counter)}.` });
     } catch (err: any) {
       setNotice({ kind: 'err', text: err.message });
     } finally {
@@ -217,20 +226,22 @@ export default function Staff() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-        <div className="w-12 h-12 rounded-full grid place-items-center text-white text-[15px] font-semibold" style={{ background: data.company.primaryColor }}>
-          {initials(me?.name ?? session.name)}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+        <div className="flex items-center gap-3 sm:flex-1 sm:min-w-0">
+          <div className="w-12 h-12 shrink-0 rounded-full grid place-items-center text-white text-[15px] font-semibold" style={{ background: data.company.primaryColor }}>
+            {initials(me?.name ?? session.name)}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="t-eyebrow text-[10px]">{counter || 'Counter'} - {me ? roleLabel(me.role) : roleLabel('OPERATOR')} console</div>
+            <h2 className="text-[16px] font-semibold text-ink truncate">{me?.name ?? session.name}</h2>
+            <p className="text-[12px] text-ink-3 truncate sm:whitespace-normal">
+              {data.company.name}{branch ? ` - ${branch.name}` : ''}<span className="hidden sm:inline">{branch ? ` - ${branch.city}` : ''} - Counter workflow</span>
+            </p>
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="t-eyebrow text-[10px]">{counter || 'Counter'} - {me ? roleLabel(me.role) : roleLabel('OPERATOR')} console</div>
-          <h2 className="text-[16px] font-semibold text-ink">{me?.name ?? session.name}</h2>
-          <p className="text-[12px] text-ink-3">
-            {data.company.name}{branch ? ` - ${branch.name}` : ''}{branch ? ` - ${branch.city}` : ''} - Counter workflow
-          </p>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2 sm:flex-nowrap">
           {data.branches.length > 1 && (
-            <select value={branchId ?? ''} onChange={(e) => setBranchId(e.target.value)} className="select h-9 text-[13px]">
+            <select value={branchId ?? ''} onChange={(e) => setBranchId(e.target.value)} className="select h-9 text-[13px] w-full sm:flex-none sm:w-auto">
               {data.branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
           )}
@@ -238,9 +249,9 @@ export default function Staff() {
             value={counter}
             onChange={(e) => setCounter(e.target.value)}
             placeholder="Counter name"
-            className="input h-9 w-32 text-[13px]"
+            className="input h-9 w-full text-[13px] sm:w-32"
           />
-          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full">
+          <span className="inline-flex items-center self-start gap-1.5 px-2 py-0.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full shrink-0 sm:self-auto">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Online
           </span>
         </div>
@@ -273,32 +284,42 @@ export default function Staff() {
                   layout
                   initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
                   className={cn(
-                    'flex items-center gap-3 border px-3 py-2.5',
+                    'border',
                     t.status === 'CALLED' ? 'border-ink bg-surface-2' :
                     t.status === 'SERVING' ? 'border-emerald-300 bg-emerald-50' :
                     t.status === 'ON_HOLD' ? 'border-line bg-surface-2' :
                     'border-line bg-surface',
                   )}
                 >
-                  <div className="w-8 h-8 rounded-full bg-blue-50 text-accent grid place-items-center text-[12px] font-semibold">
-                    {initials(t.customerName)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="t-mono text-[13px] text-ink font-medium">{t.ticketNumber}</span>
-                      <span className="text-[13px] text-ink font-medium truncate">{t.customerName}</span>
+                  <Link to={`/staff/ticket/${t.id}`} className="flex items-start sm:items-center gap-3 px-3 py-2.5">
+                    <div className="w-8 h-8 shrink-0 rounded-full bg-blue-50 text-accent grid place-items-center text-[12px] font-semibold">
+                      {initials(t.customerName)}
                     </div>
-                    <div className="font-mono text-[11px] text-ink-3">{t.serviceName} - joined {relativeTime(t.joinedAt)}</div>
-                  </div>
-                  <Link to={`/staff/ticket/${t.id}`} className="text-[11px] text-ink-3 hover:text-ink inline-flex items-center gap-1">
-                    Detail <ArrowUpRight size={11} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="t-mono text-[13px] text-ink font-medium">{t.ticketNumber}</span>
+                        <span className="text-[13px] text-ink font-medium truncate">{t.customerName}</span>
+                        <span className={cn(
+                          'sm:hidden ml-auto',
+                          t.status === 'WAITING' ? 'chip-wait' :
+                          t.status === 'CALLED' ? 'chip-call' :
+                          t.status === 'SERVING' ? 'chip-serve' :
+                          'chip-hold',
+                        )}>{t.status}</span>
+                      </div>
+                      <div className="font-mono text-[11px] text-ink-3 truncate">{t.serviceName} - joined {relativeTime(t.joinedAt)}</div>
+                    </div>
+                    <span className="hidden sm:inline-flex text-[11px] text-ink-3 hover:text-ink items-center gap-1 shrink-0">
+                      Detail <ArrowUpRight size={11} />
+                    </span>
+                    <span className={cn(
+                      'hidden sm:inline-flex shrink-0',
+                      t.status === 'WAITING' ? 'chip-wait' :
+                      t.status === 'CALLED' ? 'chip-call' :
+                      t.status === 'SERVING' ? 'chip-serve' :
+                      'chip-hold',
+                    )}>{t.status}</span>
                   </Link>
-                  <span className={cn(
-                    t.status === 'WAITING' ? 'chip-wait' :
-                    t.status === 'CALLED' ? 'chip-call' :
-                    t.status === 'SERVING' ? 'chip-serve' :
-                    'chip-hold',
-                  )}>{t.status}</span>
                 </motion.div>
               ))}
               {live.length === 0 && (

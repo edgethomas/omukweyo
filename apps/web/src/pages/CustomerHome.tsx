@@ -122,7 +122,7 @@ export default function CustomerHome() {
               <Search size={14} /> Find a business
             </Link>
             <Link to="/reserve" className="btn btn-outline btn-md">
-              Reserve future spot <ArrowRight size={14} />
+              Reserve arrival window <ArrowRight size={14} />
             </Link>
             <Link to="/customer/signup" className="btn btn-outline btn-md">
               <UserPlus size={14} /> Create account
@@ -191,7 +191,7 @@ export default function CustomerHome() {
           <div className="font-mono text-[11px] text-ink-3 mt-1">{visit?.customer?.phone ?? customer.phone}</div>
           <div className="mt-4 grid gap-2">
             <Link to="/reserve" className="btn btn-primary btn-sm">
-              Reserve future spot <CalendarClock size={13} />
+              Reserve arrival window <CalendarClock size={13} />
             </Link>
             <Link to={currentTicket?.companySlug ? `/c/${currentTicket.companySlug}` : '/businesses'} className="btn btn-outline btn-sm">
               Find a business queue <ArrowRight size={13} />

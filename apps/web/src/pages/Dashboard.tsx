@@ -17,12 +17,15 @@ export default function Dashboard() {
   const [notice, setNotice] = useState<string | null>(null);
   useEffect(() => {
     let mounted = true;
-    const tick = () => api.dashboard().then(d => mounted && setData(d)).catch(e => mounted && setError(e.message));
-    tick();
-    const id = setInterval(tick, 5000);
-    return () => { mounted = false; clearInterval(id); };
+    api.dashboard().then(d => mounted && setData(d)).catch(e => mounted && setError(e.message));
+    return () => { mounted = false; };
   }, []);
-  const { metrics: liveMetrics, latestNotification } = useQueueEvents([]);
+  const { tickets: liveQueueTickets, metrics: liveMetrics, latestNotification } = useQueueEvents(data?.liveTickets ?? [], {
+    enabled: Boolean(data),
+    metrics: true,
+    notifications: true,
+    refreshOnMount: false,
+  });
   const metrics = liveMetrics ?? data?.metrics;
 
   if (error) return <DashboardLayout><div className="p-8 text-red-700">Error: {error}</div></DashboardLayout>;
@@ -31,7 +34,7 @@ export default function Dashboard() {
   const company = data.company;
   const branches = data.branches;
   const staff = data.staff;
-  const liveTickets = data.liveTickets;
+  const liveTickets = liveQueueTickets;
   const notifications = data.notifications;
   const companyUsers = staff.map((member: any) => ({
     ...member,
@@ -63,12 +66,12 @@ export default function Dashboard() {
   return (
     <DashboardLayout>
       <div className="space-y-5">
-        <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2 sm:flex-wrap">
           <div>
-            <h2 className="text-[18px] font-semibold text-ink">Overview</h2>
-            <p className="text-[12px] text-ink-3 mt-0.5">{branches.length} branches reporting - live API</p>
+            <h2 className="text-[16px] sm:text-[18px] font-semibold text-ink">Overview</h2>
+            <p className="text-[11px] sm:text-[12px] text-ink-3 mt-0.5">{branches.length} branches reporting - live API</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button type="button" onClick={refresh} className="btn btn-sm btn-ghost"><RefreshCw size={13} /> Refresh</button>
             <button type="button" onClick={exportCsv} className="btn btn-sm btn-ghost"><Download size={13} /> Export CSV</button>
             <Link to="/dashboard/branches" className="btn btn-sm btn-secondary"><Plus size={13} /> New branch</Link>
@@ -88,7 +91,7 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        <div className="grid sm:grid-cols-4 gap-px bg-line border border-line rounded-lg overflow-hidden">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-line border border-line rounded-lg overflow-hidden">
           <Kpi label="Live waiting" value={metrics?.liveWaiting ?? '–'} delta="+4 vs avg" bad />
           <Kpi label="Avg wait" value={`${metrics?.avgWaitTodayMin ?? 7}m`} delta="-2m faster" />
           <Kpi label="Served today" value={String(metrics?.servedToday ?? 142)} delta="+12% higher" />
@@ -96,12 +99,12 @@ export default function Dashboard() {
         </div>
 
         <div className="grid lg:grid-cols-[1.4fr_0.6fr] gap-5">
-          <section className="card p-5">
-            <div className="flex items-center justify-between">
+          <section className="card p-4 sm:p-5">
+            <div className="flex items-center justify-between gap-2">
               <h3 className="text-[14px] font-semibold text-ink">Live tickets</h3>
               <span className="t-eyebrow text-[10px]">All queues - {liveTickets.length}</span>
             </div>
-            <div className="px-1 py-2 grid grid-cols-12 gap-3 text-[10px] t-eyebrow uppercase tracking-wider text-ink-3 border-b border-line">
+            <div className="hidden sm:grid px-1 py-2 grid-cols-12 gap-3 text-[10px] t-eyebrow uppercase tracking-wider text-ink-3 border-b border-line">
               <div className="col-span-2">Ticket</div>
               <div className="col-span-4">Customer</div>
               <div className="col-span-2">Counter</div>
@@ -111,15 +114,30 @@ export default function Dashboard() {
             <div className="divide-y divide-line">
               {liveTickets.length === 0 && <div className="px-1 py-8 text-center text-[12px] text-ink-3">No live tickets.</div>}
               {liveTickets.slice(0, 10).map((t: any) => (
-                <div key={t.id} className="px-1 py-2.5 grid grid-cols-12 gap-3 items-center hover:bg-surface-2 text-[12px]">
-                  <div className="col-span-2 t-mono text-ink font-medium">{t.ticketNumber}</div>
-                  <div className="col-span-4 truncate">
+                <div key={t.id} className="px-1 py-3 sm:py-2.5 sm:grid sm:grid-cols-12 sm:gap-3 sm:items-center hover:bg-surface-2 text-[12px]">
+                  {/* Mobile card layout */}
+                  <div className="flex sm:hidden flex-col gap-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="t-mono text-ink font-semibold text-[14px]">{t.ticketNumber}</span>
+                      <span className={cn(
+                        t.status === 'WAITING' ? 'chip-wait' :
+                        t.status === 'CALLED' ? 'chip-call' :
+                        t.status === 'SERVING' ? 'chip-serve' : 'chip-done',
+                      )}>{t.status}</span>
+                    </div>
+                    <div className="text-ink truncate">{t.customerName}</div>
+                    <div className="font-mono text-[10px] text-ink-3 truncate">{t.serviceName}</div>
+                    <div className="font-mono text-[10px] text-ink-3 truncate">{t.counter ?? 'No counter'} - {relativeTime(t.joinedAt)}</div>
+                  </div>
+                  {/* Desktop columns */}
+                  <div className="hidden sm:block sm:col-span-2 t-mono text-ink font-medium">{t.ticketNumber}</div>
+                  <div className="hidden sm:block sm:col-span-4 truncate">
                     <div className="text-ink truncate">{t.customerName}</div>
                     <div className="font-mono text-[10px] text-ink-3 truncate">{t.serviceName}</div>
                   </div>
-                  <div className="col-span-2 font-mono text-[12px] text-ink-3">{t.counter ?? '-'}</div>
-                  <div className="col-span-2 font-mono text-[12px] text-ink-3">{relativeTime(t.joinedAt)}</div>
-                  <div className="col-span-2 text-right">
+                  <div className="hidden sm:block sm:col-span-2 font-mono text-[12px] text-ink-3">{t.counter ?? '-'}</div>
+                  <div className="hidden sm:block sm:col-span-2 font-mono text-[12px] text-ink-3">{relativeTime(t.joinedAt)}</div>
+                  <div className="hidden sm:block sm:col-span-2 sm:text-right">
                     <span className={cn(
                       t.status === 'WAITING' ? 'chip-wait' :
                       t.status === 'CALLED' ? 'chip-call' :
@@ -244,11 +262,11 @@ export default function Dashboard() {
 
 function Kpi({ label, value, delta, bad }: { label: string; value: any; delta?: string; bad?: boolean }) {
   return (
-    <div className="bg-surface p-4">
-      <div className="t-eyebrow text-[10px]">{label}</div>
-      <div className="t-mono text-2xl text-ink font-semibold mt-1">{value}</div>
+    <div className="bg-surface p-3 sm:p-4">
+      <div className="t-eyebrow text-[9px] sm:text-[10px]">{label}</div>
+      <div className="t-mono text-xl sm:text-2xl text-ink font-semibold mt-0.5 sm:mt-1">{value}</div>
       {delta && (
-        <div className={cn('t-eyebrow text-[10px] mt-1 inline-flex items-center gap-1', bad ? 'text-amber-600' : 'text-emerald-700')}>
+        <div className={cn('t-eyebrow text-[9px] sm:text-[10px] mt-0.5 sm:mt-1 inline-flex items-center gap-1', bad ? 'text-amber-600' : 'text-emerald-700')}>
           {bad ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
           {delta}
         </div>

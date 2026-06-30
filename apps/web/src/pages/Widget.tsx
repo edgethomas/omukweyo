@@ -150,7 +150,7 @@ export default function Widget() {
             )}
 
             <a href={`/reserve?company=${encodeURIComponent(company.slug)}&branch=${encodeURIComponent(branch.slug)}`} target="_blank" rel="noreferrer" className="btn btn-outline w-full mt-3">
-              Reserve a future spot
+              Reserve an arrival window
             </a>
             <div className="text-center text-[10px] uppercase tracking-[0.12em] text-ink-3 mt-3">Powered by Omukweyo</div>
           </div>

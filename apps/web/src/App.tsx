@@ -1,73 +1,76 @@
 import { Navigate, Routes, Route, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { Role } from '@inline/shared';
 import Layout from './components/Layout';
 import AppShell from './components/AppShell';
 import CustomerShell from './components/CustomerShell';
+import ErrorBoundary from './components/ErrorBoundary';
 
-import Home from './pages/Home';
-import HowItWorks from './pages/HowItWorks';
-import ForCompanies from './pages/ForCompanies';
-import ForCustomers from './pages/ForCustomers';
-import ForRunners from './pages/ForRunners';
-import Pricing from './pages/Pricing';
-import Contact from './pages/Contact';
-import Legal from './pages/Legal';
-import BusinessDirectory from './pages/BusinessDirectory';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import Onboarding from './pages/Onboarding';
-import CustomerSignup from './pages/CustomerSignup';
-import CustomerSettings from './pages/CustomerSettings';
-import ReserveTicket from './pages/ReserveTicket';
-import ReservationStatus from './pages/ReservationStatus';
-import CustomerHome from './pages/CustomerHome';
-import CustomerProfile from './pages/CustomerProfile';
-import RunnerSignup from './pages/RunnerSignup';
-import RunnerWorkspace from './pages/RunnerWorkspace';
-import PlatformAdmin from './pages/PlatformAdmin';
-import Billing from './pages/Billing';
-import Widget from './pages/Widget';
-import BusinessSettings from './pages/BusinessSettings';
-import EmbedPage from './pages/EmbedPage';
-import EmbedTicketPage from './pages/EmbedTicketPage';
-
-import CompanyPublic from './pages/CompanyPublic';
-import Ticket from './pages/Ticket';
-import Staff from './pages/Staff';
-import Dashboard from './pages/Dashboard';
-
-import CustomerHistory from './features/customer/CustomerHistory';
-import RunnerRequestPage from './features/runner/RunnerRequestPage';
-import RunnerRequestStatusPage from './features/runner/RunnerRequestStatusPage';
-import RunnerJobsPage from './features/runner/RunnerJobsPage';
-import RunnerProfilePage from './features/runner/RunnerProfilePage';
-import BranchesPage from './features/business-admin/BranchesPage';
-import ServicesPage from './features/business-admin/ServicesPage';
-import BusinessStaffPage from './features/business-admin/StaffPage';
-import CountersPage from './features/business-admin/CountersPage';
-import QueuesPage from './features/business-admin/QueuesPage';
-import CustomersPage from './features/business-admin/CustomersPage';
-import SmsPage from './features/business-admin/SmsPage';
-import QrCodesPage from './features/business-admin/QrCodesPage';
-import AnalyticsPage from './features/business-admin/AnalyticsPage';
-import ReportsPage from './features/business-admin/ReportsPage';
-import DashboardBillingPage from './features/business-admin/DashboardBillingPage';
-import BrandingPage from './features/business-admin/BrandingPage';
-import BusinessSettingsPage from './features/business-admin/SettingsPage';
-import DashboardEmbedPage from './features/business-admin/DashboardEmbedPage';
-import StaffQueuePage from './features/staff/StaffQueuePage';
-import StaffTicketDetailPage from './features/staff/StaffTicketDetailPage';
-import KioskPage from './features/staff/KioskPage';
-import WaitingRoomTvPage from './features/staff/WaitingRoomTvPage';
-import AdminCompaniesPage from './features/platform-admin/AdminCompaniesPage';
-import AdminRunnersPage from './features/platform-admin/AdminRunnersPage';
-import AdminBillingPage from './features/platform-admin/AdminBillingPage';
-import AdminSupportPage from './features/platform-admin/AdminSupportPage';
-import AdminAuditLogsPage from './features/platform-admin/AdminAuditLogsPage';
-import AdminSettingsPage from './features/platform-admin/AdminSettingsPage';
-import CompanyJoinPage from './features/public-company/CompanyJoinPage';
+const Home = lazy(() => import('./pages/Home'));
+const HowItWorks = lazy(() => import('./pages/HowItWorks'));
+const ForCompanies = lazy(() => import('./pages/ForCompanies'));
+const ForCustomers = lazy(() => import('./pages/ForCustomers'));
+const ForRunners = lazy(() => import('./pages/ForRunners'));
+const Pricing = lazy(() => import('./pages/Pricing'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Legal = lazy(() => import('./pages/Legal'));
+const BusinessDirectory = lazy(() => import('./pages/BusinessDirectory'));
+const Login = lazy(() => import('./pages/Login'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const Signup = lazy(() => import('./pages/Signup'));
+const Onboarding = lazy(() => import('./pages/Onboarding'));
+const CustomerSignup = lazy(() => import('./pages/CustomerSignup'));
+const CustomerSettings = lazy(() => import('./pages/CustomerSettings'));
+const ReserveTicket = lazy(() => import('./pages/ReserveTicket'));
+const ReservationStatus = lazy(() => import('./pages/ReservationStatus'));
+const CustomerHome = lazy(() => import('./pages/CustomerHome'));
+const CustomerProfile = lazy(() => import('./pages/CustomerProfile'));
+const RunnerSignup = lazy(() => import('./pages/RunnerSignup'));
+const RunnerWorkspace = lazy(() => import('./pages/RunnerWorkspace'));
+const PlatformAdmin = lazy(() => import('./pages/PlatformAdmin'));
+const Widget = lazy(() => import('./pages/Widget'));
+const EmbedPage = lazy(() => import('./pages/EmbedPage'));
+const EmbedTicketPage = lazy(() => import('./pages/EmbedTicketPage'));
+const StaffProfile = lazy(() => import('./pages/StaffProfile'));
+const StaffSettings = lazy(() => import('./pages/StaffSettings'));
+const BusinessProfile = lazy(() => import('./pages/BusinessProfile'));
+const AdminProfile = lazy(() => import('./pages/AdminProfile'));
+const RunnerSettings = lazy(() => import('./pages/RunnerSettings'));
+const CompanyPublic = lazy(() => import('./pages/CompanyPublic'));
+const Ticket = lazy(() => import('./pages/Ticket'));
+const Staff = lazy(() => import('./pages/Staff'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const CustomerHistory = lazy(() => import('./features/customer/CustomerHistory'));
+const RunnerRequestPage = lazy(() => import('./features/runner/RunnerRequestPage'));
+const RunnerRequestStatusPage = lazy(() => import('./features/runner/RunnerRequestStatusPage'));
+const RunnerJobsPage = lazy(() => import('./features/runner/RunnerJobsPage'));
+const RunnerProfilePage = lazy(() => import('./features/runner/RunnerProfilePage'));
+const BranchesPage = lazy(() => import('./features/business-admin/BranchesPage'));
+const ServicesPage = lazy(() => import('./features/business-admin/ServicesPage'));
+const BusinessStaffPage = lazy(() => import('./features/business-admin/StaffPage'));
+const CountersPage = lazy(() => import('./features/business-admin/CountersPage'));
+const QueuesPage = lazy(() => import('./features/business-admin/QueuesPage'));
+const CustomersPage = lazy(() => import('./features/business-admin/CustomersPage'));
+const SmsPage = lazy(() => import('./features/business-admin/SmsPage'));
+const QrCodesPage = lazy(() => import('./features/business-admin/QrCodesPage'));
+const AnalyticsPage = lazy(() => import('./features/business-admin/AnalyticsPage'));
+const ReportsPage = lazy(() => import('./features/business-admin/ReportsPage'));
+const DashboardBillingPage = lazy(() => import('./features/business-admin/DashboardBillingPage'));
+const BrandingPage = lazy(() => import('./features/business-admin/BrandingPage'));
+const BusinessSettingsPage = lazy(() => import('./features/business-admin/SettingsPage'));
+const DashboardEmbedPage = lazy(() => import('./features/business-admin/DashboardEmbedPage'));
+const StaffQueuePage = lazy(() => import('./features/staff/StaffQueuePage'));
+const StaffTicketDetailPage = lazy(() => import('./features/staff/StaffTicketDetailPage'));
+const KioskPage = lazy(() => import('./features/staff/KioskPage'));
+const WaitingRoomTvPage = lazy(() => import('./features/staff/WaitingRoomTvPage'));
+const AdminCompaniesPage = lazy(() => import('./features/platform-admin/AdminCompaniesPage'));
+const AdminRunnersPage = lazy(() => import('./features/platform-admin/AdminRunnersPage'));
+const AdminBillingPage = lazy(() => import('./features/platform-admin/AdminBillingPage'));
+const AdminSupportPage = lazy(() => import('./features/platform-admin/AdminSupportPage'));
+const AdminAuditLogsPage = lazy(() => import('./features/platform-admin/AdminAuditLogsPage'));
+const AdminSettingsPage = lazy(() => import('./features/platform-admin/AdminSettingsPage'));
+const CompanyJoinPage = lazy(() => import('./features/public-company/CompanyJoinPage'));
 
 const productRoutes = [
   '/dashboard',
@@ -101,12 +104,17 @@ const productRoutes = [
   '/staff/queue',
   '/staff/kiosk',
   '/staff/tv',
+  '/staff/profile',
+  '/staff/settings',
   '/admin/companies',
   '/admin/runners',
   '/admin/billing',
   '/admin/support',
   '/admin/audit-logs',
   '/admin/settings',
+  '/admin/profile',
+  '/dashboard/profile',
+  '/runner/settings',
 ];
 const productPrefixes = ['/ticket', '/reservation', '/staff/ticket', '/runner/request', '/runner/jobs'];
 const sessionAwarePublicRoutes = ['/businesses', '/reserve', '/contact', '/onboarding', '/runner/signup', '/customer/signup', '/join'];
@@ -157,17 +165,54 @@ function RequireAuth({ children, allowedRoles }: { children: ReactNode; allowedR
 function ProductPage({ children, title, subtitle, actions }: { children: ReactNode; title: string; subtitle?: string; actions?: ReactNode }) {
   const session = loadSession();
   const role = session?.user?.role;
+  const content = <Suspense fallback={<ProductRouteFallback />}>{children}</Suspense>;
 
   if (role === 'CUSTOMER') {
-    return <CustomerShell>{children}</CustomerShell>;
+    return <CustomerShell>{content}</CustomerShell>;
   }
 
-  return <AppShell title={title} subtitle={subtitle} actions={actions}>{children}</AppShell>;
+  return <AppShell title={title} subtitle={subtitle} actions={actions}>{content}</AppShell>;
+}
+
+function ProductRouteFallback() {
+  return (
+    <div className="space-y-4" aria-busy="true" aria-label="Loading page">
+      <div className="space-y-2">
+        <div className="h-5 w-36 rounded bg-surface-2 animate-pulse" />
+        <div className="h-3 w-64 max-w-[70vw] rounded bg-surface-2 animate-pulse" />
+      </div>
+      <div className="card p-5 space-y-3">
+        <div className="h-4 w-28 rounded bg-surface-2 animate-pulse" />
+        <div className="h-24 rounded-lg bg-surface-2 animate-pulse" />
+      </div>
+    </div>
+  );
+}
+
+function PublicRouteFallback() {
+  return (
+    <div className="min-h-screen bg-surface p-6" aria-busy="true" aria-label="Loading page">
+      <div className="mx-auto max-w-5xl space-y-4">
+        <div className="h-8 w-36 rounded bg-surface-2 animate-pulse" />
+        <div className="h-64 rounded-xl border border-line bg-surface-2 animate-pulse" />
+      </div>
+    </div>
+  );
 }
 
 function ScrollToTop() {
-  const { pathname } = useLocation();
-  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  const { pathname, search } = useLocation();
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      document.querySelectorAll<HTMLElement>('.app-main, .customer-main, main').forEach((node) => {
+        node.scrollTop = 0;
+      });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [pathname, search]);
   return null;
 }
 
@@ -235,7 +280,7 @@ function Router() {
         <Route path="/admin/support" element={<RequireAuth allowedRoles={['SUPER_ADMIN']}><ProductPageWrapper title="Support" subtitle="Impersonate, look up tickets, and answer questions"><AdminSupportPage /></ProductPageWrapper></RequireAuth>} />
         <Route path="/admin/audit-logs" element={<RequireAuth allowedRoles={['SUPER_ADMIN']}><ProductPageWrapper title="Audit logs" subtitle="Every sensitive action across the platform"><AdminAuditLogsPage /></ProductPageWrapper></RequireAuth>} />
         <Route path="/admin/settings" element={<RequireAuth allowedRoles={['SUPER_ADMIN']}><ProductPageWrapper title="Platform settings" subtitle="Plans, integrations, and platform-wide toggles"><AdminSettingsPage /></ProductPageWrapper></RequireAuth>} />
-        <Route path="/billing" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER']}><ProductPageWrapper title="Billing" subtitle="Subscription, invoices, and SMS credits"><Billing /></ProductPageWrapper></RequireAuth>} />
+        <Route path="/billing" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER']}><Navigate to="/dashboard/billing" replace /></RequireAuth>} />
         <Route path="/ticket" element={<ProductPageWrapper title="Live ticket" subtitle="Real-time position, ETA, and counter"><Ticket /></ProductPageWrapper>} />
         <Route path="/ticket/:id" element={<ProductPageWrapper title="Live ticket" subtitle="Real-time position, ETA, and counter"><Ticket /></ProductPageWrapper>} />
         <Route path="/staff" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER', 'STAFF']}><ProductPageWrapper title="Staff console" subtitle="Counter workflow"><Staff /></ProductPageWrapper></RequireAuth>} />
@@ -243,6 +288,11 @@ function Router() {
         <Route path="/staff/ticket/:id" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER', 'STAFF']}><ProductPageWrapper title="Ticket detail" subtitle="Every action and event for this ticket"><StaffTicketDetailPage /></ProductPageWrapper></RequireAuth>} />
         <Route path="/staff/kiosk" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER', 'STAFF']}><ProductPageWrapper title="Kiosk" subtitle="Join-the-queue screen for in-branch tablets"><KioskPage /></ProductPageWrapper></RequireAuth>} />
         <Route path="/staff/tv" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER', 'STAFF']}><ProductPageWrapper title="Waiting room TV" subtitle="Now serving on a big screen"><WaitingRoomTvPage /></ProductPageWrapper></RequireAuth>} />
+        <Route path="/staff/profile" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER', 'STAFF']}><ProductPageWrapper title="Staff profile" subtitle="Your counter profile, photo, and contact details"><StaffProfile /></ProductPageWrapper></RequireAuth>} />
+        <Route path="/staff/settings" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER', 'STAFF']}><ProductPageWrapper title="Staff settings" subtitle="Account access, notifications, and danger zone"><StaffSettings /></ProductPageWrapper></RequireAuth>} />
+        <Route path="/dashboard/profile" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER']}><ProductPageWrapper title="My profile" subtitle="Your personal profile, photo, and sign-in details"><BusinessProfile /></ProductPageWrapper></RequireAuth>} />
+        <Route path="/admin/profile" element={<RequireAuth allowedRoles={['SUPER_ADMIN']}><ProductPageWrapper title="My profile" subtitle="Your platform-admin profile, photo, and sign-in details"><AdminProfile /></ProductPageWrapper></RequireAuth>} />
+        <Route path="/runner/settings" element={<RequireAuth allowedRoles={['RUNNER', 'SUPER_ADMIN']}><ProductPageWrapper title="Runner settings" subtitle="Account access, notifications, and danger zone"><RunnerSettings /></ProductPageWrapper></RequireAuth>} />
         <Route path="/dashboard" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER', 'STAFF']}><ProductPageWrapper title="Company admin console" subtitle="Branches, queues, staff, billing, and access"><Dashboard /></ProductPageWrapper></RequireAuth>} />
         <Route path="/dashboard/branches" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER']}><ProductPageWrapper title="Branches" subtitle="Create, edit, and disable branches"><BranchesPage /></ProductPageWrapper></RequireAuth>} />
         <Route path="/dashboard/services" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER']}><ProductPageWrapper title="Services" subtitle="Define the queue services a customer picks from"><ServicesPage /></ProductPageWrapper></RequireAuth>} />
@@ -256,12 +306,12 @@ function Router() {
         <Route path="/dashboard/analytics" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER']}><ProductPageWrapper title="Analytics" subtitle="Wait times, served counts, and peak hours"><AnalyticsPage /></ProductPageWrapper></RequireAuth>} />
         <Route path="/dashboard/reports" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER']}><ProductPageWrapper title="Reports" subtitle="Custom reports and exports"><ReportsPage /></ProductPageWrapper></RequireAuth>} />
         <Route path="/dashboard/billing" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER']}><ProductPageWrapper title="Billing" subtitle="Subscription, invoices, and SMS credits"><DashboardBillingPage /></ProductPageWrapper></RequireAuth>} />
-        <Route path="/dashboard/branding" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER']}><ProductPageWrapper title="Branding" subtitle="Logo, hero, colors, and tagline"><BrandingPage /></ProductPageWrapper></RequireAuth>} />
-        <Route path="/dashboard/settings" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER']}><ProductPageWrapper title="Business settings" subtitle="Queue rules, security, and business details"><BusinessSettingsPage /></ProductPageWrapper></RequireAuth>} />
-        <Route path="/embed" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER']}><ProductPageWrapper title="Embed widget" subtitle="Drop Omukweyo on your own site"><EmbedPage /></ProductPageWrapper></RequireAuth>} />
-        <Route path="/settings" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER']}><ProductPageWrapper title="Business settings" subtitle="Branding, profile, branches, services, and widget setup"><BusinessSettings /></ProductPageWrapper></RequireAuth>} />
+        <Route path="/dashboard/branding" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER']}><ProductPageWrapper title="Store page" subtitle="Logo, hero, colors, tagline, and public description"><BrandingPage /></ProductPageWrapper></RequireAuth>} />
+        <Route path="/dashboard/settings" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER']}><ProductPageWrapper title="Business settings" subtitle="Company name, industry, and website"><BusinessSettingsPage /></ProductPageWrapper></RequireAuth>} />
+        <Route path="/embed" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER']}><Navigate to="/dashboard/embed" replace /></RequireAuth>} />
+        <Route path="/settings" element={<RequireAuth allowedRoles={['COMPANY_OWNER', 'COMPANY_MANAGER']}><Navigate to="/dashboard/settings" replace /></RequireAuth>} />
         <Route path="/businesses" element={<RequireAuth allowedRoles={allRoles}><ProductPageWrapper title="Find businesses" subtitle="Search public queue pages, branches, and services"><BusinessDirectory /></ProductPageWrapper></RequireAuth>} />
-        <Route path="/reserve" element={<RequireAuth allowedRoles={allRoles}><ProductPageWrapper title="Reserve future spot" subtitle="Protect an arrival window from your account"><ReserveTicket /></ProductPageWrapper></RequireAuth>} />
+        <Route path="/reserve" element={<RequireAuth allowedRoles={allRoles}><ProductPageWrapper title="Reserve arrival window" subtitle="Protect an arrival window from your account"><ReserveTicket /></ProductPageWrapper></RequireAuth>} />
         <Route path="/reservation/:id" element={<RequireAuth allowedRoles={allRoles}><ProductPageWrapper title="Reservation status" subtitle="Payment state, smart booking time, and live ticket handoff"><ReservationStatus /></ProductPageWrapper></RequireAuth>} />
         <Route path="/contact" element={<RequireAuth allowedRoles={allRoles}><ProductPageWrapper title="Help" subtitle="Contact support without leaving the app"><Contact /></ProductPageWrapper></RequireAuth>} />
         <Route path="/onboarding" element={<RequireAuth allowedRoles={allRoles}><ProductPageWrapper title="Business onboarding" subtitle="Set up a company, branch, services, and operating defaults"><Onboarding /></ProductPageWrapper></RequireAuth>} />
@@ -292,6 +342,7 @@ function Router() {
         <Route path="/privacy" element={<Legal type="privacy" />} />
         <Route path="/terms" element={<Legal type="terms" />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/customer/signup" element={<CustomerSignup />} />
         <Route path="/reserve" element={<ReserveTicket />} />
@@ -308,9 +359,11 @@ function ProductPageWrapper({ children, title, subtitle }: { children: ReactNode
 
 export default function App() {
   return (
-    <>
+    <ErrorBoundary>
       <ScrollToTop />
-      <Router />
-    </>
+      <Suspense fallback={<PublicRouteFallback />}>
+        <Router />
+      </Suspense>
+    </ErrorBoundary>
   );
 }

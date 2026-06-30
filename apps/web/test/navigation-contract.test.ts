@@ -173,7 +173,7 @@ test('demo accounts are visible and point to real workspaces', () => {
 test('business widget route and loader are present for embed installs', () => {
   const appSource = readFileSync(appFile, 'utf8');
   const embedSource = readFileSync(path.join(root, 'pages', 'Embed.tsx'), 'utf8');
-  const apiSource = readFileSync(path.join(repoRoot, 'apps/api/src/store.ts'), 'utf8');
+  const apiSource = readFileSync(path.join(root, 'lib', 'api.ts'), 'utf8');
 
   assert.ok(routePaths.includes('/widget/:companySlug'));
   assert.match(appSource, /Widget/);
@@ -188,7 +188,6 @@ test('public branding uses Omukweyo across launch surfaces', () => {
   const brandedFiles = [
     path.join(repoRoot, 'package.json'),
     path.join(repoRoot, '.env.example'),
-    path.join(repoRoot, 'apps/api/.env.example'),
     path.join(webRoot, 'index.html'),
     path.join(root, 'components', 'Brand.tsx'),
     path.join(root, 'components', 'Header.tsx'),
@@ -282,8 +281,8 @@ test('logged-in customer utility routes stay inside the product shell', () => {
   assert.match(appSource, /Boolean\(session\?\.user\?\.role\).*sessionAwarePublicRoutes/s);
   assert.match(appSource, /import CustomerShell/);
   assert.match(appSource, /role === 'CUSTOMER'/);
-  assert.match(appSource, /<CustomerShell>\{children\}<\/CustomerShell>/);
-  assert.match(appSource, /path="\/reserve" element=\{<RequireAuth allowedRoles=\{allRoles\}><ProductPageWrapper title="Reserve future spot"/);
+  assert.match(appSource, /<CustomerShell>\{content\}<\/CustomerShell>/);
+  assert.match(appSource, /path="\/reserve" element=\{<RequireAuth allowedRoles=\{allRoles\}><ProductPageWrapper title="Reserve arrival window"/);
   assert.match(appSource, /path="\/businesses" element=\{<RequireAuth allowedRoles=\{allRoles\}><ProductPageWrapper title="Find businesses"/);
   assert.match(appSource, /loc\.pathname\.startsWith\('\/c\/'\)/);
   assert.match(appSource, /path="\/c\/:companySlug" element=\{<CompanyPublic \/>}/);
@@ -292,6 +291,11 @@ test('logged-in customer utility routes stay inside the product shell', () => {
   assert.match(appSource, /path="\/onboarding" element=\{<RequireAuth allowedRoles=\{allRoles\}><ProductPageWrapper title="Business onboarding"/);
   assert.match(appSource, /path="\/runner\/signup" element=\{<RequireAuth allowedRoles=\{allRoles\}><ProductPageWrapper title="Runner profile"/);
   assert.match(appSource, /path="\/customer\/profile" element=\{<RequireAuth allowedRoles=\{\['CUSTOMER', 'SUPER_ADMIN'\]\}><ProductPageWrapper title="Profile"/);
+  assert.match(appSource, /path="\/staff\/profile" element=\{<RequireAuth allowedRoles=\{\['COMPANY_OWNER', 'COMPANY_MANAGER', 'STAFF'\]\}><ProductPageWrapper title="Staff profile"/);
+  assert.match(appSource, /path="\/staff\/settings" element=\{<RequireAuth allowedRoles=\{\['COMPANY_OWNER', 'COMPANY_MANAGER', 'STAFF'\]\}><ProductPageWrapper title="Staff settings"/);
+  assert.match(appSource, /path="\/dashboard\/profile" element=\{<RequireAuth allowedRoles=\{\['COMPANY_OWNER', 'COMPANY_MANAGER'\]\}><ProductPageWrapper title="My profile"/);
+  assert.match(appSource, /path="\/admin\/profile" element=\{<RequireAuth allowedRoles=\{\['SUPER_ADMIN'\]\}><ProductPageWrapper title="My profile"/);
+  assert.match(appSource, /path="\/runner\/settings" element=\{<RequireAuth allowedRoles=\{\['RUNNER', 'SUPER_ADMIN'\]\}><ProductPageWrapper title="Runner settings"/);
   assert.match(shellSource, /const homePath = session\?\.user\?\.destination \?\? fallbackHomeForRole\(currentRole\)/);
   assert.doesNotMatch(shellSource, /<Link to="\/" className="h-14/);
   assert.ok(existsSync(customerShellPath));
@@ -300,7 +304,7 @@ test('logged-in customer utility routes stay inside the product shell', () => {
   const customerShellSource = readFileSync(customerShellPath, 'utf8');
   assert.match(customerShellSource, /customer-shell/);
   assert.match(customerShellSource, /customer-topbar/);
-  assert.match(customerShellSource, /customer-header-grid/);
+  assert.match(customerShellSource, /ml-auto flex items-center gap-3 md:ml-0/);
   assert.match(customerShellSource, /to="\/customer\/profile"/);
   assert.match(customerShellSource, /customer-bottom-nav/);
   assert.doesNotMatch(customerShellSource, /Find a business/);
@@ -334,8 +338,8 @@ test('customer signup can open a real customer session', () => {
   const apiSource = readFileSync(path.join(root, 'lib', 'api.ts'), 'utf8');
   const signupSource = readFileSync(path.join(root, 'pages', 'CustomerSignup.tsx'), 'utf8');
 
-  assert.match(apiSource, /customerSignup:\s*\(body:\s*\{[^}]*password\?:\s*string/s);
-  assert.match(apiSource, /request<\{ customer: any; session\?: any; user\?: any \}>/);
+  assert.match(apiSource, /customerSignup:\s*(?:async\s*)?\(body:\s*\{[^}]*password\?:\s*string/s);
+  assert.match(apiSource, /signUpAndProfile/);
   assert.match(signupSource, /password:\s*''/);
   assert.match(signupSource, /type="password"/);
   assert.match(signupSource, /localStorage\.setItem\(SESSION_KEY, JSON\.stringify\(session\)\)/);
@@ -348,13 +352,13 @@ test('business and runner signup open real workspace sessions', () => {
   const runnerSignupSource = readFileSync(path.join(root, 'pages', 'RunnerSignup.tsx'), 'utf8');
 
   assert.match(apiSource, /ownerPassword:\s*string/);
-  assert.match(apiSource, /request<\{ onboarding: any; session\?: any; user\?: any \}>/);
+  assert.match(apiSource, /Supabase Auth session created/);
   assert.match(onboardingSource, /ownerPassword:\s*''/);
   assert.match(onboardingSource, /localStorage\.setItem\(SESSION_KEY, JSON\.stringify\(payload\.session\)\)/);
   assert.match(onboardingSource, /Field[^>]*name="ownerPassword"[^>]*type="password"/);
 
-  assert.match(apiSource, /runnerApply:\s*\(body:\s*\{[^}]*email:\s*string;[^}]*password:\s*string/s);
-  assert.match(apiSource, /request<\{ application: any; session\?: any; user\?: any \}>/);
+  assert.match(apiSource, /runnerApply:\s*(?:async\s*)?\(body:\s*\{[^}]*email:\s*string;[^}]*password:\s*string/s);
+  assert.match(apiSource, /RunnerApplication/);
   assert.match(runnerSignupSource, /email:\s*''/);
   assert.match(runnerSignupSource, /password:\s*''/);
   assert.match(runnerSignupSource, /localStorage\.setItem\(SESSION_KEY, JSON\.stringify\(session\)\)/);
@@ -411,6 +415,58 @@ test('customer and company admin workspaces are role-fit, not generic dashboards
   assert.match(dashboardSource, /Access control/);
   assert.match(dashboardSource, /Company users/);
   assert.match(dashboardSource, /Owner|Manager|Operator/);
+});
+
+test('every role has a profile page and role-aware settings', () => {
+  const appSource = readFileSync(appFile, 'utf8');
+  const shellSource = readFileSync(path.join(root, 'components', 'AppShell.tsx'), 'utf8');
+  const apiSource = readFileSync(path.join(root, 'lib', 'api.ts'), 'utf8');
+
+  // New page files exist
+  const staffProfilePath = path.join(root, 'pages', 'StaffProfile.tsx');
+  const staffSettingsPath = path.join(root, 'pages', 'StaffSettings.tsx');
+  const businessProfilePath = path.join(root, 'pages', 'BusinessProfile.tsx');
+  const adminProfilePath = path.join(root, 'pages', 'AdminProfile.tsx');
+  const runnerSettingsPath = path.join(root, 'pages', 'RunnerSettings.tsx');
+  for (const file of [staffProfilePath, staffSettingsPath, businessProfilePath, adminProfilePath, runnerSettingsPath]) {
+    assert.ok(existsSync(file), `${path.basename(file)} should exist`);
+  }
+
+  // Shared profile/settings components exist
+  const profilePageSource = readFileSync(path.join(root, 'features', 'profile', 'UserProfilePage.tsx'), 'utf8');
+  const settingsPageSource = readFileSync(path.join(root, 'features', 'profile', 'UserSettingsPage.tsx'), 'utf8');
+  assert.match(profilePageSource, /api\.updateMyProfile/);
+  assert.match(profilePageSource, /api\.uploadMyAvatar/);
+  assert.match(profilePageSource, /api\.deleteMyAccount/);
+  assert.match(settingsPageSource, /api\.changePassword/);
+  assert.match(settingsPageSource, /api\.forgotPassword/);
+  assert.match(settingsPageSource, /Delete account/);
+
+  // Each thin wrapper delegates to the shared components
+  for (const file of [staffProfilePath, staffSettingsPath, businessProfilePath, adminProfilePath, runnerSettingsPath]) {
+    const source = readFileSync(file, 'utf8');
+    if (/Profile\.tsx$/.test(file)) {
+      assert.match(source, /UserProfilePage/);
+    } else {
+      assert.match(source, /UserSettingsPage/);
+    }
+  }
+
+  // API lib has the new methods
+  assert.match(apiSource, /updateMyProfile/);
+  assert.match(apiSource, /uploadMyAvatar/);
+  assert.match(apiSource, /deleteMyAccount/);
+
+  // AppShell sidebar nav has a Profile entry per role
+  assert.match(shellSource, /label: 'My profile'/);
+  assert.match(shellSource, /to: '\/staff\/profile'/);
+  assert.match(shellSource, /to: '\/dashboard\/profile'/);
+  assert.match(shellSource, /to: '\/admin\/profile'/);
+  assert.match(shellSource, /to: '\/staff\/settings'/);
+  assert.match(shellSource, /to: '\/runner\/settings'/);
+
+  // Mobile bottom nav always exposes Profile
+  assert.match(shellSource, /label: 'Profile'/);
 });
 
 test('pre-login pages avoid hardcoded demo company links and excessive repeated imagery', () => {

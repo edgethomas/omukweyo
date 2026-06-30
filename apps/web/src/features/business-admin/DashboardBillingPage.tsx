@@ -14,6 +14,7 @@ export default function DashboardBillingPage() {
 
   const load = () => {
     setPending(true);
+    setError(null);
     api.billingOverview()
       .then(setBilling)
       .catch((err) => setError(err.message))
@@ -50,9 +51,7 @@ export default function DashboardBillingPage() {
     return <DashboardLayout><div className="card p-6 text-red-700">{error}</div></DashboardLayout>;
   }
 
-  if (!billing) {
-    return <DashboardLayout><div className="card p-6 h-72 animate-pulse" /></DashboardLayout>;
-  }
+  if (!billing) return <DashboardLayout><BillingSkeleton /></DashboardLayout>;
 
   return (
     <DashboardLayout>
@@ -152,6 +151,49 @@ export default function DashboardBillingPage() {
         </div>
       </div>
     </DashboardLayout>
+  );
+}
+
+function BillingSkeleton() {
+  return (
+    <div className="space-y-5" aria-busy="true" aria-label="Loading billing">
+      <div className="flex items-center justify-between gap-3">
+        <div className="space-y-2">
+          <div className="h-5 w-20 rounded bg-surface-2 animate-pulse" />
+          <div className="h-3 w-56 max-w-[70vw] rounded bg-surface-2 animate-pulse" />
+        </div>
+        <div className="h-8 w-20 rounded-md bg-surface-2 animate-pulse" />
+      </div>
+      <section className="card p-5 space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div className="space-y-2">
+            <div className="h-4 w-28 rounded bg-surface-2 animate-pulse" />
+            <div className="h-3 w-48 rounded bg-surface-2 animate-pulse" />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="h-8 w-20 rounded-md bg-surface-2 animate-pulse" />
+            ))}
+          </div>
+        </div>
+        <div className="grid sm:grid-cols-3 gap-px overflow-hidden rounded-lg border border-line bg-line">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="h-20 bg-surface p-4">
+              <div className="h-3 w-20 rounded bg-surface-2 animate-pulse" />
+              <div className="mt-3 h-5 w-24 rounded bg-surface-2 animate-pulse" />
+            </div>
+          ))}
+        </div>
+      </section>
+      <section className="card p-5">
+        <div className="h-4 w-36 rounded bg-surface-2 animate-pulse" />
+        <div className="mt-3 grid md:grid-cols-3 gap-3">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="h-32 rounded-lg border border-line bg-surface-2 animate-pulse" />
+          ))}
+        </div>
+      </section>
+    </div>
   );
 }
 

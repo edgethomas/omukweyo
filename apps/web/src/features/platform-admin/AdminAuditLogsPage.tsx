@@ -46,17 +46,17 @@ export default function AdminAuditLogsPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between gap-2 flex-wrap">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2 sm:flex-wrap">
         <div>
-          <h2 className="text-[18px] font-semibold text-ink">Audit logs</h2>
-          <p className="text-[12px] text-ink-3 mt-0.5">System events across reservations, SMS, and runner updates</p>
+          <h2 className="text-[16px] sm:text-[18px] font-semibold text-ink">Audit logs</h2>
+          <p className="text-[11px] sm:text-[12px] text-ink-3 mt-0.5">System events across reservations, SMS, and runner updates</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="relative">
+          <div className="relative w-full sm:w-auto">
             <Filter size={13} className="text-ink-3 absolute left-2.5 top-1/2 -translate-y-1/2" />
-            <input className="input h-9 pl-8 text-[12px] w-40" placeholder="Actor" value={actorFilter} onChange={(e) => setActorFilter(e.target.value)} />
+            <input className="input h-9 pl-8 text-[12px] w-full sm:w-40" placeholder="Actor" value={actorFilter} onChange={(e) => setActorFilter(e.target.value)} />
           </div>
-          <select className="select h-9 text-[12px]" value={actionFilter} onChange={(e) => setActionFilter(e.target.value)}>
+          <select className="select h-9 text-[12px] flex-1 sm:flex-none" value={actionFilter} onChange={(e) => setActionFilter(e.target.value)}>
             <option value="all">All actions</option>
             {actions.map((a) => <option key={a} value={a}>{a}</option>)}
           </select>
@@ -65,7 +65,7 @@ export default function AdminAuditLogsPage() {
       </div>
 
       <section className="card p-0 overflow-hidden">
-        <div className="px-5 py-3 border-b border-line flex items-center justify-between">
+        <div className="px-4 sm:px-5 py-3 border-b border-line flex items-center justify-between">
           <h3 className="text-[14px] font-semibold text-ink inline-flex items-center gap-2"><Activity size={14} /> Recent events</h3>
           <span className="t-eyebrow text-[10px]">{filtered.length} entries</span>
         </div>
@@ -74,14 +74,17 @@ export default function AdminAuditLogsPage() {
         ) : (
           <div className="divide-y divide-line max-h-[36rem] overflow-auto">
             {filtered.map((row) => (
-              <div key={row.id} className="grid md:grid-cols-[140px_140px_140px_1fr_120px] gap-3 items-center px-5 py-2.5 text-[12px]">
-                <div className="font-mono text-[11px] text-ink-3">{relativeTime(row.at)}</div>
-                <div className="text-ink-2">{row.actor}</div>
+              <div key={row.id} className="flex flex-col gap-1 px-4 sm:px-5 py-2.5 text-[12px] md:grid md:grid-cols-[140px_140px_140px_1fr_120px] md:gap-3 md:items-center">
+                <div className="flex items-center gap-2 md:block">
+                  <span className="font-mono text-[11px] text-ink-3">{relativeTime(row.at)}</span>
+                  <span className="md:hidden text-[11px] text-ink-2">{row.actor}</span>
+                </div>
+                <div className="text-ink-2 hidden md:block">{row.actor}</div>
                 <div>
                   <span className={cn('text-[10px]', row.action.includes('FAILED') ? 'chip-miss' : row.action.includes('CREATED') ? 'chip-wait' : 'chip-done')}>{row.action}</span>
                 </div>
                 <div className="text-ink-2 truncate">{row.detail}</div>
-                <div className="text-right font-mono text-[10px] text-ink-3">{row.target.slice(-6)}</div>
+                <div className="md:text-right font-mono text-[10px] text-ink-3">{row.target.slice(-6)}</div>
               </div>
             ))}
           </div>

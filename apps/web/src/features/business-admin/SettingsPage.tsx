@@ -12,14 +12,12 @@ type Company = {
 };
 
 export default function SettingsPage() {
-  const [company, setCompany] = useState<Company | null>(null);
   const [form, setForm] = useState<Company | null>(null);
   const [pending, setPending] = useState(false);
   const [notice, setNotice] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
 
   useEffect(() => {
-    api.dashboard().then((d: any) => {
-      setCompany(d.company);
+    api.companyProfile().then((d: any) => {
       setForm(d.company);
     });
   }, []);
@@ -35,7 +33,6 @@ export default function SettingsPage() {
         industry: form.industry,
         websiteUrl: form.websiteUrl,
       });
-      setCompany(updated);
       setForm(updated);
       setNotice({ kind: 'ok', text: 'Business details saved.' });
     } catch (err: any) {
@@ -45,7 +42,7 @@ export default function SettingsPage() {
     }
   };
 
-  if (!form) return <DashboardLayout><div className="card p-6 h-64 animate-pulse" /></DashboardLayout>;
+  if (!form) return <DashboardLayout><SettingsSkeleton /></DashboardLayout>;
 
   return (
     <DashboardLayout>
@@ -53,7 +50,7 @@ export default function SettingsPage() {
         <div className="flex items-center justify-between gap-2">
           <div>
             <h2 className="text-[18px] font-semibold text-ink">Business settings</h2>
-            <p className="text-[12px] text-ink-3 mt-0.5">Queue rules, security, and business details</p>
+            <p className="text-[12px] text-ink-3 mt-0.5">Company name, industry, and website</p>
           </div>
         </div>
 
@@ -83,51 +80,26 @@ export default function SettingsPage() {
             <button type="submit" className="btn btn-primary btn-md" disabled={pending}><Save size={13} /> {pending ? 'Saving...' : 'Save'}</button>
           </div>
         </form>
-
-        <section className="card p-5">
-          <h3 className="text-[14px] font-semibold text-ink">Queue rules</h3>
-          <p className="text-[12px] text-ink-3 mt-1">Default rule set. Per-branch overrides come in Phase 5.</p>
-          <div className="mt-3 grid sm:grid-cols-2 gap-3">
-            <label className="block">
-              <span className="label">Default no-show policy</span>
-              <select className="select" defaultValue="keep">
-                <option value="keep">Keep ticket and resend SMS</option>
-                <option value="cancel">Auto-cancel after 5 minutes</option>
-                <option value="warn">Warn only</option>
-              </select>
-            </label>
-            <label className="block">
-              <span className="label">Transfer across branches</span>
-              <select className="select" defaultValue="manager">
-                <option value="anyone">Anyone at the counter</option>
-                <option value="manager">Manager approval</option>
-                <option value="owner">Owner only</option>
-              </select>
-            </label>
-            <label className="block">
-              <span className="label">SMS auto top-up</span>
-              <select className="select" defaultValue="200">
-                <option value="off">Off</option>
-                <option value="200">On at 200 credits</option>
-                <option value="500">On at 500 credits</option>
-              </select>
-            </label>
-            <label className="block">
-              <span className="label">Session timeout (min)</span>
-              <input className="input" type="number" min={15} max={720} defaultValue={60} />
-            </label>
-          </div>
-        </section>
-
-        <section className="card p-5">
-          <h3 className="text-[14px] font-semibold text-ink">Security</h3>
-          <p className="text-[12px] text-ink-3 mt-1">Built in Phase 5 with real 2FA. For now, the session expires after 12 hours.</p>
-          <div className="mt-3 grid sm:grid-cols-2 gap-3">
-            <div className="rounded-md border border-line bg-surface-2 p-3 text-[12px] text-ink-2">2FA <span className="chip-neutral ml-2">planned</span></div>
-            <div className="rounded-md border border-line bg-surface-2 p-3 text-[12px] text-ink-2">Allowed IPs <span className="chip-neutral ml-2">planned</span></div>
-          </div>
-        </section>
       </div>
     </DashboardLayout>
+  );
+}
+
+function SettingsSkeleton() {
+  return (
+    <div className="space-y-5" aria-busy="true" aria-label="Loading business settings">
+      <div className="space-y-2">
+        <div className="h-5 w-40 rounded bg-surface-2 animate-pulse" />
+        <div className="h-3 w-56 max-w-[70vw] rounded bg-surface-2 animate-pulse" />
+      </div>
+      <div className="card p-6 space-y-4">
+        <div className="h-4 w-32 rounded bg-surface-2 animate-pulse" />
+        <div className="grid sm:grid-cols-2 gap-3">
+          <div className="h-10 rounded-md bg-surface-2 animate-pulse sm:col-span-2" />
+          <div className="h-10 rounded-md bg-surface-2 animate-pulse" />
+          <div className="h-10 rounded-md bg-surface-2 animate-pulse" />
+        </div>
+      </div>
+    </div>
   );
 }

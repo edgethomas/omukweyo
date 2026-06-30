@@ -88,7 +88,7 @@ export default function ReportsPage() {
 
         <section className="card p-5">
           <h3 className="text-[14px] font-semibold text-ink inline-flex items-center gap-2"><FileText size={14} /> Schedule (coming soon)</h3>
-          <p className="text-[12px] text-ink-3 mt-1">Pick a weekly or monthly report, the email it goes to, and we will deliver it on time. Built in Phase 5 with the email adapter.</p>
+          <p className="text-[12px] text-ink-3 mt-1">Pick a weekly or monthly report and the recipient email. Scheduled delivery will use the configured email adapter.</p>
         </section>
       </div>
     </DashboardLayout>

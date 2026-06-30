@@ -3,10 +3,10 @@ import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, Navigation, Share2, X, Bell } from 'lucide-react';
 import { api } from '@/lib/api';
-import { getSocket } from '@/lib/socket';
+import { getBrowserSupabase } from '@/lib/supabase';
 import { cn, formatTime } from '@/lib/utils';
 import { shareOrCopy } from '@/lib/browserActions';
-import type { QueueTicket, ServerEvent } from '@inline/shared';
+import type { QueueTicket } from '@inline/shared';
 
 const SESSION_KEY = 'omukweyo_session';
 const CUSTOMER_KEY = 'omukweyo_customer';
@@ -45,7 +45,7 @@ export default function Ticket() {
     setLoading(true);
     if (id) {
       api.getTicket(id)
-        .then(({ ticket }) => setTicket(ticket))
+        .then(({ ticket }) => setTicket(ticket ?? null))
         .catch(e => setError(e.message))
         .finally(() => setLoading(false));
       return;
@@ -73,17 +73,25 @@ export default function Ticket() {
   }, [id]);
 
   useEffect(() => {
-    const s = getSocket();
-    const on = (raw: any) => {
-      const ev = raw as ServerEvent;
-      if (ev.type === 'ticket:updated' && id && ev.ticket.id === id) setTicket(ev.ticket);
-      if (ev.type === 'ticket:created' && demoMode) setTicket(ev.ticket);
+    const sb = getBrowserSupabase();
+    const refresh = () => {
+      if (id) {
+        api.getTicket(id).then(({ ticket }) => setTicket(ticket ?? null)).catch(() => undefined);
+      } else if (demoMode) {
+        api.liveQueue().then(({ tickets }) => setTicket(tickets[0] ?? null)).catch(() => undefined);
+      }
     };
-    s.on('omukweyo:event', on);
-    return () => { s.off('omukweyo:event', on); };
+    const channel = sb.channel(`ticket-${id ?? 'demo'}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'QueueTicket' }, refresh)
+      .subscribe();
+    const fallback = window.setInterval(refresh, 15000);
+    return () => {
+      window.clearInterval(fallback);
+      sb.removeChannel(channel);
+    };
   }, [id, demoMode]);
 
-  const cancel = async () => { if (!ticket) return; await api.cancelTicket(ticket.id); const { ticket: t } = await api.getTicket(ticket.id); setTicket(t); };
+  const cancel = async () => { if (!ticket) return; await api.cancelTicket(ticket.id); const { ticket: t } = await api.getTicket(ticket.id); setTicket(t ?? null); };
   const onMyWay = async () => {
     if (!ticket) return;
     await api.onMyWay(ticket.id);
@@ -107,11 +115,11 @@ export default function Ticket() {
         <TicketIcon />
         <h2 className="mt-3 text-[20px] font-semibold text-ink">No active ticket right now</h2>
         <p className="mt-2 text-[13px] text-ink-2">
-          Join a business queue or reserve a future arrival window. Your live ticket will appear here when it is created.
+          Join a business queue or reserve an arrival window. Your live ticket will appear here when it is created.
         </p>
         <div className="mt-5 flex flex-wrap justify-center gap-2">
           <Link to="/businesses" className="btn btn-primary btn-md">Find a queue</Link>
-          <Link to="/reserve" className="btn btn-outline btn-md">Reserve future spot</Link>
+          <Link to="/reserve" className="btn btn-outline btn-md">Reserve arrival window</Link>
         </div>
       </div>
     );
@@ -122,6 +130,7 @@ export default function Ticket() {
     { k: 'JOINED', label: 'Joined' },
     { k: 'WAITING', label: 'Waiting' },
     { k: 'CALLED', label: 'Called' },
+    { k: 'ON_HOLD', label: 'On hold' },
     { k: 'SERVED', label: 'Served' },
   ];
   const stageIndex = stages.findIndex(s => s.k === ticket.status);
@@ -141,6 +150,7 @@ export default function Ticket() {
               <h2 className="mt-1 text-[20px] font-semibold text-ink leading-tight">
                 {ticket.status === 'WAITING' && <>You're in. <span className="text-accent">~{ticket.estimatedWaitMinutes} min.</span></>}
                 {ticket.status === 'CALLED' && <>You're up. <span className="text-amber-600">Go to {ticket.counter}.</span></>}
+                {ticket.status === 'ON_HOLD' && <>On hold. <span className="text-amber-600">Watch for the next update.</span></>}
                 {ticket.status === 'SERVING' && <>Being served.</>}
                 {ticket.status === 'SERVED' && <>All done. Thanks for coming.</>}
                 {ticket.status === 'MISSED' && <>Turn missed.</>}
@@ -156,6 +166,7 @@ export default function Ticket() {
           <p className="text-[13px] text-ink-2 mt-2">
             {ticket.status === 'WAITING' && `There ${ticket.peopleAhead === 1 ? 'is 1 person' : `are ${ticket.peopleAhead} people`} ahead of you at ${ticket.serviceName}. We'll text you when your number is close.`}
             {ticket.status === 'CALLED' && `Your ticket has been called. Head over to ${ticket.counter ?? 'your counter'} and let the front desk know your number.`}
+            {ticket.status === 'ON_HOLD' && `The counter paused this ticket. Keep this page open and wait for staff to call you again.`}
             {ticket.status === 'SERVING' && `Take a breath. The team is helping you now.`}
             {ticket.status === 'SERVED' && `Hope the visit went well. You can rate the experience below.`}
             {ticket.status === 'MISSED' && `Your turn came and went. Open the page to rejoin if your company allows.`}
@@ -228,7 +239,7 @@ export default function Ticket() {
       </div>
 
       {demoMode && (
-        <div className="text-center t-eyebrow text-[10px] text-ink-3">Live demo · showing the most recently created ticket</div>
+        <div className="text-center t-eyebrow text-[10px] text-ink-3">Live preview - showing the most recently created ticket</div>
       )}
     </div>
   );

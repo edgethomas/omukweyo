@@ -29,17 +29,15 @@ export default function AdminSettingsPage() {
     setPending(true);
     setTimeout(() => {
       setPending(false);
-      setNotice({ kind: 'ok', text: 'Platform settings saved locally. Wire to env in Phase 5.' });
+      setNotice({ kind: 'ok', text: 'Platform settings saved locally for this workspace.' });
     }, 500);
   };
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between gap-2">
-        <div>
-          <h2 className="text-[18px] font-semibold text-ink">Platform settings</h2>
-          <p className="text-[12px] text-ink-3 mt-0.5">Plans, integrations, and feature flags</p>
-        </div>
+      <div>
+        <h2 className="text-[16px] sm:text-[18px] font-semibold text-ink">Platform settings</h2>
+        <p className="text-[11px] sm:text-[12px] text-ink-3 mt-0.5">Plans, integrations, and feature flags</p>
       </div>
 
       {notice && (
@@ -49,9 +47,9 @@ export default function AdminSettingsPage() {
       )}
 
       <form onSubmit={save} className="space-y-5">
-        <section className="card p-5">
+        <section className="card p-4 sm:p-5">
           <h3 className="text-[14px] font-semibold text-ink inline-flex items-center gap-2"><SettingsIcon size={14} /> Plans</h3>
-          <p className="text-[12px] text-ink-3 mt-1">Adjust the trial length and plan prices. Apply here, persist in Phase 5.</p>
+          <p className="text-[12px] text-ink-3 mt-1">Adjust the trial length and default plan prices for the workspace.</p>
           <div className="mt-3 grid sm:grid-cols-2 gap-3">
             <label className="block">
               <span className="label">Free trial (days)</span>
@@ -77,7 +75,7 @@ export default function AdminSettingsPage() {
           </div>
         </section>
 
-        <section className="card p-5">
+        <section className="card p-4 sm:p-5">
           <h3 className="text-[14px] font-semibold text-ink">Feature flags</h3>
           <p className="text-[12px] text-ink-3 mt-1">Toggle integrations on or off per environment.</p>
           <div className="mt-3 space-y-2">

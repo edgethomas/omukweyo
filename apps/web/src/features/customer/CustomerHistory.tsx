@@ -294,7 +294,7 @@ function EmptyHistory({ message }: { message?: string }) {
       <p className="text-[12px] text-ink-2 mt-1">{message ?? 'Join a queue or reserve a spot to start building history.'}</p>
       <div className="mt-4 flex flex-wrap justify-center gap-2">
         <Link to="/businesses" className="btn btn-primary btn-sm">Find a business</Link>
-        <Link to="/reserve" className="btn btn-outline btn-sm">Reserve future spot</Link>
+        <Link to="/reserve" className="btn btn-outline btn-sm">Reserve arrival window</Link>
       </div>
     </div>
   );

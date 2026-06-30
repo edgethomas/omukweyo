@@ -65,7 +65,7 @@ export default function CustomerSignup() {
     <section className="container-x py-12">
       <div className="grid lg:grid-cols-[1fr_420px] gap-8 items-start">
         <div className="pt-4">
-          <h1 className="t-h1 text-balance max-w-3xl">Create a customer account for time-critical queue reservations.</h1>
+          <h1 className="t-h1 text-balance max-w-3xl">Create a customer account for planned queue visits.</h1>
           <p className="t-body mt-3 max-w-2xl">
             Use this when you know your window in advance, like tomorrow at 5:00 PM before a meeting.
             Omukweyo can reserve your place, watch the queue, and create your live ticket at the right time.
@@ -79,8 +79,8 @@ export default function CustomerSignup() {
             </div>
             <div className="card p-4">
               <ShieldCheck size={18} className="text-emerald-600 mb-2" />
-              <h3 className="text-[13px] font-semibold text-ink">Pay to protect the slot</h3>
-              <p className="text-[12px] text-ink-2 mt-1">Mock payment confirms intent before the smart booking engine takes over.</p>
+              <h3 className="text-[13px] font-semibold text-ink">Confirm the reservation</h3>
+              <p className="text-[12px] text-ink-2 mt-1">Payment confirms your arrival window before Omukweyo schedules the ticket.</p>
             </div>
           </div>
         </div>

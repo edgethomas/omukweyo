@@ -18,7 +18,7 @@ export default function ServicesPage() {
 
   const load = () => {
     setLoading(true);
-    api.dashboard()
+    api.businessWorkspace()
       .then((payload: any) => {
         setServices(payload.services ?? []);
         setBranches(payload.branches ?? []);

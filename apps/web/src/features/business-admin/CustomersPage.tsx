@@ -13,9 +13,9 @@ export default function CustomersPage() {
 
   useEffect(() => {
     let mounted = true;
-    api.dashboard()
+    api.liveQueue()
       .then(async (d: any) => {
-        const all = d.liveTickets as any[];
+        const all = d.tickets as any[];
         // Derive customers from tickets since we don't have a direct customer list endpoint.
         const map = new Map<string, CustomerRow>();
         for (const ticket of all) {

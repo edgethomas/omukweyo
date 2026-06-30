@@ -93,7 +93,7 @@
   .app-nav-link { @apply flex items-center gap-2.5 h-9 px-3 rounded-md text-[13px] font-medium text-ink-2 hover:bg-surface-2 hover:text-ink; }
   .app-nav-link.active { @apply bg-blue-50 text-accent; }
   .app-nav-section { @apply t-eyebrow px-3 mt-5 mb-1.5; }
-  .app-mobile-nav { @apply fixed inset-x-3 z-40 overflow-hidden rounded-lg border border-line bg-white shadow-lg md:hidden; bottom: max(0.75rem, env(safe-area-inset-bottom)); }
+  .app-mobile-nav { @apply fixed inset-x-3 z-40 grid overflow-hidden rounded-lg border border-line bg-white shadow-lg md:hidden; bottom: max(0.75rem, env(safe-area-inset-bottom)); }
   .app-mobile-link { @apply flex min-w-0 flex-col items-center justify-center gap-1 px-1 py-2 text-[10px] font-medium text-ink-3; }
   .app-mobile-link.active { @apply bg-blue-50 text-accent; }
   .app-mobile-label { @apply block max-w-full truncate; }
@@ -101,7 +101,7 @@
   /* Customer shell */
   .customer-shell { @apply min-h-screen bg-bg; }
   .customer-topbar { @apply sticky top-0 z-40 h-16 border-b border-line bg-white; }
-  .customer-header-grid { @apply grid h-full grid-cols-[1fr_auto_1fr] items-center gap-4; }
+  .customer-header-grid { @apply flex h-full items-center gap-4; }
   .customer-main { @apply min-h-[calc(100vh-4rem)]; }
   .customer-content { @apply space-y-5; }
   .customer-nav-link { @apply inline-flex h-16 items-center border-b-2 border-transparent text-[14px] font-medium text-ink-2 hover:text-ink; }

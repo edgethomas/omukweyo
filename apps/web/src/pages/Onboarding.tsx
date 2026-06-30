@@ -131,7 +131,7 @@ export default function Onboarding() {
         <div>
           <h1 className="t-h1 text-balance max-w-3xl">Set up a business queue workspace in minutes.</h1>
           <p className="t-body mt-3 max-w-2xl">
-            Create the owner account, first branch, first service, and starter plan. Omukweyo returns live links for the admin console, public queue page, staff console, and embed.
+            Create the owner account, first branch, first service, and starter plan. You get links for the admin console, public queue page, staff console, and website embed.
           </p>
 
           <div className="grid sm:grid-cols-2 gap-3 mt-7 max-w-2xl">

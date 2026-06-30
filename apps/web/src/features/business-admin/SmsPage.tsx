@@ -68,7 +68,7 @@ export default function SmsPage() {
 
         <section className="card p-5">
           <h3 className="text-[14px] font-semibold text-ink">Templates</h3>
-          <p className="text-[12px] text-ink-3 mt-1">Edit later in Phase 5 with a per-template editor and live preview.</p>
+          <p className="text-[12px] text-ink-3 mt-1">Review the message templates used for queue, reservation, runner, and low-balance updates.</p>
           <div className="mt-3 grid md:grid-cols-2 gap-3">
             {TEMPLATES.map((template) => (
               <div key={template.id} className="rounded-md border border-line bg-surface-2 p-3">

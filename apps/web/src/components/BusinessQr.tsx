@@ -3,7 +3,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { CheckCircle2, Copy, QrCode } from 'lucide-react';
 
 function absoluteUrl(path: string) {
-  const origin = typeof window === 'undefined' ? 'https://omukweyo.app' : window.location.origin;
+  const origin = typeof window === 'undefined' ? 'https://omukweyo.com' : window.location.origin;
   return new URL(path, origin).toString();
 }
 

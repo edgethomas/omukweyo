@@ -98,12 +98,12 @@ export default function CustomerShell({
   return (
     <div className="customer-shell">
       <header className="customer-topbar">
-        <div className="container-x customer-header-grid">
-          <Link to={homePath} className="justify-self-start shrink-0">
+        <div className="container-x flex h-full items-center gap-4">
+          <Link to={homePath} className="shrink-0">
             <BrandLogo />
           </Link>
 
-          <nav className="hidden md:flex h-full items-center justify-center gap-8 justify-self-center">
+          <nav className="hidden h-full flex-1 items-center justify-center gap-8 md:flex">
             {customerNav.map((item) => {
               const active = navIsActive(loc.pathname, item.to);
               return (
@@ -114,7 +114,7 @@ export default function CustomerShell({
             })}
           </nav>
 
-          <div className="flex items-center gap-3 justify-self-end">
+          <div className="ml-auto flex items-center gap-3 md:ml-0">
             <AccountMenu to="/customer/profile" name={identity.name} summary={identity.email ?? identity.phone} avatarUrl={avatarUrl} active={accountActive} />
           </div>
         </div>

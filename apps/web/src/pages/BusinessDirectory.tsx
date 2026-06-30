@@ -82,7 +82,7 @@ export default function BusinessDirectory() {
         <div>
           <h1 className="t-h1 text-balance">{title}</h1>
           <p className="t-body mt-3 max-w-2xl">
-            Search by company, branch, city, or service. Open a business page to join its live queue or reserve a future arrival.
+            Search by company, branch, city, or service. Open a business page to join its live queue or reserve an arrival window.
           </p>
         </div>
         <form onSubmit={submit} className="rounded-lg border border-line bg-surface p-3 flex items-center gap-2">

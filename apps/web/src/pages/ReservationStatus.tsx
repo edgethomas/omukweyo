@@ -60,7 +60,7 @@ export default function ReservationStatus() {
                 {reservation.serviceName} at {reservation.branchName}
               </h1>
               <p className="t-body mt-2 max-w-2xl">
-                Omukweyo will create the live ticket before the target window, based on branch wait time and service speed.
+                Omukweyo will create your live ticket before the target window, based on branch wait time and service speed.
               </p>
             </div>
             <span className={reservation.status === 'BOOKED' ? 'chip-serve' : 'chip-wait'}>{reservation.status}</span>
@@ -97,7 +97,7 @@ export default function ReservationStatus() {
               </Link>
             ) : (
               <button onClick={bookNow} disabled={loading} className="btn btn-primary btn-md">
-                {loading ? 'Booking...' : 'Simulate smart booking'} <Sparkles size={14} />
+                {loading ? 'Booking...' : 'Create ticket now'} <Sparkles size={14} />
               </button>
             )}
             <Link to="/reserve" className="btn btn-outline btn-md">Reserve another spot</Link>

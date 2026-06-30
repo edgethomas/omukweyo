@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import { api } from '@/lib/api';
-import { getSocket } from '@/lib/socket';
+import { getBrowserSupabase } from '@/lib/supabase';
 import { cn, formatTime } from '@/lib/utils';
 
 export default function EmbedTicketPage() {
@@ -12,13 +12,19 @@ export default function EmbedTicketPage() {
 
   useEffect(() => {
     if (!id) return;
-    api.getTicket(id).then((d) => setTicket(d.ticket)).catch((err) => setError(err.message));
-    const s = getSocket();
-    const on = (raw: any) => {
-      if (raw?.type === 'ticket:updated' && raw.ticket.id === id) setTicket(raw.ticket);
+    const refresh = () => {
+      api.getTicket(id).then((d) => setTicket(d.ticket)).catch((err) => setError(err.message));
     };
-    s.on('omukweyo:event', on);
-    return () => { s.off('omukweyo:event', on); };
+    refresh();
+    const sb = getBrowserSupabase();
+    const channel = sb.channel(`embed-ticket-${id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'QueueTicket', filter: `id=eq.${id}` }, refresh)
+      .subscribe();
+    const fallback = window.setInterval(refresh, 15000);
+    return () => {
+      window.clearInterval(fallback);
+      sb.removeChannel(channel);
+    };
   }, [id]);
 
   if (error) return <div className="p-6 text-red-700 text-[14px]">{error}</div>;

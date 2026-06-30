@@ -24,7 +24,7 @@ export default function ForRunners() {
     <div className="container-x py-12 space-y-12">
       <header className="grid lg:grid-cols-[1fr_470px] gap-8 items-center">
         <div>
-          <h1 className="t-h1 text-balance max-w-3xl">Runner work is a real workspace.</h1>
+          <h1 className="t-h1 text-balance max-w-3xl">Runner jobs have a clear workflow.</h1>
           <p className="t-body mt-3 max-w-2xl">
             Accept allowed public-line jobs, send proof updates, and keep the customer informed from one screen.
           </p>
@@ -56,9 +56,9 @@ export default function ForRunners() {
               <span className="t-eyebrow text-[9px]">In one sentence</span>
             </div>
             <p className="text-[15px] text-ink leading-relaxed font-semibold">
-              "I stood in line at a public place where I was allowed to be, and handed the spot to the person who asked for it."
+              "I stood in line at a public place where I was allowed to be, and handed the spot to the customer who requested it."
             </p>
-            <p className="mt-3 text-[12px] text-ink-2">No fakes, no tricks, no replacements.</p>
+            <p className="mt-3 text-[12px] text-ink-2">No false documents, no unsafe handoffs, no shortcuts.</p>
           </div>
         </div>
       </section>
@@ -77,7 +77,7 @@ export default function ForRunners() {
 
       <section>
         <div className="card p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <h3 className="t-h2">Ready to start earning from verified queue jobs?</h3>
+          <h3 className="t-h2">Ready to take verified queue jobs?</h3>
           <Link to="/runner/signup" className="btn btn-primary btn-md">Create runner profile</Link>
         </div>
       </section>

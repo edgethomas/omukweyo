@@ -16,7 +16,7 @@ export const demoAccounts: DemoAccount[] = [
     email: 'customer@omukweyo.demo',
     password: demoPassword,
     destination: '/customer',
-    description: 'Reservations, paid future spots, and live tickets.',
+    description: 'Reserved arrival windows and live tickets.',
   },
   {
     role: 'Business owner',

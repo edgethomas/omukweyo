@@ -4,6 +4,11 @@ import { ArrowLeft, Check, MessageSquare, Pause, Phone, X, ArrowRightLeft, Refre
 import { api } from '@/lib/api';
 import { cn, formatTime, relativeTime } from '@/lib/utils';
 
+function customerCounter(value?: string) {
+  const trimmed = value?.trim();
+  return trimmed && trimmed.toLowerCase() !== 'admin' ? trimmed : 'Counter 1';
+}
+
 export default function StaffTicketDetailPage() {
   const { id } = useParams();
   const [ticket, setTicket] = useState<any>(null);
@@ -17,9 +22,9 @@ export default function StaffTicketDetailPage() {
   useEffect(() => {
     if (!id) return;
     api.getTicket(id).then((d) => setTicket(d.ticket)).catch((err) => setError(err.message));
-    api.dashboard().then((d: any) => {
+    api.businessWorkspace().then((d: any) => {
       setServices(d.services ?? []);
-      if (d.staff[0]) setCounter(d.staff[0].counter ?? 'Counter 1');
+      if (d.staff[0]) setCounter(customerCounter(d.staff[0].counter));
     });
   }, [id]);
 

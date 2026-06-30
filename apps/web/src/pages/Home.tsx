@@ -23,8 +23,6 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { img } from '@/lib/images';
-import { demoAccounts, demoPassword } from '@/lib/demoAccounts';
-import { api } from '@/lib/api';
 
 export default function Home() {
   return (
@@ -62,7 +60,7 @@ function Hero() {
           <div className="lg:col-span-6">
             <h1 className="t-display text-balance">Stand in line without standing there.</h1>
             <p className="mt-5 t-body text-[15px] md:text-base max-w-lg">
-              Omukweyo lets customers join now or reserve a future spot, while businesses run live queues, staff counters, SMS updates, analytics, and runner handoffs from one simple platform.
+              Omukweyo lets customers join a queue now or reserve an arrival window for later, while businesses manage live queues, counters, SMS updates, analytics, and runner handoffs from one place.
             </p>
             <HeroSearchPanel
               query={businessQuery}
@@ -72,10 +70,10 @@ function Hero() {
             />
             <div className="mt-6 grid sm:grid-cols-2 gap-2 text-[13px] text-ink-2 max-w-xl">
               {[
-                'Reserve tomorrow for a tight arrival window',
+                'Book tomorrow with a clear arrival window',
                 'Join from QR, link, or embedded website',
                 'SMS updates without installing an app',
-                'Staff, runners, managers, and admins all covered',
+                'Separate workspaces for staff, runners, managers, and admins',
               ].map((item) => (
                 <span key={item} className="inline-flex items-start gap-1.5">
                   <Check size={13} className="text-emerald-600 mt-0.5 shrink-0" /> {item}
@@ -159,7 +157,7 @@ function HeroVisual() {
         <span className="h-2.5 w-2.5 rounded-full bg-amber-300" />
         <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
         <div className="ml-3 flex-1 h-5 max-w-xs bg-surface border border-line rounded text-[11px] text-ink-3 px-2 inline-flex items-center font-mono">
-          omukweyo.app/customer
+          omukweyo.com/customer
         </div>
       </div>
       <div className="grid md:grid-cols-5">
@@ -173,7 +171,7 @@ function HeroVisual() {
         <div className="md:col-span-3 p-5">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <div className="t-eyebrow">Paid future spot</div>
+              <div className="t-eyebrow">Paid reservation</div>
               <div className="mt-1 text-[20px] font-semibold text-ink">Downtown Service Center</div>
               <p className="text-[12px] text-ink-2 mt-1">Personal banking, smart booking, live ticket handoff.</p>
             </div>
@@ -185,10 +183,10 @@ function HeroVisual() {
             <MiniMetric label="Window" value="30m" />
           </div>
           <div className="mt-5 space-y-2">
-            <TimelineRow icon={CalendarClock} label="Customer reserves tomorrow's spot" done />
+            <TimelineRow icon={CalendarClock} label="Customer chooses tomorrow's arrival window" done />
             <TimelineRow icon={BarChart3} label="Omukweyo watches live demand" done />
-            <TimelineRow icon={Ticket} label="Ticket is created before the slot is gone" />
-            <TimelineRow icon={MessageSquare} label="SMS sends the customer in at the right time" />
+            <TimelineRow icon={Ticket} label="Ticket is created before the visit window" />
+            <TimelineRow icon={MessageSquare} label="SMS brings the customer in at the right time" />
           </div>
         </div>
       </div>
@@ -200,8 +198,8 @@ function RolePathways() {
   const roles = [
     {
       icon: User,
-      title: 'Normal customers',
-      body: 'Create a simple account, reserve a future spot, join live queues, and track tickets.',
+      title: 'Customers',
+      body: 'Create an account, reserve an arrival window, join live queues, and track tickets.',
       to: '/customer/signup',
       cta: 'Create customer account',
     },
@@ -246,9 +244,9 @@ function RolePathways() {
     <section className="py-16 md:py-20">
       <div className="container-x">
         <div className="max-w-2xl mb-8">
-          <h2 className="t-h1">Every user has a clear path.</h2>
+          <h2 className="t-h1">A workspace for every role.</h2>
           <p className="t-body mt-3">
-            A full queue product cannot only serve the business. Customers, staff, runners, and admins all need their own simple workspace.
+            Customers, staff, runners, managers, and platform admins each get a focused path for the work they need to do.
           </p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-line border border-line rounded-lg overflow-hidden">
@@ -266,7 +264,7 @@ function HowItWorks() {
     {
       icon: Smartphone,
       title: 'Customer joins or reserves',
-      body: 'A customer uses a QR link, the public page, the embedded widget, or a customer account to reserve a future slot.',
+      body: 'A customer uses a QR link, the public page, the embedded widget, or a customer account to reserve an arrival window.',
     },
     {
       icon: Clock3,
@@ -289,8 +287,8 @@ function HowItWorks() {
     <section className="py-16 md:py-20 bg-surface border-y border-line">
       <div className="container-x">
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <h2 className="t-h1">Simple enough for a walk-in. Complete enough for operations.</h2>
-          <p className="t-body mt-3">The same backend powers the public page, customer account, staff console, runner workbench, and admin overview.</p>
+          <h2 className="t-h1">Simple for walk-ins. Complete for operations.</h2>
+          <p className="t-body mt-3">One system powers the public page, customer account, staff console, runner workbench, and admin overview.</p>
         </div>
         <div className="grid md:grid-cols-4 gap-px bg-line border border-line rounded-lg overflow-hidden">
           {steps.map((step, index) => (
@@ -312,19 +310,19 @@ function HowItWorks() {
 function ProductShowcase() {
   const cards = [
     { label: 'Customer account', to: '/customer', title: 'Reservations and live tickets in one place', img: img.inlineCustomerHero, body: <CustomerMock /> },
-    { label: 'Public page', to: '/businesses', title: 'Join a real queue from a link', img: img.inlinePublicPage, body: <PublicMock /> },
-    { label: 'Staff console', to: '/staff', title: 'One counter workflow for operators', img: img.inlineOperationsDashboard, body: <StaffMock /> },
+    { label: 'Public page', to: '/businesses', title: 'Join a live queue from a link', img: img.inlinePublicPage, body: <PublicMock /> },
+    { label: 'Staff console', to: '/staff', title: 'A focused counter workflow for staff', img: img.inlineOperationsDashboard, body: <StaffMock /> },
     { label: 'Company admin console', to: '/dashboard', title: 'Users, branches, billing, SMS, and analytics', img: img.inlineBusinessDashboard, body: <DashMock /> },
     { label: 'Runner workbench', to: '/runner/work', title: 'Public-line jobs with proof updates', img: img.inlineRunnerWorkflow, body: <RunnerMock /> },
-    { label: 'Platform admin', to: '/admin', title: 'All roles and network health visible', img: img.screenMock, body: <AdminMock /> },
+    { label: 'Platform admin', to: '/admin', title: 'Role access and network health at a glance', img: img.screenMock, body: <AdminMock /> },
   ];
 
   return (
     <section className="py-16 md:py-20">
       <div className="container-x">
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <h2 className="t-h1">The product is already explorable.</h2>
-          <p className="t-body mt-3">Open any workspace and the path is clear. This is what makes the product easier to sell: people can immediately see where they fit.</p>
+          <h2 className="t-h1">Explore the product by role.</h2>
+          <p className="t-body mt-3">Each workspace shows the job it supports, from customer reservations to branch operations and platform oversight.</p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {cards.map((card) => (
@@ -367,12 +365,12 @@ function BusinessProof() {
       <div className="container-x">
         <div className="grid lg:grid-cols-[420px_1fr] gap-8 items-start">
           <div>
-            <h2 className="t-h1">Why people will feel they need it.</h2>
+            <h2 className="t-h1">Queues should protect time on both sides.</h2>
             <p className="t-body mt-3">
-              Omukweyo removes the pain from both sides: customers protect their time, and businesses stop managing messy waiting rooms.
+              Customers know when to arrive. Businesses keep the waiting room calmer, the counter moving, and every queue action recorded.
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
-              <Link to="/reserve" className="btn btn-primary btn-md">Reserve a future spot</Link>
+              <Link to="/reserve" className="btn btn-primary btn-md">Reserve an arrival window</Link>
               <Link to="/contact" className="btn btn-outline btn-md">Book a walkthrough</Link>
             </div>
           </div>
@@ -405,7 +403,7 @@ function BusinessProof() {
 
 function PricingTeaser() {
   const plans = [
-    { name: 'Customer reservation', price: 'N$35', sub: 'per protected future spot', href: '/reserve', cta: 'Reserve spot' },
+    { name: 'Customer reservation', price: 'N$35', sub: 'per reserved arrival window', href: '/reserve', cta: 'Reserve window' },
     { name: 'Starter business', price: 'N$399', sub: 'per month for one branch', href: '/signup', cta: 'Sign up business' },
     { name: 'Business network', price: 'N$999', sub: 'multi-branch operations', href: '/contact', cta: 'Contact sales' },
   ];
@@ -414,8 +412,8 @@ function PricingTeaser() {
     <section className="py-16 md:py-20">
       <div className="container-x">
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <h2 className="t-h1">Pricing is easy to understand.</h2>
-          <p className="t-body mt-3">Customers pay only when they reserve a future slot. Businesses start simple and upgrade when the queue becomes operationally important.</p>
+          <h2 className="t-h1">Straightforward pricing for queues that grow.</h2>
+          <p className="t-body mt-3">Customers pay only when they reserve ahead. Businesses can start small and upgrade when queue operations need more control.</p>
         </div>
         <div className="grid md:grid-cols-3 gap-5">
           {plans.map((plan, index) => (
@@ -449,13 +447,13 @@ function FinalCTA() {
     <section className="py-16 md:py-20 bg-surface border-t border-line">
       <div className="container-x">
         <div className="card p-8 md:p-10 text-center max-w-3xl mx-auto">
-          <h2 className="t-h1">Pick your role and try the real flow.</h2>
+          <h2 className="t-h1">Choose the path that matches your role.</h2>
           <p className="t-body mt-3 max-w-xl mx-auto">
-            Customer, business, staff, runner, manager, and platform admin paths are all visible from the product today.
+            Open the customer, business, staff, runner, manager, or platform admin workspace and follow the workflow from there.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link to="/signup" className="btn btn-primary btn-lg">Sign up <ArrowRight size={15} /></Link>
-            <Link to="/customer/signup" className="btn btn-outline btn-lg">Simple customer signup</Link>
+            <Link to="/signup" className="btn btn-primary btn-lg">Create an account <ArrowRight size={15} /></Link>
+            <Link to="/customer/signup" className="btn btn-outline btn-lg">Create customer account</Link>
           </div>
         </div>
       </div>

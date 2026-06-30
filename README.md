@@ -1,51 +1,64 @@
-# Omukweyo — Stand in line without standing there.
+# Omukweyo
 
-Full-stack monorepo implementing Omukweyo: a queueing & virtual ticketing SaaS for businesses that don't have a ticket system.
+Queueing and virtual-ticketing web app for businesses that do not have a ticket system.
 
 ```
 inline2/
 ├── apps/
-│   ├── web/        # Vite + React 19 + TypeScript + Tailwind
-│   └── api/        # Express + TypeScript + Zod + Socket.IO (mock queue engine, mock SMS, mock billing)
+│   └── web/        # Vite + React + Supabase client
 ├── packages/
-│   └── shared/     # Shared TS types (Ticket, Company, Branch, etc.)
-├── package.json    # Workspace root
+│   └── shared/     # Shared TypeScript types
+├── supabase/       # Supabase migrations and project config
+├── package.json
 └── README.md
 ```
 
-## Quick start
+## Quick Start
 
 ```bash
-# install everything (root, web, api, shared)
 npm install
-
-# run both API (4000) and web (5173) together
 npm run dev
 ```
 
-Then open http://localhost:5173.
+Open `http://localhost:5173`.
 
-- Marketing site: `/`
-- Live public company page: `/c/bank-windhoek`
-- Live ticket demo: `/ticket` (auto-updates via WebSocket)
-- Staff console: `/staff`
-- Manager dashboard: `/dashboard`
+The runtime app is now browser direct:
+
+```
+React on Plesk/static hosting -> Supabase Auth, Postgres, Storage, Realtime
+```
+
+There is no Express API workspace anymore.
+
+## Required Env
+
+Create `.env` from `.env.example`:
+
+```env
+VITE_SUPABASE_URL=https://qagpjtafcokpytqzigfl.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
+VITE_SUPABASE_STORAGE_BUCKET=omukweyo-assets
+VITE_PUBLIC_SITE_URL=https://omukweyo.com
+```
+
+Do not put the Supabase secret key in any `VITE_` variable.
+
+## Scripts
+
+```bash
+npm run dev          # Vite dev server
+npm run build        # shared types + static React build
+npm run test         # web contract tests
+npm run test:browser # Playwright browser smoke
+npm run db:push      # push Supabase migrations
+```
 
 ## Stack
 
-- **Frontend**: Vite, React 19, TypeScript, React Router, Tailwind CSS, Framer Motion, lucide-react, recharts, socket.io-client
-- **Backend**: Node 22, Express 4, TypeScript, Zod, Socket.IO, in-memory store (swappable for Prisma + PostgreSQL)
-- **Shared**: TypeScript types + enums (Ticket status, roles, etc.)
-
-## What's in the MVP
-
-- Real auth (mock JWT) for company, staff, and customer roles
-- Real queue engine: ticket numbering, position calc, ETA, status transitions
-- Real WebSocket events: ticket created, called, served, missed
-- Mock SMS provider that logs to in-memory `Notification` records (visible in /dashboard)
-- Mock billing: plan limits, SMS wallet, manual invoices
-- Permission-based UI (button-level + backend-enforced)
-
-## Production swap-ins
-
-The architecture leaves clean extension points for: Prisma + PostgreSQL, real SMS providers (Twilio / Africa's Talking), real payment providers (DPO Pay / PayToday), the runner marketplace, and a custom-domain white-label mode.
+- Vite + React 19 + TypeScript
+- React Router
+- Tailwind CSS
+- Supabase Auth
+- Supabase Postgres with RLS policies
+- Supabase Storage for avatars and business assets
+- Supabase Realtime for queue updates

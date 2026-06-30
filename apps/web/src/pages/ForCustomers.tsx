@@ -4,17 +4,17 @@ import { CheckCircle2, MessageSquare, Navigation, Share2, Smartphone } from 'luc
 import { img } from '@/lib/images';
 
 const templates = [
-  { k: 'TICKET_CREATED', m: '"Hi Maria, you joined Downtown Service Center for personal service. Ticket A-028. Track: omukweyo.app/t/AB12."' },
+  { k: 'TICKET_CREATED', m: '"Hi Maria, you joined Downtown Service Center for personal service. Ticket A-028. Track: omukweyo.com/t/AB12."' },
   { k: 'ALMOST_TURN', m: '"Hi Maria, your turn is coming. 2 people ahead. Please start heading there."' },
   { k: 'CALLED', m: '"Hi Maria, ticket A-028 has been called. Go to Counter 3."' },
   { k: 'MISSED', m: '"Hi Maria, ticket A-028 was missed. Open your ticket to rejoin if allowed."' },
-  { k: 'RESERVATION', m: '"Your reserved arrival window is tomorrow at 09:30. We will book your live spot before it is gone."' },
+  { k: 'RESERVATION', m: '"Your reserved arrival window is tomorrow at 09:30. We will create your live ticket before your visit window."' },
   { k: 'OPT_OUT', m: '"Reply STOP at any time. We will honor it instantly and never text you again."' },
 ];
 
 const steps = [
   { i: '01', t: 'Search or scan', d: 'Open a business page from search, QR, or a website widget.' },
-  { i: '02', t: 'Join or reserve', d: 'Take a live ticket now, or pay for a protected future arrival window.' },
+  { i: '02', t: 'Join or reserve', d: 'Take a live ticket now, or book a protected arrival window for later.' },
   { i: '03', t: 'Move freely', d: 'Track your place and get an SMS when your turn is close.' },
 ];
 
@@ -26,7 +26,7 @@ export default function ForCustomers() {
       <header className="grid lg:grid-cols-[1fr_460px] gap-8 items-center">
         <div>
           <h1 className="t-h1 text-balance max-w-3xl">Join a queue, then get on with your day.</h1>
-          <p className="t-body mt-3 max-w-2xl">Search a business, scan its QR, or reserve a future arrival window from your account.</p>
+          <p className="t-body mt-3 max-w-2xl">Search a business, scan its QR, or reserve an arrival window from your account.</p>
           <div className="mt-5 flex flex-wrap gap-2">
             <Link to="/signup" className="btn btn-primary btn-md">Sign up</Link>
             <Link to="/businesses" className="btn btn-outline btn-md">Find a business</Link>
@@ -115,7 +115,7 @@ export default function ForCustomers() {
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
             <Link to="/businesses" className="btn btn-outline btn-md">Find a live queue</Link>
-            <Link to="/customer/signup" className="btn btn-primary btn-md">Reserve a future spot</Link>
+            <Link to="/customer/signup" className="btn btn-primary btn-md">Reserve an arrival window</Link>
           </div>
         </div>
       </section>

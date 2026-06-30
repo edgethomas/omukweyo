@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, RefreshCw, UserPlus, Users, Building2 } from 'lucide-react';
+import { Plus, RefreshCw, UserPlus, Users } from 'lucide-react';
 import { api } from '@/lib/api';
 import { cn, relativeTime } from '@/lib/utils';
 import DashboardLayout from './DashboardLayout';
@@ -30,7 +30,7 @@ export default function StaffPage() {
 
   const load = () => {
     setLoading(true);
-    api.dashboard()
+    api.businessWorkspace()
       .then((payload: any) => {
         setStaff(payload.staff ?? []);
         setBranches(payload.branches ?? []);
@@ -146,7 +146,7 @@ export default function StaffPage() {
               <span className="label">Branch scope</span>
               <select className="select" value={form.branchId} onChange={(e) => setForm((f) => ({ ...f, branchId: e.target.value }))}>
                 <option value="">All branches (owner only)</option>
-                {branches.map((b) => <option key={b.id} value={b.id}><Building2 size={12} /> {b.name}</option>)}
+                {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             </label>
             <div className="sm:col-span-2 flex justify-end">

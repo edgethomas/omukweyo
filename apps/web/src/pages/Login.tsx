@@ -2,11 +2,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { ArrowLeft, ArrowRight, Briefcase, Building2, KeyRound, LogIn, Shield, User, Footprints } from 'lucide-react';
-import { BrandLogo } from '@/components/Brand';
 import { demoAccounts, demoPassword, destinationForDemoEmail, type DemoAccount } from '@/lib/demoAccounts';
 import { api } from '@/lib/api';
 
 const SESSION_KEY = 'omukweyo_session';
+const CUSTOMER_KEY = 'omukweyo_customer';
+const LEGACY_CUSTOMER_KEY = 'inline_customer';
 
 const roleIcons: Record<DemoAccount['role'], typeof User> = {
   Customer: User,
@@ -61,6 +62,19 @@ export default function Login() {
 
   const openSession = (session: any, fallbackDestination: string) => {
     localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    if (session.user?.role === 'CUSTOMER' && session.user?.customerId) {
+      const customer = {
+        id: session.user.customerId,
+        name: session.user.name ?? 'Customer',
+        phone: session.user.phone ?? '',
+        email: session.user.email ?? '',
+      };
+      localStorage.setItem(CUSTOMER_KEY, JSON.stringify(customer));
+      localStorage.setItem(LEGACY_CUSTOMER_KEY, JSON.stringify(customer));
+    } else {
+      localStorage.removeItem(CUSTOMER_KEY);
+      localStorage.removeItem(LEGACY_CUSTOMER_KEY);
+    }
     setNotice(session.verificationNote ?? 'Demo session created.');
     navigate(session.user?.destination ?? fallbackDestination);
   };
@@ -99,10 +113,7 @@ export default function Login() {
   return (
     <section className="container-x py-8 sm:py-10">
       <div className="mx-auto max-w-4xl">
-        <div className="mb-6 flex items-center justify-between gap-4">
-          <Link to="/" aria-label="Omukweyo home">
-            <BrandLogo />
-          </Link>
+        <div className="mb-6 flex justify-end">
           <Link to="/signup" className="btn btn-outline btn-sm">Sign up</Link>
         </div>
 

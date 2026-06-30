@@ -50,10 +50,10 @@ export default function AdminRunnersPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between gap-2 flex-wrap">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2 sm:flex-wrap">
         <div>
-          <h2 className="text-[18px] font-semibold text-ink">Runners</h2>
-          <p className="text-[12px] text-ink-3 mt-0.5">{rows.length} applications - approve, reject, or audit</p>
+          <h2 className="text-[16px] sm:text-[18px] font-semibold text-ink">Runners</h2>
+          <p className="text-[11px] sm:text-[12px] text-ink-3 mt-0.5">{rows.length} applications - approve, reject, or audit</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {(['all', 'PENDING', 'APPROVED', 'REJECTED'] as const).map((status) => (
@@ -70,36 +70,36 @@ export default function AdminRunnersPage() {
       )}
 
       <section className="card p-0 overflow-hidden">
-        <div className="px-5 py-3 border-b border-line">
+        <div className="px-4 sm:px-5 py-3 border-b border-line">
           <h3 className="text-[14px] font-semibold text-ink">Applications</h3>
           <p className="t-eyebrow text-[10px] mt-0.5">{filtered.length} matches</p>
         </div>
         {loading ? (
           <div className="p-5 text-[12px] text-ink-3">Loading applications...</div>
         ) : filtered.length === 0 ? (
-          <div className="p-8 text-center text-[12px] text-ink-3">No runner applications match.</div>
+          <div className="p-6 sm:p-8 text-center text-[12px] text-ink-3">No runner applications match.</div>
         ) : (
           <div className="divide-y divide-line">
             {filtered.map((row) => (
-              <div key={row.id} className="grid md:grid-cols-[1.4fr_140px_120px_120px] gap-3 items-center px-5 py-3 text-[12px]">
+              <div key={row.id} className="flex flex-col gap-2 px-4 sm:px-5 py-3 text-[12px] md:grid md:grid-cols-[1.4fr_140px_120px_120px] md:gap-3 md:items-center">
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <UserCheck size={14} className="text-accent" />
                     <h4 className="text-[13px] font-semibold text-ink truncate">{row.name}</h4>
                     <span className={cn('text-[10px]', row.status === 'APPROVED' ? 'chip-done' : row.status === 'REJECTED' ? 'chip-miss' : 'chip-wait')}>{row.status}</span>
                   </div>
-                  <p className="text-[11px] text-ink-3 mt-1 font-mono">{row.phone} - {row.city} - {row.transportMode} - payout {row.payoutMethod}</p>
+                  <p className="text-[11px] text-ink-3 mt-1 font-mono break-words">{row.phone} - {row.city} - {row.transportMode} - payout {row.payoutMethod}</p>
                 </div>
                 <div className="text-[11px] text-ink-2">Applied {relativeTime(row.createdAt)}</div>
                 {row.status === 'PENDING' ? (
-                  <div className="flex gap-2 justify-end">
+                  <div className="flex gap-2 flex-wrap">
                     <button type="button" disabled={actionPending === row.id} onClick={() => void setStatus(row.id, 'APPROVED')} className="btn btn-sm btn-outline text-emerald-700"><CheckCircle2 size={12} /> Approve</button>
                     <button type="button" disabled={actionPending === row.id} onClick={() => void setStatus(row.id, 'REJECTED')} className="btn btn-sm btn-outline text-red-700"><X size={12} /> Reject</button>
                   </div>
                 ) : (
-                  <div className="text-right text-[11px] text-ink-3 inline-flex items-center justify-end gap-1"><ShieldAlert size={12} /> Audit only</div>
+                  <div className="text-[11px] text-ink-3 inline-flex items-center gap-1 md:justify-end"><ShieldAlert size={12} /> Audit only</div>
                 )}
-                <div className="text-right text-[10px] text-ink-3">ID {row.id.slice(-6)}</div>
+                <div className="text-[10px] text-ink-3 md:text-right">ID {row.id.slice(-6)}</div>
               </div>
             ))}
           </div>

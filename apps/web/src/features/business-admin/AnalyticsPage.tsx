@@ -9,12 +9,17 @@ import DashboardLayout from './DashboardLayout';
 export default function AnalyticsPage() {
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-  const { metrics: liveMetrics } = useQueueEvents([]);
+  const { metrics: liveMetrics } = useQueueEvents([], {
+    enabled: Boolean(data),
+    tickets: false,
+    metrics: true,
+    refreshOnMount: false,
+  });
   const metrics = liveMetrics ?? data?.metrics;
   const branches = data?.branches ?? [];
 
   useEffect(() => {
-    api.dashboard()
+    api.analyticsOverview()
       .then(setData)
       .catch((err) => setError(err.message));
   }, []);
@@ -40,7 +45,7 @@ export default function AnalyticsPage() {
               <option value="week">This week</option>
               <option value="month">This month</option>
             </select>
-            <button type="button" onClick={() => api.dashboard().then(setData)} className="btn btn-ghost btn-sm"><RefreshCw size={13} /> Refresh</button>
+            <button type="button" onClick={() => api.analyticsOverview().then(setData)} className="btn btn-ghost btn-sm"><RefreshCw size={13} /> Refresh</button>
           </div>
         </div>
 

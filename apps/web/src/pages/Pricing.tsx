@@ -40,8 +40,8 @@ export default function Pricing() {
   return (
     <div className="container-x py-12 space-y-10">
       <header>
-        <h1 className="t-h1 text-balance max-w-3xl">Pay for the queue you actually run.</h1>
-        <p className="t-body mt-3 max-w-2xl">Free to start. Local EFT and invoice billing. SMS credits stay pay-as-you-go so heavy users pay fairly.</p>
+        <h1 className="t-h1 text-balance max-w-3xl">Plans that match your queue volume.</h1>
+        <p className="t-body mt-3 max-w-2xl">Start with one branch, then add capacity when you need more staff, analytics, reservations, or SMS volume.</p>
       </header>
 
       <section>
