@@ -349,6 +349,7 @@ export interface Notification {
 
 export interface StaffMember {
   id: string;
+  branchId?: string;
   name: string;
   initials: string;
   role: 'OWNER' | 'MANAGER' | 'OPERATOR';

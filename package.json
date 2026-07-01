@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "npm run dev:web",
     "dev:web": "npm --workspace apps/web run dev",
+    "start": "node app.js",
     "build": "npm --workspace packages/shared run build && npm --workspace apps/web run build",
     "test": "npm run test:contracts",
     "test:web": "npm --workspace apps/web run test",

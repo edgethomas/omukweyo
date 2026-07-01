@@ -1,12 +1,12 @@
 # Plesk Deployment
 
-Omukweyo is now deployed as a static React app backed directly by Supabase.
+Omukweyo is a static React app backed directly by Supabase.
 
-```
-Browser -> Plesk static files -> Supabase Auth/Postgres/Storage/Realtime
+```text
+Browser -> Plesk -> Supabase Auth/Postgres/Storage/Realtime
 ```
 
-There is no Node/Express runtime backend to configure.
+There is no Node/Express API backend to configure. Plesk can serve the built files either as a pure static site or through the included Node.js static server.
 
 ## Build
 
@@ -23,7 +23,7 @@ The static site output is:
 apps/web/dist/
 ```
 
-## Plesk Document Root
+## Static Plesk Mode
 
 Point the website document root to the built files, or upload the contents of `apps/web/dist` into `httpdocs`.
 
@@ -31,9 +31,28 @@ Recommended final shape:
 
 ```text
 /httpdocs/
-├── index.html
-├── assets/
-└── omukweyo-widget.js
+  index.html
+  .htaccess
+  assets/
+  omukweyo-widget.js
+```
+
+The file `apps/web/public/.htaccess` is copied into `apps/web/dist` during `npm run build`. It makes direct refreshes like `/how-it-works`, `/dashboard`, and `/customer/profile` serve `index.html` instead of failing.
+
+## Plesk Node.js App Mode
+
+If the domain is configured under Plesk's Node.js feature, set the application startup file to:
+
+```text
+app.js
+```
+
+The root `app.js` serves `apps/web/dist` and falls back to `index.html` for React routes. This prevents Passenger from crashing when a user refreshes a client-side route.
+
+The package start command is:
+
+```bash
+npm start
 ```
 
 ## Environment Variables
@@ -49,28 +68,6 @@ VITE_PUBLIC_SITE_URL=https://omukweyo.com
 
 Do not put `SUPABASE_SECRET_KEY` in Plesk web env for this React app.
 
-## SPA Fallback
-
-Configure Plesk/Apache/Nginx so unknown routes serve `index.html`. This is required for routes like:
-
-- `/dashboard`
-- `/staff`
-- `/customer/profile`
-- `/c/bank-windhoek`
-
-For Apache, an `.htaccess` fallback like this is enough:
-
-```apache
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /
-  RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /index.html [L]
-</IfModule>
-```
-
 ## Supabase Checks
 
 Before deploying:
@@ -83,7 +80,7 @@ supabase db advisors --linked
 
 The app expects:
 
-- Supabase Auth demo users to exist.
+- Supabase Auth users and app `User` rows to be created through the auth trigger.
 - RLS policies from `supabase/migrations` to be applied.
 - Storage bucket `omukweyo-assets` to exist.
 - Storage policies to allow authenticated uploads and public reads.
@@ -93,6 +90,7 @@ The app expects:
 After deployment:
 
 - Open `/`
+- Open `/how-it-works`, refresh, and confirm the page still loads.
 - Open `/businesses`
 - Open `/c/bank-windhoek`
 - Log in as `owner@omukweyo.demo` with `demo123`

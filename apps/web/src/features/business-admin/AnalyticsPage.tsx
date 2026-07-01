@@ -3,8 +3,20 @@ import { LineChart, Line, Area, AreaChart, XAxis, YAxis, Tooltip, ResponsiveCont
 import { Calendar, RefreshCw, Users } from 'lucide-react';
 import { useQueueEvents } from '@/lib/useQueueEvents';
 import { api } from '@/lib/api';
-import { cn, formatTime, relativeTime } from '@/lib/utils';
 import DashboardLayout from './DashboardLayout';
+
+function metricValue(value: unknown) {
+  return typeof value === 'number' && Number.isFinite(value) ? value.toLocaleString('en-NA') : '-';
+}
+
+function minuteValue(value: unknown) {
+  return typeof value === 'number' && Number.isFinite(value) ? `${value}m` : '-';
+}
+
+function percentValue(value: unknown) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return '-';
+  return `${Number.isInteger(value) ? value : value.toFixed(1)}%`;
+}
 
 export default function AnalyticsPage() {
   const [data, setData] = useState<any>(null);
@@ -30,6 +42,9 @@ export default function AnalyticsPage() {
   const totalServed = branches.reduce((sum: number, b: any) => sum + (b.servedToday ?? 0), 0);
   const totalWaiting = branches.reduce((sum: number, b: any) => sum + (b.liveWaiting ?? 0), 0);
   const avgWait = branches.length ? Math.round(branches.reduce((sum: number, b: any) => sum + b.avgWaitMin, 0) / branches.length) : 0;
+  const waitTimeSeries = metrics?.waitTimeSeries ?? [];
+  const hasWaitHistory = waitTimeSeries.some((point: any) => (point.wait ?? 0) > 0 || (point.service ?? 0) > 0);
+  const topTemplates = metrics?.topTemplates ?? [];
 
   return (
     <DashboardLayout>
@@ -50,10 +65,10 @@ export default function AnalyticsPage() {
         </div>
 
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-line border border-line rounded-lg overflow-hidden">
-          <Kpi label="Live waiting" value={String(metrics?.liveWaiting ?? totalWaiting)} />
-          <Kpi label="Avg wait" value={`${metrics?.avgWaitTodayMin ?? avgWait}m`} />
-          <Kpi label="Served today" value={String(metrics?.servedToday ?? totalServed)} />
-          <Kpi label="No-show rate" value={`${metrics?.noShowRatePct ?? 3.4}%`} />
+          <Kpi label="Live waiting" value={metricValue(metrics?.liveWaiting ?? totalWaiting)} />
+          <Kpi label="Avg wait" value={minuteValue(metrics?.avgWaitTodayMin ?? avgWait)} />
+          <Kpi label="Served today" value={metricValue(metrics?.servedToday ?? totalServed)} />
+          <Kpi label="No-show rate" value={percentValue(metrics?.noShowRatePct)} />
         </section>
 
         <div className="grid lg:grid-cols-3 gap-5">
@@ -63,22 +78,28 @@ export default function AnalyticsPage() {
               <span className="t-eyebrow text-[10px]">08-17</span>
             </div>
             <div className="h-56 mt-3">
-              <ResponsiveContainer>
-                <AreaChart data={metrics?.waitTimeSeries ?? []}>
-                  <defs>
-                    <linearGradient id="wfa" x1="0" x2="0" y1="0" y2="1">
-                      <stop offset="0" stopColor="#2563EB" stopOpacity={0.18} />
-                      <stop offset="1" stopColor="#2563EB" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid stroke="#E5E7EB" strokeDasharray="2 4" />
-                  <XAxis dataKey="hour" tick={{ fill: '#94A3B8', fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: '#94A3B8', fontSize: 11 }} axisLine={false} tickLine={false} unit="m" />
-                  <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 12 }} labelStyle={{ color: '#0F172A' }} />
-                  <Area dataKey="wait" stroke="#2563EB" strokeWidth={2} fill="url(#wfa)" name="Wait" />
-                  <Line dataKey="service" stroke="#475569" strokeWidth={1.5} strokeDasharray="3 3" dot={false} name="Service" />
-                </AreaChart>
-              </ResponsiveContainer>
+              {hasWaitHistory ? (
+                <ResponsiveContainer>
+                  <AreaChart data={waitTimeSeries}>
+                    <defs>
+                      <linearGradient id="wfa" x1="0" x2="0" y1="0" y2="1">
+                        <stop offset="0" stopColor="#2563EB" stopOpacity={0.18} />
+                        <stop offset="1" stopColor="#2563EB" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid stroke="#E5E7EB" strokeDasharray="2 4" />
+                    <XAxis dataKey="hour" tick={{ fill: '#94A3B8', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: '#94A3B8', fontSize: 11 }} axisLine={false} tickLine={false} unit="m" />
+                    <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 12 }} labelStyle={{ color: '#0F172A' }} />
+                    <Area dataKey="wait" stroke="#2563EB" strokeWidth={2} fill="url(#wfa)" name="Wait" />
+                    <Line dataKey="service" stroke="#475569" strokeWidth={1.5} strokeDasharray="3 3" dot={false} name="Service" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="grid h-full place-items-center rounded-md border border-dashed border-line bg-surface-2 text-center text-[12px] text-ink-3">
+                  No ticket history yet.
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-3 mt-2 t-eyebrow text-[10px] text-ink-2">
               <span className="inline-flex items-center gap-1.5"><span className="h-1.5 w-3 bg-accent inline-block" /> Wait</span>
@@ -90,7 +111,7 @@ export default function AnalyticsPage() {
           <div className="card p-5">
             <h3 className="text-[14px] font-semibold text-ink inline-flex items-center gap-2"><Users size={14} /> Top SMS templates</h3>
             <div className="mt-3 space-y-2.5">
-              {metrics?.topTemplates?.map((t: any) => (
+              {topTemplates.map((t: any) => (
                 <div key={t.name} className="flex items-center gap-3 text-[12px]">
                   <div className="text-ink-2 w-28 truncate font-mono text-[11px]">{t.name}</div>
                   <div className="flex-1 h-1.5 border border-line overflow-hidden rounded-sm">
@@ -99,7 +120,7 @@ export default function AnalyticsPage() {
                   <div className="font-mono text-ink-3 text-[11px] w-10 text-right">{t.sent}</div>
                 </div>
               ))}
-              {!metrics?.topTemplates && <div className="text-[12px] text-ink-3">No data yet.</div>}
+              {topTemplates.length === 0 && <div className="text-[12px] text-ink-3">No SMS data yet.</div>}
             </div>
           </div>
         </div>

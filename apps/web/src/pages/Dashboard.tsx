@@ -1,15 +1,26 @@
-import { useEffect, useState, Fragment } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api } from '@/lib/api';
 import { useQueueEvents } from '@/lib/useQueueEvents';
-import { cn, formatTime, relativeTime } from '@/lib/utils';
+import { cn, relativeTime } from '@/lib/utils';
 import { downloadTextFile } from '@/lib/browserActions';
 import { AreaChart, Area, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import {
-  ArrowUpRight, ArrowDownRight, RefreshCw, Download, Plus, Bell, Wallet, MapPin, Shield, Activity,
-} from 'lucide-react';
+import { ArrowUpRight, RefreshCw, Download, Plus, Bell, Wallet, MapPin, Shield, Activity } from 'lucide-react';
 import DashboardLayout from '@/features/business-admin/DashboardLayout';
+
+function metricValue(value: unknown) {
+  return typeof value === 'number' && Number.isFinite(value) ? value.toLocaleString('en-NA') : '-';
+}
+
+function minuteValue(value: unknown) {
+  return typeof value === 'number' && Number.isFinite(value) ? `${value}m` : '-';
+}
+
+function percentValue(value: unknown) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return '-';
+  return `${Number.isInteger(value) ? value : value.toFixed(1)}%`;
+}
 
 export default function Dashboard() {
   const [data, setData] = useState<any>(null);
@@ -35,7 +46,6 @@ export default function Dashboard() {
   const branches = data.branches;
   const staff = data.staff;
   const liveTickets = liveQueueTickets;
-  const notifications = data.notifications;
   const companyUsers = staff.map((member: any) => ({
     ...member,
     roleLabel: member.role === 'OWNER' ? 'Owner' : member.role === 'MANAGER' ? 'Manager' : 'Operator',
@@ -45,6 +55,10 @@ export default function Dashboard() {
         ? ['Branch queues', 'Staff', 'Reports']
         : ['Counter', 'Tickets', 'SMS'],
   }));
+  const smsBalance = metrics?.smsBalance ?? company.smsBalance ?? 0;
+  const smsLowAt = metrics?.smsLowAt ?? 0;
+  const waitTimeSeries = metrics?.waitTimeSeries ?? [];
+  const hasWaitHistory = waitTimeSeries.some((point: any) => (point.wait ?? 0) > 0 || (point.service ?? 0) > 0);
 
   const refresh = async () => {
     setError(null);
@@ -69,7 +83,7 @@ export default function Dashboard() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2 sm:flex-wrap">
           <div>
             <h2 className="text-[16px] sm:text-[18px] font-semibold text-ink">Overview</h2>
-            <p className="text-[11px] sm:text-[12px] text-ink-3 mt-0.5">{branches.length} branches reporting - live API</p>
+            <p className="text-[11px] sm:text-[12px] text-ink-3 mt-0.5">{branches.length} branches reporting - live data</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button type="button" onClick={refresh} className="btn btn-sm btn-ghost"><RefreshCw size={13} /> Refresh</button>
@@ -92,10 +106,10 @@ export default function Dashboard() {
         )}
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-line border border-line rounded-lg overflow-hidden">
-          <Kpi label="Live waiting" value={metrics?.liveWaiting ?? '–'} delta="+4 vs avg" bad />
-          <Kpi label="Avg wait" value={`${metrics?.avgWaitTodayMin ?? 7}m`} delta="-2m faster" />
-          <Kpi label="Served today" value={String(metrics?.servedToday ?? 142)} delta="+12% higher" />
-          <Kpi label="No-show rate" value={`${metrics?.noShowRatePct ?? 3.4}%`} delta="-1.1% lower" />
+          <Kpi label="Live waiting" value={metricValue(metrics?.liveWaiting)} note="Waiting tickets" />
+          <Kpi label="Avg wait" value={minuteValue(metrics?.avgWaitTodayMin)} note="Active queue" />
+          <Kpi label="Served today" value={metricValue(metrics?.servedToday)} note="Closed tickets" />
+          <Kpi label="No-show rate" value={percentValue(metrics?.noShowRatePct)} note="Missed vs closed" />
         </div>
 
         <div className="grid lg:grid-cols-[1.4fr_0.6fr] gap-5">
@@ -159,14 +173,13 @@ export default function Dashboard() {
               </div>
               <hr className="hairline my-3" />
               <div className="flex items-baseline gap-1">
-                <div className="t-mono text-3xl text-ink font-semibold">{(metrics?.smsBalance ?? company.smsBalance).toLocaleString()}</div>
+                <div className="t-mono text-3xl text-ink font-semibold">{metricValue(smsBalance)}</div>
                 <span className="font-mono text-[11px] text-ink-3">credits</span>
               </div>
-              <div className="font-mono text-[12px] text-ink-2 mt-1">Sent today: <strong className="text-ink">{metrics?.smsSentToday ?? 412}</strong></div>
-              <div className="mt-3 h-1.5 border border-line overflow-hidden rounded-sm">
-                <div className="h-full bg-accent" style={{ width: `${Math.min(100, ((metrics?.smsBalance ?? 1832) / 2000) * 100)}%` }} />
+              <div className="font-mono text-[12px] text-ink-2 mt-1">Sent: <strong className="text-ink">{metricValue(metrics?.smsSentToday)}</strong></div>
+              <div className={cn('mt-3 rounded-md border px-3 py-2 text-[11px] font-medium', smsLowAt && smsBalance <= smsLowAt ? 'border-amber-200 bg-amber-50 text-amber-700' : 'border-line bg-surface-2 text-ink-2')}>
+                Auto top-up {metrics?.autoTopUp ? 'on' : 'off'}{smsLowAt ? ` at ${smsLowAt} credits` : ''}
               </div>
-              <div className="t-eyebrow text-[9px] mt-2">Auto top-up {metrics?.autoTopUp ? 'ON' : 'OFF'} - refills at {metrics?.smsLowAt ?? 200}</div>
             </div>
 
             <div className="card p-5">
@@ -196,25 +209,31 @@ export default function Dashboard() {
             <span className="t-eyebrow text-[10px]">08-17</span>
           </div>
           <div className="h-52 mt-3">
-            <ResponsiveContainer>
-              <AreaChart data={metrics?.waitTimeSeries ?? []}>
-                <defs>
-                  <linearGradient id="wfb" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0" stopColor="#2563EB" stopOpacity={0.18} />
-                    <stop offset="1" stopColor="#2563EB" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid stroke="#E5E7EB" strokeDasharray="2 4" />
-                <XAxis dataKey="hour" tick={{ fill: '#94A3B8', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#94A3B8', fontSize: 11 }} axisLine={false} tickLine={false} unit="m" />
-                <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 12 }} labelStyle={{ color: '#0F172A' }} />
-                <Area dataKey="wait" stroke="#2563EB" strokeWidth={2} fill="url(#wfb)" name="Wait" />
-                <Line dataKey="service" stroke="#475569" strokeWidth={1.5} strokeDasharray="3 3" dot={false} name="Service" />
-              </AreaChart>
-            </ResponsiveContainer>
+            {hasWaitHistory ? (
+              <ResponsiveContainer>
+                <AreaChart data={waitTimeSeries}>
+                  <defs>
+                    <linearGradient id="wfb" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0" stopColor="#2563EB" stopOpacity={0.18} />
+                      <stop offset="1" stopColor="#2563EB" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid stroke="#E5E7EB" strokeDasharray="2 4" />
+                  <XAxis dataKey="hour" tick={{ fill: '#94A3B8', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: '#94A3B8', fontSize: 11 }} axisLine={false} tickLine={false} unit="m" />
+                  <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 12 }} labelStyle={{ color: '#0F172A' }} />
+                  <Area dataKey="wait" stroke="#2563EB" strokeWidth={2} fill="url(#wfb)" name="Wait" />
+                  <Line dataKey="service" stroke="#475569" strokeWidth={1.5} strokeDasharray="3 3" dot={false} name="Service" />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="grid h-full place-items-center rounded-md border border-dashed border-line bg-surface-2 text-center text-[12px] text-ink-3">
+                No ticket history yet.
+              </div>
+            )}
           </div>
           <div className="mt-3 flex items-center gap-3 t-eyebrow text-[10px] text-ink-2">
-            <span>Peak <strong className="text-ink">{metrics?.peakHour ?? '12:00'}</strong> - Slowest <strong className="text-ink">{metrics?.slowestHour ?? '15:00'}</strong></span>
+            <span>Peak <strong className="text-ink">{metrics?.peakHour ?? '-'}</strong> - Slowest <strong className="text-ink">{metrics?.slowestHour ?? '-'}</strong></span>
           </div>
         </section>
 
@@ -260,17 +279,12 @@ export default function Dashboard() {
 }
 
 
-function Kpi({ label, value, delta, bad }: { label: string; value: any; delta?: string; bad?: boolean }) {
+function Kpi({ label, value, note }: { label: string; value: any; note?: string }) {
   return (
     <div className="bg-surface p-3 sm:p-4">
       <div className="t-eyebrow text-[9px] sm:text-[10px]">{label}</div>
       <div className="t-mono text-xl sm:text-2xl text-ink font-semibold mt-0.5 sm:mt-1">{value}</div>
-      {delta && (
-        <div className={cn('t-eyebrow text-[9px] sm:text-[10px] mt-0.5 sm:mt-1 inline-flex items-center gap-1', bad ? 'text-amber-600' : 'text-emerald-700')}>
-          {bad ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
-          {delta}
-        </div>
-      )}
+      {note && <div className="t-eyebrow mt-0.5 text-[9px] text-ink-3 sm:mt-1 sm:text-[10px]">{note}</div>}
     </div>
   );
 }

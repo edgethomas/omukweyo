@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, CalendarClock, ShieldCheck } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { api } from '@/lib/api';
 
 const CUSTOMER_KEY = 'omukweyo_customer';
@@ -62,27 +62,13 @@ export default function CustomerSignup() {
   };
 
   return (
-    <section className="container-x py-12">
-      <div className="grid lg:grid-cols-[1fr_420px] gap-8 items-start">
-        <div className="pt-4">
-          <h1 className="t-h1 text-balance max-w-3xl">Create a customer account for planned queue visits.</h1>
-          <p className="t-body mt-3 max-w-2xl">
-            Use this when you know your window in advance, like tomorrow at 5:00 PM before a meeting.
-            Omukweyo can reserve your place, watch the queue, and create your live ticket at the right time.
+    <section className="container-x py-10 sm:py-14">
+      <div className="mx-auto max-w-md">
+        <div className="mb-5 text-center">
+          <h1 className="t-h1">Create customer account</h1>
+          <p className="mt-2 text-[13px] leading-relaxed text-ink-2">
+            Save your profile for tickets, reservations, receipts, and SMS updates.
           </p>
-
-          <div className="grid sm:grid-cols-2 gap-3 mt-7 max-w-2xl">
-            <div className="card p-4">
-              <CalendarClock size={18} className="text-accent mb-2" />
-              <h3 className="text-[13px] font-semibold text-ink">Reserve tomorrow</h3>
-              <p className="text-[12px] text-ink-2 mt-1">Pick the branch, service, and target arrival window.</p>
-            </div>
-            <div className="card p-4">
-              <ShieldCheck size={18} className="text-emerald-600 mb-2" />
-              <h3 className="text-[13px] font-semibold text-ink">Confirm the reservation</h3>
-              <p className="text-[12px] text-ink-2 mt-1">Payment confirms your arrival window before Omukweyo schedules the ticket.</p>
-            </div>
-          </div>
         </div>
 
         <form onSubmit={submit} className="card p-6 space-y-4">

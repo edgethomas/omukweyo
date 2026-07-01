@@ -1,0 +1,11 @@
+alter table public."Branch" alter column "updatedAt" set default now();
+alter table public."Company" alter column "updatedAt" set default now();
+alter table public."Customer" alter column "updatedAt" set default now();
+alter table public."FutureReservation" alter column "updatedAt" set default now();
+alter table public."QueueTicket" alter column "updatedAt" set default now();
+alter table public."RunnerJob" alter column "updatedAt" set default now();
+alter table public."RunnerRequest" alter column "updatedAt" set default now();
+alter table public."Service" alter column "updatedAt" set default now();
+alter table public."StaffMember" alter column "updatedAt" set default now();
+alter table public."Subscription" alter column "updatedAt" set default now();
+alter table public."User" alter column "updatedAt" set default now();

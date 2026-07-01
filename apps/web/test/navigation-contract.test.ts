@@ -346,6 +346,77 @@ test('customer signup can open a real customer session', () => {
   assert.match(signupSource, /navigate\('\/customer'\)/);
 });
 
+test('customer signup stays focused on account creation', () => {
+  const signupSource = readFileSync(path.join(root, 'pages', 'CustomerSignup.tsx'), 'utf8');
+
+  assert.match(signupSource, /max-w-md/);
+  assert.match(signupSource, /Create customer account/);
+  assert.doesNotMatch(signupSource, /Reserve tomorrow|Confirm the reservation|planned queue visits/);
+  assert.doesNotMatch(signupSource, /CalendarClock|ShieldCheck/);
+});
+
+test('business signup stays focused on workspace creation', () => {
+  const onboardingSource = readFileSync(path.join(root, 'pages', 'Onboarding.tsx'), 'utf8');
+
+  assert.match(onboardingSource, /max-w-xl/);
+  assert.match(onboardingSource, /Create business account/);
+  assert.match(onboardingSource, /Set up the owner login, first branch, first service, and plan/);
+  assert.doesNotMatch(onboardingSource, /Set up a business queue workspace in minutes|Company admin console|Website embed/);
+  assert.doesNotMatch(onboardingSource, /setupCards/);
+});
+
+test('business dashboard uses live-derived numbers without demo fallbacks', () => {
+  const dashboardSource = readFileSync(path.join(root, 'pages', 'Dashboard.tsx'), 'utf8');
+  const analyticsSource = readFileSync(path.join(root, 'features', 'business-admin', 'AnalyticsPage.tsx'), 'utf8');
+  const apiSource = readFileSync(path.join(root, 'lib', 'api.ts'), 'utf8');
+  const layoutSource = readFileSync(path.join(root, 'features', 'business-admin', 'DashboardLayout.tsx'), 'utf8');
+
+  for (const source of [dashboardSource, analyticsSource]) {
+    assert.doesNotMatch(source, /142|3\.4|412|1832/);
+    assert.doesNotMatch(source, /\+4 vs avg|-2m faster|\+12% higher|-1\.1% lower/);
+  }
+
+  assert.match(apiSource, /eq\('status', 'MISSED'\)/);
+  assert.match(apiSource, /totalClosedTickets/);
+  assert.doesNotMatch(apiSource, /noShowRatePct:\s*3\.4/);
+  assert.doesNotMatch(apiSource, /Math\.max\(1,\s*Math\.round\(\(notifications\.count/);
+  assert.match(layoutSource, /loc\.pathname !== '\/dashboard'/);
+});
+
+test('sign-out actions have a clear destructive affordance', () => {
+  const accountMenuSource = readFileSync(path.join(root, 'features', 'customer', 'AccountMenu.tsx'), 'utf8');
+  const shellSource = readFileSync(path.join(root, 'components', 'AppShell.tsx'), 'utf8');
+  const userProfileSource = readFileSync(path.join(root, 'features', 'profile', 'UserProfilePage.tsx'), 'utf8');
+  const customerProfileSource = readFileSync(path.join(root, 'pages', 'CustomerProfile.tsx'), 'utf8');
+
+  for (const source of [accountMenuSource, shellSource, userProfileSource, customerProfileSource]) {
+    assert.match(source, /text-red-600/);
+  }
+  assert.match(shellSource, /aria-label="Sign out"/);
+});
+
+test('auth email templates center their primary action buttons', () => {
+  const templateDirs = [
+    path.join(repoRoot, 'templates', 'auth'),
+    path.join(repoRoot, 'supabase', 'templates', 'auth'),
+  ];
+  const templateNames = [
+    'change-email-address.html',
+    'confirm-signup.html',
+    'invite-user.html',
+    'magic-link.html',
+    'reset-password.html',
+  ];
+
+  for (const dir of templateDirs) {
+    for (const name of templateNames) {
+      const source = readFileSync(path.join(dir, name), 'utf8');
+      assert.match(source, /<table role="presentation" cellspacing="0" cellpadding="0" align="center"/, `${name} should center the CTA table`);
+      assert.match(source, /min-width:168px;text-align:center/, `${name} should use a stable centered CTA button`);
+    }
+  }
+});
+
 test('business and runner signup open real workspace sessions', () => {
   const apiSource = readFileSync(path.join(root, 'lib', 'api.ts'), 'utf8');
   const onboardingSource = readFileSync(path.join(root, 'pages', 'Onboarding.tsx'), 'utf8');

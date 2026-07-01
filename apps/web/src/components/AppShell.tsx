@@ -284,8 +284,9 @@ export default function AppShell({ children, title, subtitle, actions }: { child
           <Link
             to="/login"
             onClick={() => localStorage.removeItem(SESSION_KEY)}
-            className="text-ink-3 hover:text-ink p-1 shrink-0"
-            title="Log out"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-red-600 hover:bg-red-50 hover:text-red-700"
+            aria-label="Sign out"
+            title="Sign out"
           >
             <LogOut size={15} />
           </Link>

@@ -291,7 +291,7 @@ export default function CustomerProfile() {
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+              accept="image/png,image/jpeg,image/webp,image/svg+xml"
               className="hidden"
               onChange={(event) => {
                 const file = event.target.files?.[0];
@@ -314,7 +314,7 @@ export default function CustomerProfile() {
               <Settings size={14} />
               Settings
             </Link>
-            <button type="button" onClick={signOut} className="btn btn-outline btn-md">
+            <button type="button" onClick={signOut} className="btn btn-outline btn-md border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700">
               <LogOut size={14} />
               Sign out
             </button>

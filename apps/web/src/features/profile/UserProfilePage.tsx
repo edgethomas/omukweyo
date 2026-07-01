@@ -237,7 +237,7 @@ export default function UserProfilePage({
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+              accept="image/png,image/jpeg,image/webp,image/svg+xml"
               className="hidden"
               onChange={(event) => {
                 const file = event.target.files?.[0];
@@ -262,7 +262,7 @@ export default function UserProfilePage({
                 Settings
               </Link>
             )}
-            <button type="button" onClick={signOut} className="btn btn-outline btn-sm sm:btn-md">
+            <button type="button" onClick={signOut} className="btn btn-outline btn-sm border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 sm:btn-md">
               <LogOut size={14} />
               Sign out
             </button>

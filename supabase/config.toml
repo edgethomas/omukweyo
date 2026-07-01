@@ -245,38 +245,38 @@ otp_expiry = 3600
 
 [auth.email.template.confirmation]
 subject = "Confirm your Omukweyo account"
-content_path = "./supabase/templates/auth/confirm-signup.html"
+content_path = "templates/auth/confirm-signup.html"
 
 [auth.email.template.invite]
 subject = "You have been invited to Omukweyo"
-content_path = "./supabase/templates/auth/invite-user.html"
+content_path = "templates/auth/invite-user.html"
 
 [auth.email.template.magic_link]
 subject = "Your Omukweyo sign-in link"
-content_path = "./supabase/templates/auth/magic-link.html"
+content_path = "templates/auth/magic-link.html"
 
 [auth.email.template.email_change]
 subject = "Confirm your new Omukweyo email address"
-content_path = "./supabase/templates/auth/change-email-address.html"
+content_path = "templates/auth/change-email-address.html"
 
 [auth.email.template.recovery]
 subject = "Reset your Omukweyo password"
-content_path = "./supabase/templates/auth/reset-password.html"
+content_path = "templates/auth/reset-password.html"
 
 [auth.email.notification.password_changed]
 enabled = true
 subject = "Your Omukweyo password was changed"
-content_path = "./supabase/templates/auth/password-changed.html"
+content_path = "templates/auth/password-changed.html"
 
 [auth.email.notification.email_changed]
 enabled = true
 subject = "Your Omukweyo email address was changed"
-content_path = "./supabase/templates/auth/email-address-changed.html"
+content_path = "templates/auth/email-address-changed.html"
 
 [auth.email.notification.phone_changed]
 enabled = true
 subject = "Your Omukweyo phone number was changed"
-content_path = "./supabase/templates/auth/phone-number-changed.html"
+content_path = "templates/auth/phone-number-changed.html"
 
 [auth.sms]
 # Allow/disallow new user signups via SMS to your project.

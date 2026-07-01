@@ -60,10 +60,6 @@ export default function Signup() {
             </Link>
           ))}
         </div>
-
-        <div className="mt-5 rounded-lg border border-line bg-surface-2 px-4 py-3 text-[12px] text-ink-2">
-          Want to preview the workspaces? Use <Link to="/login" className="font-medium text-accent hover:underline">demo login</Link> to open each role instantly.
-        </div>
       </div>
     </section>
   );

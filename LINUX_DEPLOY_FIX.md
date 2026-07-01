@@ -1,5 +1,7 @@
 # 🐧 Linux Server Deployment Fix
 
+> Current note: Omukweyo now deploys as a static React app backed directly by Supabase. Use `DEPLOYMENT.md` first; the backend/API instructions below are legacy notes.
+
 ## The Problem
 
 You're getting this error on your Linux server:

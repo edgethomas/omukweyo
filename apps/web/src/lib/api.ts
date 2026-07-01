@@ -125,6 +125,19 @@ function err(error: unknown, fallback = 'Supabase request failed') {
   return new Error(message || fallback);
 }
 
+function mapCustomerInput(input: { id?: string; name: string; phone: string; email?: string | null; avatarUrl?: string | null; createdAt?: string; updatedAt?: string }) {
+  const timestamp = nowIso();
+  return {
+    id: input.id ?? id('cust'),
+    name: input.name.trim(),
+    phone: input.phone.trim(),
+    email: input.email?.trim() || null,
+    avatarUrl: input.avatarUrl ?? null,
+    createdAt: input.createdAt ?? timestamp,
+    updatedAt: input.updatedAt ?? timestamp,
+  };
+}
+
 async function one<T>(query: PromiseLike<{ data: T | null; error: any }>, fallback = 'Record not found'): Promise<T> {
   const { data, error } = await query;
   if (error) throw err(error);
@@ -201,6 +214,7 @@ function mapService(input: any): Service {
 function mapStaff(input: any): StaffMember {
   return {
     id: input.id,
+    branchId: input.branchId ?? undefined,
     name: input.name,
     initials: initials(input.name),
     role: input.role,
@@ -472,7 +486,11 @@ async function signUpAndProfile(input: {
       data: {
         name: input.name,
         phone: input.phone ?? null,
+        role: input.role,
         destination: input.destination,
+        companyId: input.companyId ?? null,
+        customerId: input.customerId ?? null,
+        staffId: input.staffId ?? null,
       },
     },
   });
@@ -489,6 +507,24 @@ async function signUpAndProfile(input: {
   }
 
   if (!authUser) throw new Error('Could not create Supabase Auth user');
+
+  if (!session) {
+    return {
+      user: {
+        id: `pending_${authUser.id}`,
+        role: input.role,
+        name: input.name,
+        email,
+        phone: input.phone,
+        destination: input.destination,
+        emailVerified: false,
+        customerId: input.customerId,
+        companyId: input.companyId,
+        staffId: input.staffId,
+      } satisfies DemoUser,
+      session: undefined,
+    };
+  }
 
   const existing = await sb.from('User').select('id').eq('email', email).maybeSingle();
   const payload = {
@@ -587,6 +623,21 @@ async function listLiveTickets(branchId?: string, includeEvents = false): Promis
     .order('joinedAt', { ascending: true });
   if (branchId) query = query.eq('branchId', branchId);
   const rows = await many<any>(query);
+  if (includeEvents) return Promise.all(rows.map(getTicketWithEvents));
+  return rows.map((row) => mapTicket({ ...row, events: [] }));
+}
+
+async function listCompanyLiveTickets(companyId: string, includeEvents = false): Promise<QueueTicket[]> {
+  const rows = await many<any>(
+    getBrowserSupabase()
+      .from('QueueTicket')
+      .select('*')
+      .eq('companyId', companyId)
+      .in('status', activeStatuses)
+      .order('branchId', { ascending: true })
+      .order('position', { ascending: true })
+      .order('joinedAt', { ascending: true }),
+  );
   if (includeEvents) return Promise.all(rows.map(getTicketWithEvents));
   return rows.map((row) => mapTicket({ ...row, events: [] }));
 }
@@ -694,17 +745,27 @@ async function getTicket(idValue: string): Promise<QueueTicket | undefined> {
 
 async function upsertCustomer(input: { name: string; phone: string; email?: string; avatarUrl?: string }): Promise<CustomerAccount> {
   const sb = getBrowserSupabase();
-  let query = sb.from('Customer').select('*').or(`phone.eq.${input.phone}${input.email ? `,email.eq.${input.email}` : ''}`).maybeSingle();
+  const session = await currentAuthSession().catch(() => null);
+  const publicPayload = mapCustomerInput(input);
+
+  if (!session?.user) {
+    const { error } = await sb.from('Customer').insert(publicPayload);
+    if (error) throw err(error);
+    return mapCustomer(publicPayload);
+  }
+
+  const query = sb.from('Customer').select('*').or(`phone.eq.${publicPayload.phone}${publicPayload.email ? `,email.eq.${publicPayload.email}` : ''}`).maybeSingle();
   const existing = await one<any>(query, 'Customer not found').catch(() => null);
   const payload = {
-    name: input.name,
-    phone: input.phone,
-    email: input.email || existing?.email || null,
-    avatarUrl: input.avatarUrl || existing?.avatarUrl || null,
+    name: publicPayload.name,
+    phone: publicPayload.phone,
+    email: publicPayload.email || existing?.email || null,
+    avatarUrl: publicPayload.avatarUrl || existing?.avatarUrl || null,
+    updatedAt: nowIso(),
   };
   const result = existing
     ? await sb.from('Customer').update(payload).eq('id', existing.id).select('*').single()
-    : await sb.from('Customer').insert({ id: id('cust'), ...payload }).select('*').single();
+    : await sb.from('Customer').insert({ id: publicPayload.id, ...payload }).select('*').single();
   if (result.error) throw err(result.error);
   return mapCustomer(result.data);
 }
@@ -777,56 +838,139 @@ async function createReservation(input: {
   return getReservationRow(result.data.id).then((reservation) => reservation!);
 }
 
+function numericValue(value: unknown) {
+  const next = Number(value);
+  return Number.isFinite(next) ? next : 0;
+}
+
+function averageValue(values: number[]) {
+  if (values.length === 0) return 0;
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function percentValue(part: number, total: number) {
+  if (total <= 0) return 0;
+  return Math.round((part / total) * 1000) / 10;
+}
+
+const notificationTemplateLabels: Record<Notification['template'], string> = {
+  TICKET_CREATED: 'Ticket created',
+  ALMOST_TURN: 'Almost turn',
+  CALLED: 'Called',
+  MISSED: 'Missed',
+  RUNNER_UPDATE: 'Runner update',
+  LOW_SMS_BALANCE: 'Low SMS balance',
+  RESERVATION_CREATED: 'Reservation created',
+  RESERVATION_BOOKED: 'Reservation booked',
+  MANUAL_UPDATE: 'Manual update',
+};
+
+function buildWaitTimeSeries(ticketRows: any[], branches: Branch[]) {
+  const branchWait = new Map(branches.map((branch) => [branch.id, numericValue(branch.avgWaitMin)]));
+  const buckets = new Map<string, { waitTotal: number; waitCount: number; serviceTotal: number; serviceCount: number }>();
+
+  for (let hour = 8; hour <= 17; hour += 1) {
+    buckets.set(String(hour).padStart(2, '0'), { waitTotal: 0, waitCount: 0, serviceTotal: 0, serviceCount: 0 });
+  }
+
+  for (const ticket of ticketRows) {
+    const joined = new Date(ticket.joinedAt);
+    if (Number.isNaN(joined.getTime())) continue;
+    const hour = String(joined.getHours()).padStart(2, '0');
+    const bucket = buckets.get(hour);
+    if (!bucket) continue;
+
+    bucket.waitTotal += numericValue(ticket.estimatedWaitMinutes);
+    bucket.waitCount += 1;
+
+    const configuredServiceWait = branchWait.get(ticket.branchId);
+    if (configuredServiceWait !== undefined) {
+      bucket.serviceTotal += configuredServiceWait;
+      bucket.serviceCount += 1;
+    }
+  }
+
+  return Array.from(buckets.entries()).map(([hour, bucket]) => ({
+    hour,
+    wait: bucket.waitCount ? Math.round(bucket.waitTotal / bucket.waitCount) : 0,
+    service: bucket.serviceCount ? Math.round(bucket.serviceTotal / bucket.serviceCount) : 0,
+  }));
+}
+
 async function computeMetricsFromBundle(bundle: CompanyBundle): Promise<DashboardMetrics> {
   const sb = getBrowserSupabase();
-  const [waiting, served, notifications] = await Promise.all([
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const [ticketRows, waiting, served, missed, servedTodayResult, reservationRows, notificationRows] = await Promise.all([
+    many<any>(sb.from('QueueTicket').select('id,status,estimatedWaitMinutes,joinedAt,branchId').eq('companyId', bundle.company.id).order('joinedAt', { ascending: true }).limit(1000)),
     sb.from('QueueTicket').select('id', { count: 'exact', head: true }).eq('companyId', bundle.company.id).eq('status', 'WAITING'),
     sb.from('QueueTicket').select('id', { count: 'exact', head: true }).eq('companyId', bundle.company.id).eq('status', 'SERVED'),
-    sb.from('Notification').select('id', { count: 'exact', head: true }).eq('status', 'SENT'),
+    sb.from('QueueTicket').select('id', { count: 'exact', head: true }).eq('companyId', bundle.company.id).eq('status', 'MISSED'),
+    sb.from('QueueTicket').select('id', { count: 'exact', head: true }).eq('companyId', bundle.company.id).eq('status', 'SERVED').gte('servedAt', startOfToday.toISOString()),
+    many<any>(sb.from('FutureReservation').select('id').eq('companyId', bundle.company.id).limit(1000)),
+    many<any>(sb.from('Notification').select('*').eq('status', 'SENT').order('at', { ascending: false }).limit(500)),
   ]);
-  const avgWaitTodayMin = Math.round(bundle.branches.reduce((sum, branch) => sum + branch.avgWaitMin, 0) / Math.max(1, bundle.branches.length));
+  const waitingTickets = ticketRows.filter((ticket) => ticket.status === 'WAITING');
+  const activeTickets = ticketRows.filter((ticket) => activeStatuses.includes(ticket.status));
+  const queueWaits = activeTickets.map((ticket) => numericValue(ticket.estimatedWaitMinutes)).filter((wait) => wait > 0);
+  const branchWaits = bundle.branches.map((branch) => numericValue(branch.avgWaitMin)).filter((wait) => wait > 0);
+  const avgWaitTodayMin = Math.round(queueWaits.length ? averageValue(queueWaits) : averageValue(branchWaits));
+  const branchServedToday = bundle.branches.reduce((sum, branch) => sum + numericValue(branch.servedToday), 0);
+  const servedToday = Math.max(servedTodayResult.count ?? 0, branchServedToday);
+  const missedTickets = missed.count ?? ticketRows.filter((ticket) => ticket.status === 'MISSED').length;
+  const totalClosedTickets = (served.count ?? 0) + missedTickets;
+  const noShowRatePct = percentValue(missedTickets, totalClosedTickets);
+  const ticketIds = new Set(ticketRows.map((ticket) => ticket.id));
+  const reservationIds = new Set(reservationRows.map((reservation) => reservation.id));
+  const companyNotifications = notificationRows.filter((notification) => (
+    (notification.ticketId && ticketIds.has(notification.ticketId)) ||
+    (notification.reservationId && reservationIds.has(notification.reservationId))
+  ));
+  const templateCounts = new Map<Notification['template'], number>();
+  for (const notification of companyNotifications) {
+    const template = notification.template as Notification['template'];
+    templateCounts.set(template, (templateCounts.get(template) ?? 0) + 1);
+  }
+  const waitTimeSeries = buildWaitTimeSeries(ticketRows, bundle.branches);
+  const waitSeriesWithData = waitTimeSeries.filter((point) => point.wait > 0 || point.service > 0);
+  const peakPoint = waitSeriesWithData.reduce<typeof waitSeriesWithData[number] | undefined>((best, point) => (!best || point.wait > best.wait ? point : best), undefined);
+  const slowestPoint = waitSeriesWithData.reduce<typeof waitSeriesWithData[number] | undefined>((best, point) => (!best || point.service > best.service ? point : best), undefined);
+
   return {
-    liveWaiting: waiting.count ?? 0,
+    liveWaiting: waiting.count ?? waitingTickets.length,
     avgWaitTodayMin,
-    servedToday: Math.max(served.count ?? 0, bundle.branches.reduce((sum, branch) => sum + branch.servedToday, 0)),
-    noShowRatePct: 3.4,
+    servedToday,
+    noShowRatePct,
     healthScore: bundle.company.healthScore,
     smsBalance: bundle.company.smsBalance,
-    smsSentToday: notifications.count ?? 0,
+    smsSentToday: companyNotifications.length,
     smsLowAt: 200,
     autoTopUp: true,
-    peakHour: '12:00',
-    slowestHour: '15:00',
-    waitTimeSeries: [
-      { hour: '08', wait: 4, service: 7 },
-      { hour: '09', wait: 6, service: 8 },
-      { hour: '10', wait: 11, service: 8 },
-      { hour: '11', wait: 9, service: 7 },
-      { hour: '12', wait: 14, service: 9 },
-      { hour: '14', wait: 8, service: 7 },
-      { hour: '15', wait: 16, service: 10 },
-      { hour: '16', wait: 7, service: 8 },
-    ],
-    heatmap: [
-      [0.2, 0.3, 0.6, 0.4, 0.8, 0.5, 0.7, 0.3],
-      [0.3, 0.4, 0.7, 0.5, 0.9, 0.6, 0.6, 0.4],
-      [0.1, 0.2, 0.4, 0.3, 0.6, 0.4, 0.5, 0.2],
-      [0.2, 0.3, 0.5, 0.6, 0.7, 0.5, 0.8, 0.4],
-    ],
-    topTemplates: [
-      { name: 'Ticket created', sent: Math.max(1, Math.round((notifications.count ?? 0) * 0.45)), share: 0.45 },
-      { name: 'Almost turn', sent: Math.max(1, Math.round((notifications.count ?? 0) * 0.25)), share: 0.25 },
-      { name: 'Called', sent: Math.max(1, Math.round((notifications.count ?? 0) * 0.2)), share: 0.2 },
-    ],
-    branches: bundle.branches.map((branch) => ({
-      id: branch.id,
-      name: branch.name,
-      counters: 3,
-      staff: bundle.staff.filter((member: any) => member.branchId === branch.id).length || 4,
-      avgWaitMin: branch.avgWaitMin,
-      served: branch.servedToday,
-      status: branch.avgWaitMin > 14 ? 'SLOW' : branch.avgWaitMin > 9 ? 'BUSY' : 'OK',
-    })),
+    peakHour: peakPoint ? `${peakPoint.hour}:00` : '-',
+    slowestHour: slowestPoint ? `${slowestPoint.hour}:00` : '-',
+    waitTimeSeries,
+    heatmap: [],
+    topTemplates: Array.from(templateCounts.entries())
+      .sort((left, right) => right[1] - left[1])
+      .slice(0, 3)
+      .map(([template, sent]) => ({
+        name: notificationTemplateLabels[template] ?? template,
+        sent,
+        share: companyNotifications.length ? sent / companyNotifications.length : 0,
+      })),
+    branches: bundle.branches.map((branch) => {
+      const staffForBranch = bundle.staff.filter((member) => member.branchId === branch.id);
+      const counters = new Set(staffForBranch.map((member) => member.counter).filter(Boolean)).size;
+      return {
+        id: branch.id,
+        name: branch.name,
+        counters,
+        staff: staffForBranch.length,
+        avgWaitMin: branch.avgWaitMin,
+        served: branch.servedToday,
+        status: branch.avgWaitMin > 14 ? 'SLOW' : branch.avgWaitMin > 9 ? 'BUSY' : 'OK',
+      };
+    }),
   };
 }
 
@@ -835,20 +979,131 @@ async function computeMetrics(companySlugValue?: string): Promise<DashboardMetri
   return computeMetricsFromBundle(bundle);
 }
 
+type PreparedUpload = {
+  file: File;
+  optimized: boolean;
+  originalSize: number;
+  width?: number;
+  height?: number;
+};
+
+type DecodedImage = {
+  source: CanvasImageSource;
+  width: number;
+  height: number;
+  close: () => void;
+};
+
+function uploadProfileForFolder(folder: string) {
+  if (folder.includes('/hero')) return { maxWidth: 1800, maxHeight: 1100, quality: 0.82 };
+  if (folder.includes('/logo')) return { maxWidth: 720, maxHeight: 720, quality: 0.86 };
+  return { maxWidth: 720, maxHeight: 720, quality: 0.84 };
+}
+
+async function canvasBlob(canvas: HTMLCanvasElement, type: string, quality: number) {
+  return new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, type, quality));
+}
+
+async function decodeImage(file: File): Promise<DecodedImage | null> {
+  if (typeof createImageBitmap === 'function') {
+    const bitmap = await createImageBitmap(file).catch(() => null);
+    if (bitmap) {
+      return {
+        source: bitmap,
+        width: bitmap.width,
+        height: bitmap.height,
+        close: () => bitmap.close(),
+      };
+    }
+  }
+
+  return new Promise((resolve) => {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      resolve({
+        source: image,
+        width: image.naturalWidth,
+        height: image.naturalHeight,
+        close: () => URL.revokeObjectURL(objectUrl),
+      });
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(null);
+    };
+    image.src = objectUrl;
+  });
+}
+
+async function prepareImageUpload(file: File, folder: string): Promise<PreparedUpload> {
+  if (!file.type.startsWith('image/')) throw new Error('Upload an image file.');
+  if (file.type === 'image/gif') throw new Error('Animated GIFs are not supported. Upload JPG, PNG, WebP, or SVG.');
+  if (file.size > 20 * 1024 * 1024) throw new Error('Image is too large. Upload an image smaller than 20 MB.');
+  if (file.type === 'image/svg+xml' || typeof document === 'undefined') {
+    return { file, optimized: false, originalSize: file.size };
+  }
+
+  const decoded = await decodeImage(file);
+  if (!decoded) return { file, optimized: false, originalSize: file.size };
+
+  const profile = uploadProfileForFolder(folder);
+  const scale = Math.min(1, profile.maxWidth / decoded.width, profile.maxHeight / decoded.height);
+  const width = Math.max(1, Math.round(decoded.width * scale));
+  const height = Math.max(1, Math.round(decoded.height * scale));
+  const shouldReencode = scale < 1 || file.type !== 'image/webp' || file.size > 350 * 1024;
+  if (!shouldReencode) {
+    decoded.close();
+    return { file, optimized: false, originalSize: file.size, width: decoded.width, height: decoded.height };
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext('2d', { alpha: file.type === 'image/png' });
+  if (!context) {
+    decoded.close();
+    return { file, optimized: false, originalSize: file.size, width: decoded.width, height: decoded.height };
+  }
+  context.drawImage(decoded.source, 0, 0, width, height);
+  decoded.close();
+
+  const blob = await canvasBlob(canvas, 'image/webp', profile.quality);
+  if (!blob || (scale === 1 && blob.size >= file.size)) {
+    return { file, optimized: false, originalSize: file.size, width, height };
+  }
+
+  const baseName = file.name.replace(/\.[^.]+$/, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '').toLowerCase() || 'image';
+  return {
+    file: new File([blob], `${baseName}.webp`, { type: 'image/webp', lastModified: Date.now() }),
+    optimized: true,
+    originalSize: file.size,
+    width,
+    height,
+  };
+}
+
 async function uploadPublicAsset(file: File, folder: string) {
   const sb = getBrowserSupabase();
-  const ext = file.name.includes('.') ? file.name.slice(file.name.lastIndexOf('.')).toLowerCase() : '';
-  const clean = file.name.replace(ext, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '').toLowerCase() || 'asset';
+  const prepared = await prepareImageUpload(file, folder);
+  const uploadFile = prepared.file;
+  const ext = uploadFile.name.includes('.') ? uploadFile.name.slice(uploadFile.name.lastIndexOf('.')).toLowerCase() : '';
+  const clean = uploadFile.name.replace(ext, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '').toLowerCase() || 'asset';
   const objectPath = `${folder}/${Date.now()}-${crypto.randomUUID()}-${clean}${ext}`;
-  const { error } = await sb.storage.from(STORAGE_BUCKET).upload(objectPath, file, {
+  const { error } = await sb.storage.from(STORAGE_BUCKET).upload(objectPath, uploadFile, {
     cacheControl: '31536000',
-    contentType: file.type,
+    contentType: uploadFile.type,
     upsert: false,
   });
   if (error) throw err(error);
   return {
     path: objectPath,
     url: sb.storage.from(STORAGE_BUCKET).getPublicUrl(objectPath).data.publicUrl,
+    file: uploadFile,
+    optimized: prepared.optimized,
+    originalSize: prepared.originalSize,
+    width: prepared.width,
+    height: prepared.height,
   };
 }
 
@@ -1052,13 +1307,13 @@ export const api = {
 
   queueWorkspace: async () => cached('queue-workspace:current', 2_000, async () => {
     const bundle = await getCompanyBundle();
-    const liveTickets = await listLiveTickets();
+    const liveTickets = await listCompanyLiveTickets(bundle.company.id);
     return { ...bundle, liveTickets };
   }),
 
   staffWorkspace: async () => cached('staff-workspace:current', 2_000, async () => {
     const bundle = await getCompanyBundle();
-    const liveTickets = await listLiveTickets();
+    const liveTickets = await listCompanyLiveTickets(bundle.company.id);
     const metrics = {
       smsBalance: bundle.company.smsBalance,
       servedToday: bundle.staff.reduce((sum, member) => sum + member.servedToday, 0),
@@ -1091,8 +1346,8 @@ export const api = {
       type,
       url: uploaded.url,
       filename: uploaded.path,
-      mimeType: file.type,
-      sizeBytes: file.size,
+      mimeType: uploaded.file.type,
+      sizeBytes: uploaded.file.size,
     }).select('*').single());
     const { company } = await api.businessProfile(type === 'hero' ? { heroImageUrl: uploaded.url } : { logoUrl: uploaded.url });
     return { asset, company };
@@ -1214,7 +1469,11 @@ export const api = {
     return { branch: mapBranch(branch), services: services.map(mapService), liveTickets: await listLiveTickets(branch.id) };
   },
 
-  liveQueue: async (branchId?: string) => cached(`live-queue:${branchId ?? 'all'}`, 1_000, async () => ({ tickets: await listLiveTickets(branchId) })),
+  liveQueue: async (branchId?: string) => cached(`live-queue:${branchId ?? 'company'}`, 1_000, async () => {
+    if (branchId) return { tickets: await listLiveTickets(branchId) };
+    const company = await getCurrentCompany();
+    return { tickets: await listCompanyLiveTickets(company.id) };
+  }),
   joinQueue: async (body: { branchId: string; serviceId: string; customerName: string; customerPhone: string; source?: QueueTicket['source'] }) => ({ ticket: await createTicket(body) }),
 
   customerSignup: async (body: { name: string; phone: string; email?: string; password?: string }) => {
@@ -1444,14 +1703,17 @@ export const api = {
       const bundle = await getCompanyBundle(companySlugValue);
       const [metrics, liveTickets, notificationRows] = await Promise.all([
         computeMetricsFromBundle(bundle),
-        listLiveTickets(),
-        many<any>(getBrowserSupabase().from('Notification').select('*').order('at', { ascending: false }).limit(20)),
+        listCompanyLiveTickets(bundle.company.id),
+        many<any>(getBrowserSupabase().from('Notification').select('*').order('at', { ascending: false }).limit(50)),
       ]);
+      const ticketIds = new Set(liveTickets.map((ticket) => ticket.id));
       return {
         ...bundle,
         metrics,
         liveTickets,
-        notifications: notificationRows.map(mapNotification),
+        notifications: notificationRows
+          .filter((notification) => notification.ticketId && ticketIds.has(notification.ticketId))
+          .map(mapNotification),
       };
     });
   },

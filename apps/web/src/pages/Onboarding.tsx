@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import type { ElementType } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, BarChart3, Check, Code2, CreditCard, Headphones, QrCode } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -25,13 +24,6 @@ const plans = [
   { value: 'STARTER', label: 'Starter', price: 'N$399', body: 'One branch, many services, embed, analytics, SMS enabled.' },
   { value: 'BUSINESS', label: 'Business', price: 'N$999', body: 'Multi-branch, custom branding, exports, priority support.' },
 ] as const;
-
-const setupCards: { Icon: ElementType; title: string; body: string }[] = [
-  { Icon: QrCode, title: 'Public queue page', body: 'Customers can join from a QR or link.' },
-  { Icon: Headphones, title: 'Staff console', body: 'Operators can call, serve, hold, or miss tickets.' },
-  { Icon: BarChart3, title: 'Company admin console', body: 'Owners manage users, branches, billing, SMS, and analytics.' },
-  { Icon: Code2, title: 'Website embed', body: 'Businesses can drop the queue into their own site.' },
-];
 
 const stepFields: Record<number, Array<keyof FormState>> = {
   1: ['ownerName', 'ownerEmail', 'ownerPassword', 'ownerPhone', 'companyName', 'industry'],
@@ -126,23 +118,13 @@ export default function Onboarding() {
   };
 
   return (
-    <section className="container-x py-12">
-      <div className="grid lg:grid-cols-[1fr_420px] gap-8 items-start">
-        <div>
-          <h1 className="t-h1 text-balance max-w-3xl">Set up a business queue workspace in minutes.</h1>
-          <p className="t-body mt-3 max-w-2xl">
-            Create the owner account, first branch, first service, and starter plan. You get links for the admin console, public queue page, staff console, and website embed.
+    <section className="container-x py-10 sm:py-14">
+      <div className="mx-auto max-w-xl">
+        <div className="mb-5 text-center">
+          <h1 className="t-h1">Create business account</h1>
+          <p className="mt-2 text-[13px] leading-relaxed text-ink-2">
+            Set up the owner login, first branch, first service, and plan.
           </p>
-
-          <div className="grid sm:grid-cols-2 gap-3 mt-7 max-w-2xl">
-            {setupCards.map(({ Icon, title, body }) => (
-              <div key={title} className="card p-4">
-                <Icon size={17} className="text-accent" />
-                <h3 className="text-[13px] font-semibold text-ink mt-2">{title}</h3>
-                <p className="text-[12px] text-ink-2 mt-1">{body}</p>
-              </div>
-            ))}
-          </div>
         </div>
 
         <div className="card p-6">
@@ -238,7 +220,7 @@ export default function Onboarding() {
                   </button>
                 ) : (
                   <button type="submit" disabled={loading} className="btn btn-primary btn-md">
-                    {loading ? 'Creating...' : 'Create company'} <ArrowRight size={14} />
+                    {loading ? 'Creating...' : 'Create business'} <ArrowRight size={14} />
                   </button>
                 )}
               </div>

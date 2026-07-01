@@ -70,7 +70,7 @@ function findSection(pathname: string) {
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const loc = useLocation();
   const section = useMemo(() => findSection(loc.pathname), [loc.pathname]);
-  const showSectionNav = section.items.length > 1;
+  const showSectionNav = section.items.length > 1 && loc.pathname !== '/dashboard';
   return (
     <div className="space-y-4">
       {showSectionNav && (

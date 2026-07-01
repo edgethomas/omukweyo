@@ -212,7 +212,7 @@ function UploadSlot({ label, type, src, fallback, color, uploading, onFile }: { 
       <label className="mt-2 inline-flex items-center gap-2 cursor-pointer text-[12px] text-ink-2 hover:text-ink">
         <input
           type="file"
-          accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+          accept="image/png,image/jpeg,image/webp,image/svg+xml"
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];

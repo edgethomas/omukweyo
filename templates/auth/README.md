@@ -4,8 +4,6 @@ These files are the source copy for the Supabase Auth email templates used by Om
 
 The templates use the public logo asset at `{{ .SiteURL }}/omukweyo-email-logo.svg`. Keep `apps/web/public/omukweyo-email-logo.svg` deployed with the static site so hosted Supabase emails can load the brand mark from `https://omukweyo.com/omukweyo-email-logo.svg`.
 
-The same files are mirrored to `templates/auth` because Supabase CLI on Windows validates `content_path` from the repository root for some commands and from the `supabase` folder for others.
-
 Apply these in Supabase Dashboard under Auth > Email Templates:
 
 - Confirm sign up: `confirm-signup.html`

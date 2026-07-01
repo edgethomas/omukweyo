@@ -103,7 +103,8 @@ export default function AccountMenu({ to = '/customer/profile', name, summary, a
             <SettingsIcon size={14} />
             Settings
           </Link>
-          <button type="button" role="menuitem" onClick={signOut} className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[13px] font-medium text-ink-2 hover:bg-surface-2 hover:text-ink">
+          <div className="my-1 h-px bg-line" />
+          <button type="button" role="menuitem" onClick={signOut} className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[13px] font-semibold text-red-600 hover:bg-red-50 hover:text-red-700">
             <LogOut size={14} />
             Sign out
           </button>
