@@ -1,7 +1,7 @@
 import { ElementType, ReactNode, useMemo, useState } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import {
-  LayoutDashboard, ScanLine, Headphones, Code2, Settings, LogOut, Bell, User, UserCheck, Shield,
+  LayoutDashboard, ScanLine, Headphones, Code2, Settings, Bell, User, UserCheck, Shield,
   CalendarClock, Building2, Tv, Tablet, ListOrdered, IdCard, CreditCard, Palette, QrCode,
   Users, Hash, HelpCircle,
 } from 'lucide-react';
@@ -46,6 +46,7 @@ function roleNavGroups(_publicPagePath: string): Record<Role, NavGroup[]> {
         { to: '/dashboard/queues', label: 'Live queues', icon: ListOrdered },
         { to: '/dashboard/customers', label: 'Customers', icon: Users },
         { to: '/staff', label: 'Staff console', icon: Headphones },
+        { to: '/staff/tv', label: 'Waiting room TV', icon: Tv },
       ],
     },
     {
@@ -70,7 +71,6 @@ function roleNavGroups(_publicPagePath: string): Record<Role, NavGroup[]> {
     {
       label: 'Account',
       items: [
-        { to: '/dashboard/profile', label: 'My profile', icon: IdCard },
         { to: '/contact', label: 'Help', icon: HelpCircle },
       ],
     },
@@ -83,6 +83,7 @@ function roleNavGroups(_publicPagePath: string): Record<Role, NavGroup[]> {
         { to: '/dashboard/queues', label: 'Live queues', icon: ListOrdered },
         { to: '/dashboard/customers', label: 'Customers', icon: Users },
         { to: '/staff', label: 'Staff console', icon: Headphones },
+        { to: '/staff/tv', label: 'Waiting room TV', icon: Tv },
       ],
     },
     {
@@ -107,7 +108,6 @@ function roleNavGroups(_publicPagePath: string): Record<Role, NavGroup[]> {
     {
       label: 'Account',
       items: [
-        { to: '/dashboard/profile', label: 'My profile', icon: IdCard },
         { to: '/contact', label: 'Help', icon: HelpCircle },
       ],
     },
@@ -125,7 +125,6 @@ function roleNavGroups(_publicPagePath: string): Record<Role, NavGroup[]> {
     {
       label: 'Account',
       items: [
-        { to: '/staff/profile', label: 'My profile', icon: IdCard },
         { to: '/staff/settings', label: 'Settings', icon: Settings },
       ],
     },
@@ -135,7 +134,6 @@ function roleNavGroups(_publicPagePath: string): Record<Role, NavGroup[]> {
       label: 'Runner',
       items: [
         { to: '/runner/work', label: 'Runner workbench', icon: UserCheck },
-        { to: '/runner/profile', label: 'Runner profile', icon: User },
         { to: '/runner/settings', label: 'Settings', icon: Settings },
       ],
     },
@@ -151,12 +149,6 @@ function roleNavGroups(_publicPagePath: string): Record<Role, NavGroup[]> {
         { to: '/admin/support', label: 'Support', icon: Headphones },
         { to: '/admin/audit-logs', label: 'Audit logs', icon: Shield },
         { to: '/admin/settings', label: 'Platform settings', icon: Settings },
-      ],
-    },
-    {
-      label: 'Account',
-      items: [
-        { to: '/admin/profile', label: 'My profile', icon: IdCard },
       ],
     },
   ],
@@ -280,15 +272,6 @@ export default function AppShell({ children, title, subtitle, actions }: { child
               <div className="text-[13px] font-medium text-ink truncate">{identity.name}</div>
               <div className="text-[11px] text-ink-3 truncate">{identity.email}</div>
             </div>
-          </Link>
-          <Link
-            to="/login"
-            onClick={() => localStorage.removeItem(SESSION_KEY)}
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-red-600 hover:bg-red-50 hover:text-red-700"
-            aria-label="Sign out"
-            title="Sign out"
-          >
-            <LogOut size={15} />
           </Link>
         </div>
       </aside>

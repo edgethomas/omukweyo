@@ -6,7 +6,7 @@ import type { Branch, Company, QueueTicket, Service } from '@inline/shared';
 import { api } from '@/lib/api';
 import { useQueueEvents } from '@/lib/useQueueEvents';
 import { cn } from '@/lib/utils';
-import { img } from '@/lib/images';
+import { storeHeroForIndustry } from '@/lib/images';
 import BusinessQr from '@/components/BusinessQr';
 
 type CompanyPayload = {
@@ -99,7 +99,7 @@ export default function CompanyPublic() {
   }
 
   const { company } = data;
-  const hero = company.heroImageUrl || img.inlineCustomerHero;
+  const hero = storeHeroForIndustry(company);
   const publicPath = `/c/${company.slug}${branch ? `/${branch.slug}` : ''}`;
   const reservePath = `/reserve?company=${encodeURIComponent(company.slug)}&branch=${encodeURIComponent(branch.slug)}`;
   const selectedService = services.find((service) => service.id === activeService);

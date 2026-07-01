@@ -4,22 +4,15 @@ import type { ElementType, FormEvent, ReactNode } from 'react';
 import {
   ArrowRight,
   BarChart3,
-  Building2,
   CalendarClock,
   Check,
   Clock3,
-  Code2,
   Headphones,
-  MapPin,
   MessageSquare,
-  QrCode,
   Search,
-  Shield,
   Smartphone,
   Ticket,
-  User,
   UserCheck,
-  Wallet,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { img } from '@/lib/images';
@@ -28,10 +21,8 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <RolePathways />
       <HowItWorks />
       <ProductShowcase />
-      <BusinessProof />
       <PricingTeaser />
       <FinalCTA />
     </>
@@ -194,71 +185,6 @@ function HeroVisual() {
   );
 }
 
-function RolePathways() {
-  const roles = [
-    {
-      icon: User,
-      title: 'Customers',
-      body: 'Create an account, reserve an arrival window, join live queues, and track tickets.',
-      to: '/customer/signup',
-      cta: 'Create customer account',
-    },
-    {
-      icon: Building2,
-      title: 'Business owners',
-      body: 'Set up branches, services, public pages, embeds, billing, and operating rules.',
-      to: '/onboarding',
-      cta: 'Sign up business',
-    },
-    {
-      icon: BarChart3,
-      title: 'Managers',
-      body: 'Watch wait time, branch load, staff performance, SMS spend, and daily demand.',
-      to: '/dashboard',
-      cta: 'Open admin console',
-    },
-    {
-      icon: Headphones,
-      title: 'Staff operators',
-      body: 'Call next, mark served or missed, hold tickets, and keep the counter moving.',
-      to: '/staff',
-      cta: 'Open staff console',
-    },
-    {
-      icon: UserCheck,
-      title: 'Queue runners',
-      body: 'Apply, accept allowed public-line jobs, send proof updates, and track payout.',
-      to: '/runner/signup',
-      cta: 'Apply as runner',
-    },
-    {
-      icon: Shield,
-      title: 'Platform admins',
-      body: 'Monitor role coverage, reservations, runner applications, and network health.',
-      to: '/admin',
-      cta: 'Open admin overview',
-    },
-  ];
-
-  return (
-    <section className="py-16 md:py-20">
-      <div className="container-x">
-        <div className="max-w-2xl mb-8">
-          <h2 className="t-h1">A workspace for every role.</h2>
-          <p className="t-body mt-3">
-            Customers, staff, runners, managers, and platform admins each get a focused path for the work they need to do.
-          </p>
-        </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-line border border-line rounded-lg overflow-hidden">
-          {roles.map((role) => (
-            <RoleCard key={role.title} {...role} />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function HowItWorks() {
   const steps = [
     {
@@ -347,60 +273,6 @@ function ProductShowcase() {
   );
 }
 
-function BusinessProof() {
-  const useCases = [
-    { icon: Building2, title: 'Banks and branches', body: 'Multi-counter queues, branch comparisons, and customer SMS updates.' },
-    { icon: QrCode, title: 'Clinics and offices', body: 'People queue from home instead of crowding the reception area.' },
-    { icon: Code2, title: 'Websites and portals', body: 'Embed the queue into an existing site without rebuilding the business flow.' },
-    { icon: MapPin, title: 'Public places', body: 'Runner jobs extend coverage where Omukweyo is not installed yet.' },
-  ];
-  const photoStories = [
-    { title: 'Customer waiting room', label: 'Reserved arrival windows', image: img.inlineReservationFlow },
-    { title: 'Business operations', label: 'Admin-first queue control', image: img.inlineOperationsDashboard },
-    { title: 'Runner handoff', label: 'Public-line coverage', image: img.inlineRunnerWorkflow },
-  ];
-
-  return (
-    <section className="py-16 md:py-20 bg-surface border-y border-line">
-      <div className="container-x">
-        <div className="grid lg:grid-cols-[420px_1fr] gap-8 items-start">
-          <div>
-            <h2 className="t-h1">Queues should protect time on both sides.</h2>
-            <p className="t-body mt-3">
-              Customers know when to arrive. Businesses keep the waiting room calmer, the counter moving, and every queue action recorded.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-2">
-              <Link to="/reserve" className="btn btn-primary btn-md">Reserve an arrival window</Link>
-              <Link to="/contact" className="btn btn-outline btn-md">Book a walkthrough</Link>
-            </div>
-          </div>
-          <div className="grid sm:grid-cols-2 gap-px bg-line border border-line rounded-lg overflow-hidden">
-            {useCases.map((item) => (
-              <div key={item.title} className="bg-surface p-5">
-                <item.icon size={18} className="text-accent" />
-                <h3 className="mt-3 text-[14px] font-semibold text-ink">{item.title}</h3>
-                <p className="mt-1.5 text-[12px] text-ink-2 leading-relaxed">{item.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="mt-8 grid md:grid-cols-3 gap-4">
-          {photoStories.map((story) => (
-            <div key={story.title} className="relative min-h-52 rounded-xl overflow-hidden border border-line bg-ink group">
-              <img src={story.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-85 transition-transform duration-500 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-                <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-white/70">{story.label}</div>
-                <h3 className="text-[19px] font-semibold mt-1">{story.title}</h3>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function PricingTeaser() {
   const plans = [
     { name: 'Customer reservation', price: 'N$35', sub: 'per reserved arrival window', href: '/reserve', cta: 'Reserve window' },
@@ -458,19 +330,6 @@ function FinalCTA() {
         </div>
       </div>
     </section>
-  );
-}
-
-function RoleCard({ icon: Icon, title, body, to, cta }: { icon: ElementType; title: string; body: string; to: string; cta: string }) {
-  return (
-    <Link to={to} className="bg-surface p-5 hover:bg-surface-2 transition-colors">
-      <Icon size={18} className="text-accent" />
-      <h3 className="mt-3 text-[14px] font-semibold text-ink">{title}</h3>
-      <p className="mt-1.5 text-[12px] text-ink-2 leading-relaxed">{body}</p>
-      <div className="mt-4 text-[12px] font-medium text-accent inline-flex items-center gap-1">
-        {cta} <ArrowRight size={13} />
-      </div>
-    </Link>
   );
 }
 

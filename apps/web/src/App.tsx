@@ -117,7 +117,7 @@ const productRoutes = [
   '/runner/settings',
 ];
 const productPrefixes = ['/ticket', '/reservation', '/staff/ticket', '/runner/request', '/runner/jobs'];
-const sessionAwarePublicRoutes = ['/businesses', '/reserve', '/contact', '/onboarding', '/runner/signup', '/customer/signup', '/join'];
+const sessionAwarePublicRoutes = ['/businesses', '/reserve', '/contact', '/join'];
 const sessionAwarePublicPrefixes = ['/reservation/'];
 const allRoles: Role[] = ['CUSTOMER', 'COMPANY_OWNER', 'COMPANY_MANAGER', 'STAFF', 'RUNNER', 'SUPER_ADMIN'];
 const SESSION_KEY = 'omukweyo_session';
@@ -314,9 +314,6 @@ function Router() {
         <Route path="/reserve" element={<RequireAuth allowedRoles={allRoles}><ProductPageWrapper title="Reserve arrival window" subtitle="Protect an arrival window from your account"><ReserveTicket /></ProductPageWrapper></RequireAuth>} />
         <Route path="/reservation/:id" element={<RequireAuth allowedRoles={allRoles}><ProductPageWrapper title="Reservation status" subtitle="Payment state, smart booking time, and live ticket handoff"><ReservationStatus /></ProductPageWrapper></RequireAuth>} />
         <Route path="/contact" element={<RequireAuth allowedRoles={allRoles}><ProductPageWrapper title="Help" subtitle="Contact support without leaving the app"><Contact /></ProductPageWrapper></RequireAuth>} />
-        <Route path="/onboarding" element={<RequireAuth allowedRoles={allRoles}><ProductPageWrapper title="Business onboarding" subtitle="Set up a company, branch, services, and operating defaults"><Onboarding /></ProductPageWrapper></RequireAuth>} />
-        <Route path="/runner/signup" element={<RequireAuth allowedRoles={allRoles}><ProductPageWrapper title="Runner profile" subtitle="Apply or update public-line runner details"><RunnerSignup /></ProductPageWrapper></RequireAuth>} />
-        <Route path="/customer/signup" element={<RequireAuth allowedRoles={allRoles}><ProductPageWrapper title="Customer account" subtitle="Create or update customer queue details"><CustomerSignup /></ProductPageWrapper></RequireAuth>} />
       </Routes>
     );
   }

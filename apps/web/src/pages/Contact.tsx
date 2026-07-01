@@ -1,19 +1,22 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Mail, Phone, Clock } from 'lucide-react';
+import type { ElementType, InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react';
+import { Clock, Mail, MapPin, Phone } from 'lucide-react';
 
 export default function Contact() {
   return (
     <div className="container-x py-12">
-      <h1 className="t-h1 text-balance max-w-3xl">Book a walkthrough for your queue.</h1>
-      <p className="t-body mt-3 max-w-2xl">In 30 minutes, we can map Omukweyo to your branches, services, and customer flow, then show exactly how the queue would run.</p>
+      <h1 className="t-h1 text-balance max-w-3xl">Contact Omukweyo</h1>
+      <p className="t-body mt-3 max-w-2xl">
+        Ask a general question, get help with an existing account, talk through pricing, or book a walkthrough for a business queue.
+      </p>
 
       <div className="mt-8 grid md:grid-cols-5 gap-6">
         <div className="md:col-span-2 space-y-2.5">
-          <Info icon={MapPin} title="Headquarters" body={<>Edge Work HQ · 3rd Floor, Maerua Mall Tower<br/>Windhoek, Namibia</>} />
-          <Info icon={Mail} title="Email" body={<>hello@omukweyo.com<br/>sales@omukweyo.com</>} />
-          <Info icon={Phone} title="Phone" body={<>+264 81 432 1100<br/>Mon-Fri 8am-5pm WAT</>} />
-          <Info icon={Clock} title="Response time" body={<>Free: 48h · Starter: 24h<br/>Business: 8h · Enterprise: 1h SLA</>} />
+          <Info icon={MapPin} title="Headquarters" body={<>Edge Work HQ, 3rd Floor, Maerua Mall Tower<br />Windhoek, Namibia</>} />
+          <Info icon={Mail} title="Email" body={<>hello@omukweyo.com<br />sales@omukweyo.com</>} />
+          <Info icon={Phone} title="Phone" body={<>+264 81 432 1100<br />Mon-Fri 8am-5pm WAT</>} />
+          <Info icon={Clock} title="Response time" body={<>Free: 48h, Starter: 24h<br />Business: 8h, Enterprise: 1h SLA</>} />
         </div>
         <div className="md:col-span-3">
           <ContactForm />
@@ -23,7 +26,7 @@ export default function Contact() {
   );
 }
 
-function Info({ icon: Icon, title, body }: { icon: any; title: string; body: React.ReactNode }) {
+function Info({ icon: Icon, title, body }: { icon: ElementType; title: string; body: ReactNode }) {
   return (
     <div className="card p-4 flex items-start gap-3">
       <div className="h-8 w-8 border border-line grid place-items-center text-ink-2 shrink-0 rounded-md">
@@ -39,35 +42,37 @@ function Info({ icon: Icon, title, body }: { icon: any; title: string; body: Rea
 
 function ContactForm() {
   const [submitted, setSubmitted] = useState(false);
+
   return (
     <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }} className="card p-5">
       {submitted ? (
         <div className="py-10 text-center">
           <div className="t-eyebrow mb-2 text-emerald-700">Received</div>
-          <h3 className="text-[18px] font-semibold text-ink">Thanks — we'll be in touch.</h3>
-          <p className="text-[12px] text-ink-2 mt-1.5">Expect a reply within one business day with time options.</p>
+          <h3 className="text-[18px] font-semibold text-ink">Thanks - we'll be in touch.</h3>
+          <p className="text-[12px] text-ink-2 mt-1.5">Expect a reply within one business day. Urgent business support uses your plan response time.</p>
           <button type="button" onClick={() => setSubmitted(false)} className="btn btn-outline btn-sm mt-5">Send another</button>
         </div>
       ) : (
         <>
-          <h3 className="text-[15px] font-semibold text-ink">Book a walkthrough</h3>
-          <p className="text-[12px] text-ink-3 mb-4">Free, focused, and based on your real queue.</p>
+          <h3 className="text-[15px] font-semibold text-ink">Send a message</h3>
+          <p className="text-[12px] text-ink-3 mb-4">Choose the reason first so the right person can reply.</p>
           <div className="grid sm:grid-cols-2 gap-3">
+            <Select label="What can we help with?" options={['Book a walkthrough', 'General question', 'Support query', 'Billing or pricing', 'Partnership']} required />
             <Field label="Full name" placeholder="Your name" required />
             <Field label="Work email" type="email" placeholder="you@company.com" required />
-            <Field label="Company" placeholder="e.g. City Service Center" required />
-            <Select label="Industry" options={['Banking & financial services','Healthcare & clinic','Government office','Salon & spa','School & university','Restaurant & food','Telco & retail','Other']} required />
+            <Field label="Company or account" placeholder="e.g. City Service Center" />
+            <Select label="Industry" options={['Banking & financial services', 'Healthcare & clinic', 'Government office', 'Salon & spa', 'School & university', 'Restaurant & food', 'Telco & retail', 'Other']} required />
             <Field label="Number of branches" type="number" min={1} placeholder="1" />
           </div>
           <div className="mt-3">
-            <label className="label">Tell us about your queue (optional)</label>
-            <textarea rows={3} placeholder="e.g. 200 customers/day, paper list, no SMS today…" className="input min-h-[80px] py-2" />
+            <label className="label">Message</label>
+            <textarea rows={3} placeholder="Tell us what you need help with." className="input min-h-[80px] py-2" />
           </div>
           <label className="flex items-start gap-2 mt-4 text-[12px] text-ink-2">
             <input type="checkbox" required className="mt-0.5" />
             <span>I agree to Omukweyo's <Link to="/privacy" className="text-accent hover:underline">privacy policy</Link> and consent to be contacted.</span>
           </label>
-          <button type="submit" className="btn btn-primary btn-lg w-full mt-4">Book walkthrough</button>
+          <button type="submit" className="btn btn-primary btn-lg w-full mt-4">Send message</button>
           <div className="text-center t-eyebrow text-[9px] my-3">or</div>
           <Link to="/onboarding" className="btn btn-outline btn-lg w-full">Start free</Link>
         </>
@@ -76,7 +81,7 @@ function ContactForm() {
   );
 }
 
-function Field({ label, ...rest }: any) {
+function Field({ label, ...rest }: InputHTMLAttributes<HTMLInputElement> & { label: string }) {
   return (
     <label className="block">
       <span className="label">{label}</span>
@@ -85,13 +90,13 @@ function Field({ label, ...rest }: any) {
   );
 }
 
-function Select({ label, options, ...rest }: any) {
+function Select({ label, options, ...rest }: SelectHTMLAttributes<HTMLSelectElement> & { label: string; options: string[] }) {
   return (
     <label className="block">
       <span className="label">{label}</span>
       <select {...rest} className="select">
-        <option value="">Choose one…</option>
-        {options.map((o: string) => <option key={o} value={o}>{o}</option>)}
+        <option value="">Choose one...</option>
+        {options.map((option) => <option key={option} value={option}>{option}</option>)}
       </select>
     </label>
   );

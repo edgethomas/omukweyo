@@ -271,7 +271,7 @@ test('demo sessions drive role-specific app shell navigation and identity', () =
   assert.match(loginSource, /localStorage\.setItem\(SESSION_KEY/);
 });
 
-test('logged-in customer utility routes stay inside the product shell', () => {
+test('logged-in customer utility routes stay inside the product shell without swallowing signup pages', () => {
   const appSource = readFileSync(appFile, 'utf8');
   const shellSource = readFileSync(path.join(root, 'components', 'AppShell.tsx'), 'utf8');
   const customerShellPath = path.join(root, 'components', 'CustomerShell.tsx');
@@ -288,8 +288,15 @@ test('logged-in customer utility routes stay inside the product shell', () => {
   assert.match(appSource, /path="\/c\/:companySlug" element=\{<CompanyPublic \/>}/);
   assert.doesNotMatch(appSource, /ProductPageWrapper title="Public queue page"/);
   assert.match(appSource, /path="\/contact" element=\{<RequireAuth allowedRoles=\{allRoles\}><ProductPageWrapper title="Help"/);
-  assert.match(appSource, /path="\/onboarding" element=\{<RequireAuth allowedRoles=\{allRoles\}><ProductPageWrapper title="Business onboarding"/);
-  assert.match(appSource, /path="\/runner\/signup" element=\{<RequireAuth allowedRoles=\{allRoles\}><ProductPageWrapper title="Runner profile"/);
+  assert.doesNotMatch(appSource, /path="\/onboarding" element=\{<RequireAuth allowedRoles=\{allRoles\}><ProductPageWrapper/);
+  assert.doesNotMatch(appSource, /path="\/runner\/signup" element=\{<RequireAuth allowedRoles=\{allRoles\}><ProductPageWrapper/);
+  assert.doesNotMatch(appSource, /path="\/customer\/signup" element=\{<RequireAuth allowedRoles=\{allRoles\}><ProductPageWrapper/);
+  assert.doesNotMatch(appSource, /const sessionAwarePublicRoutes = \[[^\]]*'\/onboarding'[^\]]*\]/s);
+  assert.doesNotMatch(appSource, /const sessionAwarePublicRoutes = \[[^\]]*'\/runner\/signup'[^\]]*\]/s);
+  assert.doesNotMatch(appSource, /const sessionAwarePublicRoutes = \[[^\]]*'\/customer\/signup'[^\]]*\]/s);
+  assert.match(appSource, /<Route path="\/onboarding" element=\{<Onboarding \/>}/);
+  assert.match(appSource, /<Route path="\/customer\/signup" element=\{<CustomerSignup \/>}/);
+  assert.match(appSource, /<Route path="\/runner\/signup" element=\{<RunnerSignup \/>}/);
   assert.match(appSource, /path="\/customer\/profile" element=\{<RequireAuth allowedRoles=\{\['CUSTOMER', 'SUPER_ADMIN'\]\}><ProductPageWrapper title="Profile"/);
   assert.match(appSource, /path="\/staff\/profile" element=\{<RequireAuth allowedRoles=\{\['COMPANY_OWNER', 'COMPANY_MANAGER', 'STAFF'\]\}><ProductPageWrapper title="Staff profile"/);
   assert.match(appSource, /path="\/staff\/settings" element=\{<RequireAuth allowedRoles=\{\['COMPANY_OWNER', 'COMPANY_MANAGER', 'STAFF'\]\}><ProductPageWrapper title="Staff settings"/);
@@ -389,10 +396,11 @@ test('sign-out actions have a clear destructive affordance', () => {
   const userProfileSource = readFileSync(path.join(root, 'features', 'profile', 'UserProfilePage.tsx'), 'utf8');
   const customerProfileSource = readFileSync(path.join(root, 'pages', 'CustomerProfile.tsx'), 'utf8');
 
-  for (const source of [accountMenuSource, shellSource, userProfileSource, customerProfileSource]) {
+  for (const source of [accountMenuSource, userProfileSource, customerProfileSource]) {
     assert.match(source, /text-red-600/);
   }
-  assert.match(shellSource, /aria-label="Sign out"/);
+  assert.doesNotMatch(shellSource, /aria-label="Sign out"/);
+  assert.doesNotMatch(shellSource, /localStorage\.removeItem\(SESSION_KEY\)/);
 });
 
 test('auth email templates center their primary action buttons', () => {
@@ -528,16 +536,59 @@ test('every role has a profile page and role-aware settings', () => {
   assert.match(apiSource, /uploadMyAvatar/);
   assert.match(apiSource, /deleteMyAccount/);
 
-  // AppShell sidebar nav has a Profile entry per role
-  assert.match(shellSource, /label: 'My profile'/);
-  assert.match(shellSource, /to: '\/staff\/profile'/);
-  assert.match(shellSource, /to: '\/dashboard\/profile'/);
-  assert.match(shellSource, /to: '\/admin\/profile'/);
+  // AppShell identity footer owns profile access; sidebar nav should not duplicate it.
+  assert.doesNotMatch(shellSource, /label: 'My profile'/);
+  assert.match(shellSource, /title="Open my profile"/);
+  assert.match(shellSource, /const profilePath = currentRole === 'COMPANY_OWNER'/);
   assert.match(shellSource, /to: '\/staff\/settings'/);
   assert.match(shellSource, /to: '\/runner\/settings'/);
 
   // Mobile bottom nav always exposes Profile
   assert.match(shellSource, /label: 'Profile'/);
+  assert.doesNotMatch(profilePageSource, /Open settings|Need more options|SettingsIcon/);
+});
+
+test('store page makes storefront media and waiting-room TV obvious', () => {
+  const shellSource = readFileSync(path.join(root, 'components', 'AppShell.tsx'), 'utf8');
+  const brandingSource = readFileSync(path.join(root, 'features', 'business-admin', 'BrandingPage.tsx'), 'utf8');
+  const publicSource = readFileSync(path.join(root, 'pages', 'CompanyPublic.tsx'), 'utf8');
+  const directorySource = readFileSync(path.join(root, 'pages', 'BusinessDirectory.tsx'), 'utf8');
+  const imageSource = readFileSync(path.join(root, 'lib', 'images.ts'), 'utf8');
+
+  assert.match(shellSource, /to: '\/staff\/tv', label: 'Waiting room TV'/);
+  assert.match(brandingSource, /Open TV display/);
+  assert.match(brandingSource, /to="\/staff\/tv"/);
+  assert.match(brandingSource, /Storefront image/);
+  assert.match(brandingSource, /Upload storefront image/);
+  assert.match(imageSource, /storeHeroForIndustry/);
+  assert.match(publicSource, /storeHeroForIndustry\(company\)/);
+  assert.match(directorySource, /storeHeroForIndustry\(business\)/);
+  assert.doesNotMatch(publicSource, /company\.heroImageUrl \|\| img\.inlineCustomerHero/);
+});
+
+test('login credential panel uses corrected centered heading', () => {
+  const loginSource = readFileSync(path.join(root, 'pages', 'Login.tsx'), 'utf8');
+
+  assert.match(loginSource, /User credentials/);
+  assert.match(loginSource, /justify-center/);
+  assert.doesNotMatch(loginSource, /Use credentials/);
+});
+
+test('public pages stay concise and support both sales and support queries', () => {
+  const homeSource = readFileSync(path.join(root, 'pages', 'Home.tsx'), 'utf8');
+  const contactSource = readFileSync(path.join(root, 'pages', 'Contact.tsx'), 'utf8');
+  const pricingSource = readFileSync(path.join(root, 'pages', 'Pricing.tsx'), 'utf8');
+
+  assert.doesNotMatch(homeSource, /<RolePathways \/>/);
+  assert.doesNotMatch(homeSource, /<BusinessProof \/>/);
+  assert.match(contactSource, /Contact Omukweyo/);
+  assert.match(contactSource, /General question/);
+  assert.match(contactSource, /Support query/);
+  assert.doesNotMatch(contactSource, /Book a walkthrough for your queue/);
+  assert.match(pricingSource, /Fair limits, clear upgrades/);
+  assert.match(pricingSource, /TV display included/);
+  assert.match(pricingSource, /50 tickets \/ month/);
+  assert.doesNotMatch(pricingSource, /Tickets \/ month', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited'/);
 });
 
 test('pre-login pages avoid hardcoded demo company links and excessive repeated imagery', () => {

@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Building2, Clock3, MapPin, Search, Users, X } from 'lucide-react';
 import type { BusinessDirectoryItem } from '@inline/shared';
 import { api } from '@/lib/api';
-import { img } from '@/lib/images';
+import { storeHeroForIndustry } from '@/lib/images';
 
 const CATEGORIES = [
   { id: 'all', label: 'All' },
@@ -150,11 +150,9 @@ function BusinessRow({ business }: { business: BusinessDirectoryItem }) {
         <div className="hidden md:block">
           <div className="aspect-square rounded-md overflow-hidden bg-surface-2 border border-line">
             {business.heroImageUrl || business.logoUrl ? (
-              <img src={business.heroImageUrl || business.logoUrl || img.inlinePublicPage} alt="" className="w-full h-full object-cover" />
+              <img src={business.heroImageUrl || business.logoUrl} alt="" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full grid place-items-center text-[12px] font-semibold text-white" style={{ background: business.primaryColor }}>
-                {business.logoText}
-              </div>
+              <img src={storeHeroForIndustry(business)} alt="" className="w-full h-full object-cover" />
             )}
           </div>
         </div>

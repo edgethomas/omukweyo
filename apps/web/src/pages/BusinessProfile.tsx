@@ -21,7 +21,6 @@ export default function BusinessProfile() {
   return (
     <UserProfilePage
       roleLabel={label}
-      settingsPath="/dashboard/settings"
       allowDelete
       emailRequired
       deleteMessage="Removes your personal account. The company, branches, staff, and customer history stay on the company record — only your sign-in is revoked."

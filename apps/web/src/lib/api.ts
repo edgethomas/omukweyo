@@ -647,16 +647,16 @@ async function recalcPositions(branchId: string) {
   const tickets = await many<any>(
     sb.from('QueueTicket').select('*').eq('branchId', branchId).in('status', activeStatuses).order('joinedAt', { ascending: true }),
   );
-  for (let index = 0; index < tickets.length; index += 1) {
+  await Promise.all(tickets.map(async (ticket, index) => {
     const position = index + 1;
     const peopleAhead = index;
     const { error } = await sb.from('QueueTicket').update({
       position,
       peopleAhead,
       estimatedWaitMinutes: Math.max(0, peopleAhead * 8),
-    }).eq('id', tickets[index].id);
+    }).eq('id', ticket.id);
     if (error) throw err(error);
-  }
+  }));
   const waiting = tickets.filter((ticket) => ticket.status === 'WAITING').length;
   const { error } = await sb.from('Branch').update({ liveWaiting: waiting }).eq('id', branchId);
   if (error) throw err(error);

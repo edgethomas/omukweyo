@@ -5,9 +5,9 @@ type CellValue = string | boolean;
 type FeatureRow = [string, CellValue, CellValue, CellValue, CellValue];
 
 const plans = [
-  { n: 'Free', p: 'N$0', sub: '/mo', items: ['1 branch, 1 service, 1 staff', 'Unlimited tickets', 'Basic public page + QR', 'Trial SMS credits', 'Community support'], cta: 'Start free', href: '/onboarding' },
-  { n: 'Starter', p: 'N$399', sub: '/mo', items: ['1 branch, many services, 3 staff', 'QR + iframe embed', 'Basic analytics', 'SMS pay-as-you-go', 'Email support'], cta: 'Choose Starter', href: '/onboarding', hot: true },
-  { n: 'Business', p: 'N$999', sub: '/mo', items: ['Multi-branch operations', 'Custom branding and reservations', 'Advanced analytics and exports', 'Priority queues and SMS bundles', 'Priority support'], cta: 'Choose Business', href: '/contact' },
+  { n: 'Free', p: 'N$0', sub: '/mo', items: ['50 tickets / month', '1 branch, 1 service, 1 staff', 'Public page + QR code', 'TV display included', 'Community support'], cta: 'Start free', href: '/onboarding' },
+  { n: 'Starter', p: 'N$399', sub: '/mo', items: ['1,000 tickets / month', '1 branch, many services, 3 staff', 'QR + iframe embed', 'SMS pay-as-you-go', 'Email support'], cta: 'Choose Starter', href: '/onboarding', hot: true },
+  { n: 'Business', p: 'N$999', sub: '/mo', items: ['Unlimited ticket volume', 'Multi-branch operations', 'Custom branding and reservations', 'Advanced analytics and exports', 'Priority support'], cta: 'Choose Business', href: '/contact' },
   { n: 'Enterprise', p: 'Custom', sub: '', items: ['Unlimited limits and SLA', 'Custom domain and white-label', 'API access and dedicated CSM', 'Invoice billing', 'Custom onboarding'], cta: 'Contact sales', href: '/contact' },
 ];
 
@@ -15,7 +15,7 @@ const features: FeatureRow[] = [
   ['Branches', '1', '1', 'Unlimited', 'Unlimited'],
   ['Services per branch', '1', 'Unlimited', 'Unlimited', 'Unlimited'],
   ['Staff users', '1', '3', '15', 'Unlimited'],
-  ['Tickets / month', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited'],
+  ['Tickets / month', '50', '1,000', 'Unlimited', 'Unlimited'],
   ['Public company page', true, true, true, true],
   ['QR code generator', true, true, true, true],
   ['Iframe embed', false, true, true, true],
@@ -24,7 +24,7 @@ const features: FeatureRow[] = [
   ['Custom domain', false, false, false, true],
   ['Analytics and exports', 'Basic', 'Basic', 'Advanced', 'Advanced + API'],
   ['Reservations', false, false, true, true],
-  ['TV mode + kiosk', false, false, true, true],
+  ['TV mode + kiosk', 'TV display included', true, true, true],
   ['API access', false, false, 'Paid add-on', true],
   ['SLA + dedicated CSM', false, false, false, true],
   ['Support', 'Community', 'Email', 'Priority', '24/7 phone'],
@@ -40,8 +40,10 @@ export default function Pricing() {
   return (
     <div className="container-x py-12 space-y-10">
       <header>
-        <h1 className="t-h1 text-balance max-w-3xl">Plans that match your queue volume.</h1>
-        <p className="t-body mt-3 max-w-2xl">Start with one branch, then add capacity when you need more staff, analytics, reservations, or SMS volume.</p>
+        <h1 className="t-h1 text-balance max-w-3xl">Fair limits, clear upgrades.</h1>
+        <p className="t-body mt-3 max-w-2xl">
+          Start with a real free plan, then pay when your queue needs more ticket volume, staff seats, branches, reservations, SMS volume, or support speed.
+        </p>
       </header>
 
       <section>

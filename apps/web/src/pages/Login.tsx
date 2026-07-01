@@ -226,9 +226,9 @@ export default function Login() {
           </div>
 
           <form onSubmit={submitLogin} className="rounded-xl border border-line bg-surface p-4 shadow-sm sm:p-5">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center justify-center gap-2 mb-4 text-center">
               <LogIn size={16} className="text-accent" />
-              <h2 className="text-[16px] font-semibold text-ink">Use credentials</h2>
+              <h2 className="text-[16px] font-semibold text-ink">User credentials</h2>
             </div>
             <label className="block">
               <span className="label">Email</span>

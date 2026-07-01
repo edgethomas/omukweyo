@@ -55,4 +55,57 @@ test.describe('Supabase direct runtime', () => {
       expect(errors, `console errors for ${role}: ${errors.join('\n')}`).toEqual([]);
     });
   }
+
+  test('session-aware polish routes stay clear inside a business session', async ({ page }) => {
+    const errors = attachConsole(page);
+    await loginAs(page, 'Business owner');
+
+    await page.goto('/customer/signup', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: 'Create customer account' })).toBeVisible();
+    await expect(page.locator('.app-sidebar')).toHaveCount(0);
+
+    await page.goto('/dashboard/branding', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: 'Store page' })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Open TV display/i })).toBeVisible();
+    await expect(page.getByLabel('Upload storefront image')).toHaveCount(1);
+    await expect(page.getByRole('link', { name: /Open TV display/i })).toHaveAttribute('href', '/staff/tv');
+
+    await page.goto('/dashboard/profile', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('button', { name: /Sign out/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Settings/i })).toHaveCount(0);
+    await expect(page.getByText(/Need more options/i)).toHaveCount(0);
+
+    await page.goto('/login', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: 'User credentials' })).toBeVisible();
+    expect(errors, `console errors for polish routes: ${errors.join('\n')}`).toEqual([]);
+  });
+
+  test('public ticket can be served from the staff ticket detail workflow', async ({ page }) => {
+    const errors = attachConsole(page);
+    const customerName = `E2E Visitor ${Date.now()}`;
+    const phone = `+264811${String(Date.now()).slice(-6)}`;
+
+    await page.goto('/c/bank-windhoek', { waitUntil: 'domcontentloaded' });
+    await page.getByRole('button', { name: /^Join queue$/ }).click();
+    await page.getByLabel('Your name').fill(customerName);
+    await page.getByLabel('Phone for SMS updates').fill(phone);
+    await page.getByRole('button', { name: /Get my ticket/i }).click();
+    await expect(page.getByText(/Ticket .* created/i)).toBeVisible({ timeout: 15_000 });
+
+    const ticketHref = await page.getByRole('link', { name: /^Open$/ }).getAttribute('href');
+    expect(ticketHref, 'ticket link should point to the created ticket').toMatch(/^\/ticket\/.+/);
+    const ticketId = ticketHref!.replace('/ticket/', '');
+
+    await loginAs(page, 'Staff');
+    await page.goto(`/staff/ticket/${ticketId}`, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByText(customerName)).toBeVisible();
+    await expect(page.locator('.chip-wait').filter({ hasText: 'WAITING' })).toBeVisible();
+
+    await page.getByRole('button', { name: /Start serving/i }).click();
+    await expect(page.locator('.chip-serve').filter({ hasText: 'SERVING' })).toBeVisible({ timeout: 15_000 });
+
+    await page.getByRole('button', { name: /^Served$/i }).click();
+    await expect(page.locator('.chip-done').filter({ hasText: 'SERVED' })).toBeVisible({ timeout: 15_000 });
+    expect(errors, `console errors for ticket serve flow: ${errors.join('\n')}`).toEqual([]);
+  });
 });

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Camera, LogOut, Settings as SettingsIcon, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Camera, LogOut, Trash2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import UserProfileForm, { type UserProfileFormValues } from './UserProfileForm';
 
@@ -25,7 +25,6 @@ type Notice = { kind: 'success' | 'error'; text: string } | null;
 
 type UserProfilePageProps = {
   roleLabel: string;
-  settingsPath?: string;
   allowDelete?: boolean;
   deleteMessage?: string;
   emailOptional?: boolean;
@@ -80,7 +79,6 @@ function sameForm(left: UserProfileFormValues, right: UserProfileFormValues) {
 
 export default function UserProfilePage({
   roleLabel,
-  settingsPath,
   allowDelete = false,
   deleteMessage = 'Removes your account, contact details, session, and photo. Past tickets and history stay as records.',
   emailOptional = false,
@@ -256,12 +254,6 @@ export default function UserProfilePage({
             <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingAvatar || loading} className="btn btn-outline btn-sm sm:btn-md">
               {uploadingAvatar ? 'Uploading...' : 'Edit photo'}
             </button>
-            {settingsPath && (
-              <Link to={settingsPath} className="btn btn-outline btn-sm sm:btn-md">
-                <SettingsIcon size={14} />
-                Settings
-              </Link>
-            )}
             <button type="button" onClick={signOut} className="btn btn-outline btn-sm border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 sm:btn-md">
               <LogOut size={14} />
               Sign out
@@ -316,23 +308,6 @@ export default function UserProfilePage({
           )}
         </div>
       </form>
-
-      {settingsPath && (
-        <section className="card p-5">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-[15px] font-semibold text-ink">Need more options?</h2>
-              <p className="mt-1 max-w-2xl text-[13px] text-ink-2">
-                Change your password, two-factor, notification preferences, or delete your account from Settings.
-              </p>
-            </div>
-            <Link to={settingsPath} className="btn btn-primary btn-md">
-              <SettingsIcon size={14} />
-              Open settings
-            </Link>
-          </div>
-        </section>
-      )}
 
       {allowDelete && (
         <section className="card border-red-200 p-4">

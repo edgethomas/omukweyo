@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Camera, LogOut, Settings } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Camera, LogOut } from 'lucide-react';
 import CustomerProfileForm, { type CustomerProfileFormValues, type ReceiptPreference } from '@/features/customer/CustomerProfileForm';
 import { api } from '@/lib/api';
 
@@ -310,10 +310,6 @@ export default function CustomerProfile() {
             <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingAvatar || loading} className="btn btn-outline btn-md">
               {uploadingAvatar ? 'Uploading...' : 'Edit photo'}
             </button>
-            <Link to="/customer/settings" className="btn btn-outline btn-md">
-              <Settings size={14} />
-              Settings
-            </Link>
             <button type="button" onClick={signOut} className="btn btn-outline btn-md border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700">
               <LogOut size={14} />
               Sign out
@@ -368,19 +364,6 @@ export default function CustomerProfile() {
           )}
         </div>
       </form>
-
-      <section className="card p-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-[15px] font-semibold text-ink">Need more options?</h2>
-            <p className="mt-1 max-w-2xl text-[13px] text-ink-2">Change your password, payment method, notification preferences, or delete your account from Settings.</p>
-          </div>
-          <Link to="/customer/settings" className="btn btn-primary btn-md">
-            <Settings size={14} />
-            Open settings
-          </Link>
-        </div>
-      </section>
     </div>
   );
 }

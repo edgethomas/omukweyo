@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ExternalLink, Palette, Save, RefreshCw } from 'lucide-react';
+import { ExternalLink, Palette, Save, RefreshCw, Tv } from 'lucide-react';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import DashboardLayout from './DashboardLayout';
@@ -42,7 +42,7 @@ export default function BrandingPage() {
       const { company: updated } = await api.businessUploadAsset(file, type);
       setCompany(updated);
       setForm((f) => f ? { ...f, logoUrl: updated.logoUrl ?? f.logoUrl, heroImageUrl: updated.heroImageUrl ?? f.heroImageUrl } : f);
-      setNotice({ kind: 'ok', text: `${type === 'logo' ? 'Logo' : 'Hero image'} updated.` });
+      setNotice({ kind: 'ok', text: `${type === 'logo' ? 'Logo' : 'Storefront image'} updated.` });
     } catch (err: any) {
       setNotice({ kind: 'err', text: err.message });
     } finally {
@@ -84,11 +84,16 @@ export default function BrandingPage() {
         <div className="flex items-center justify-between gap-2">
           <div>
             <h2 className="text-[18px] font-semibold text-ink">Store page</h2>
-            <p className="text-[12px] text-ink-3 mt-0.5">Edit what customers see on your public booking page</p>
+            <p className="text-[12px] text-ink-3 mt-0.5">Upload storefront media, edit public page details, and open the live TV display.</p>
           </div>
-          <Link to={`/c/${company.slug}`} className="btn btn-outline btn-sm">
-            <ExternalLink size={13} /> View page
-          </Link>
+          <div className="flex flex-wrap justify-end gap-2">
+            <Link to="/staff/tv" className="btn btn-primary btn-sm">
+              <Tv size={13} /> Open TV display
+            </Link>
+            <Link to={`/c/${company.slug}`} className="btn btn-outline btn-sm">
+              <ExternalLink size={13} /> Open public page
+            </Link>
+          </div>
         </div>
 
         {notice && (
@@ -99,9 +104,11 @@ export default function BrandingPage() {
 
         <section className="card p-5">
           <h3 className="text-[14px] font-semibold text-ink">Page media</h3>
+          <p className="mt-1 text-[12px] text-ink-2">The storefront image is used on the public store page and directory. Upload your own photo so your business does not share a generic fallback.</p>
           <div className="mt-3 grid md:grid-cols-2 gap-4">
             <UploadSlot
               label="Logo"
+              uploadLabel="Upload logo"
               type="logo"
               src={company.logoUrl}
               fallback={company.logoText}
@@ -110,10 +117,11 @@ export default function BrandingPage() {
               onFile={(file) => onUpload('logo', file)}
             />
             <UploadSlot
-              label="Hero image"
+              label="Storefront image"
+              uploadLabel="Upload storefront image"
               type="hero"
               src={company.heroImageUrl}
-              fallback="Store hero"
+              fallback="Storefront image"
               color={company.primaryColor}
               uploading={uploading === 'hero'}
               onFile={(file) => onUpload('hero', file)}
@@ -196,7 +204,7 @@ function StorePageSkeleton() {
   );
 }
 
-function UploadSlot({ label, type, src, fallback, color, uploading, onFile }: { label: string; type: 'logo' | 'hero'; src?: string; fallback: string; color: string; uploading: boolean; onFile: (file: File) => void }) {
+function UploadSlot({ label, uploadLabel, type, src, fallback, color, uploading, onFile }: { label: string; uploadLabel: string; type: 'logo' | 'hero'; src?: string; fallback: string; color: string; uploading: boolean; onFile: (file: File) => void }) {
   return (
     <div>
       <div className="t-eyebrow text-[10px] mb-1.5">{label}</div>
@@ -214,13 +222,14 @@ function UploadSlot({ label, type, src, fallback, color, uploading, onFile }: { 
           type="file"
           accept="image/png,image/jpeg,image/webp,image/svg+xml"
           className="hidden"
+          aria-label={uploadLabel}
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) onFile(file);
             e.currentTarget.value = '';
           }}
         />
-        <Save size={12} /> {uploading ? 'Uploading...' : `Upload ${label.toLowerCase()}`}
+        <Save size={12} /> {uploading ? 'Uploading...' : uploadLabel}
       </label>
     </div>
   );

@@ -41,3 +41,23 @@ export const img = {
   school: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=900&q=70&auto=format&fit=crop',
   logo: (seed: string) => `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed)}&backgroundColor=F6F1E7&textColor=15110D`,
 };
+
+type StoreHeroInput = {
+  heroImageUrl?: string;
+  industry?: string;
+  name?: string;
+};
+
+export function storeHeroForIndustry(input: StoreHeroInput) {
+  if (input.heroImageUrl) return input.heroImageUrl;
+
+  const haystack = `${input.industry ?? ''} ${input.name ?? ''}`.toLowerCase();
+  if (/bank|finan|atm/.test(haystack)) return img.bankLobby;
+  if (/clinic|doctor|health|pharma|hospital/.test(haystack)) return img.clinicHall;
+  if (/salon|spa|repair|service/.test(haystack)) return img.salonInterior;
+  if (/restaurant|cafe|food/.test(haystack)) return img.restaurant;
+  if (/school|university|college|education/.test(haystack)) return img.school;
+  if (/govern|ministry|municipal/.test(haystack)) return img.government;
+  if (/shop|store|retail/.test(haystack)) return img.storeFront;
+  return img.office;
+}
